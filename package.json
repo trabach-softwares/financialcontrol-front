@@ -4,16 +4,13 @@
   "description": "Sistema de Controle Financeiro para PMEs",
   "private": true,
   "engines": {
-    "node": "18.17.0"
+    "node": "16.x"
   },
   "scripts": {
     "dev": "quasar dev",
-    "build": "npm run build:safe",
-    "build:safe": "npm run clean && npm run compile && npm run prepare:build",
-    "clean": "rm -rf dist",
-    "compile": "quasar build --mode spa",
-    "prepare:build": "node scripts/prepare-build.js",
-    "start": "http-server dist/spa -p $PORT -a 0.0.0.0 -c-1 --proxy http://localhost:$PORT?",
+    "build": "quasar build && node scripts/prepare-build.js",
+    "build:static": "CI=true NODE_OPTIONS='--max-old-space-size=4096' quasar build",
+    "start": "http-server dist/spa -p $PORT -a 0.0.0.0 --proxy http://localhost:$PORT?",
     "preview": "quasar serve dist/spa --port 4173",
     "lint": "eslint --ext .js,.vue ./src",
     "format": "prettier --write \"**/*.{js,vue,css,md,json}\" --ignore-path .gitignore"
