@@ -1,0 +1,134 @@
+/* ==========================================================================
+APP.CSS - ESTILOS GLOBAIS DA APLICAÇÃO
+==========================================================================
+Propósito: Definir estilos globais e customizações do Quasar
+Aplicação: Toda a aplicação via main.js
+Efeitos: Tema personalizado, utility classes, overrides */
+
+/* CSS Variables para cores customizadas */
+:root {
+  --primary: #1976D2;
+  --secondary: #26A69A;
+  --accent: #9C27B0;
+  --dark: #1d1d1d;
+  --positive: #21BA45;
+  --negative: #C10015;
+  --info: #31CCEC;
+  --warning: #F2C037;
+  
+  /* Cores específicas do sistema financeiro */
+  --income: #4CAF50;
+  --expense: #F44336;
+  --balance: #2196F3;
+}
+
+/* Utility classes for financial colors */
+.text-income { color: var(--income) !important; }
+.text-expense { color: var(--expense) !important; }
+.text-balance { color: var(--balance) !important; }
+
+.bg-income { background-color: var(--income) !important; }
+.bg-expense { background-color: var(--expense) !important; }
+.bg-balance { background-color: var(--balance) !important; }
+
+/* Global styles */
+.full-width {
+  width: 100% !important;
+}
+
+.full-height {
+  height: 100% !important;
+}
+
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+.text-decoration-none {
+  text-decoration: none !important;
+}
+
+/* Animation utilities */
+.animate-bounce {
+  animation: bounce 2s infinite;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Shadow utilities */
+.shadow-2 {
+  box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12) !important;
+}
+
+.shadow-4 {
+  box-shadow: 0 2px 4px -1px rgba(0,0,0,0.2), 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12) !important;
+}
+
+/* Opacity utilities */
+.opacity-80 {
+  opacity: 0.8 !important;
+}
+
+/* Responsive utilities */
+@media (max-width: 599px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 600px) {
+  .hide-on-desktop {
+    display: none !important;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

@@ -1,0 +1,772 @@
+<!-- ==========================================================================
+DASHBOARD PAGE - PÁGINA PRINCIPAL DO SISTEMA
+==========================================================================
+Propósito: Visão geral financeira com gráficos e métricas
+Origem: Login bem-sucedido, navegação principal
+Destino: Outras páginas do sistema via sidebar
+Efeitos: Carregamento de estatísticas e dados do usuário -->
+
+<template>
+  <q-page class="dashboard-page">
+    <div class="q-pa-md">
+      
+      <!-- ==========================================================================
+      CABEÇALHO DO DASHBOARD
+      ========================================================================== -->
+      <div class="row q-col-gutter-md q-mb-lg">
+        <div class="col-12">
+          <div class="welcome-section">
+            <h1 class="text-h4 text-grey-8 q-mb-xs">
+              Olá, {{ authStore.userDisplayName }}! 👋
+            </h1>
+            <p class="text-subtitle1 text-grey-6">
+              Aqui está um resumo das suas finanças
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================================================
+      CARDS DE MÉTRICAS PRINCIPAIS
+      ========================================================================== -->
+      <div class="row q-col-gutter-md q-mb-lg">
+        
+        <!-- Card de Receitas -->
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-card class="metric-card income-card" flat bordered>
+            <q-card-section class="flex items-center justify-between">
+              <div v-if="!isLoadingStats">
+                <div class="metric-label text-grey-6 text-caption">
+                  Receitas
+                </div>
+                <div class="metric-value text-h5 text-green-7 q-mb-xs">
+                  {{ formatCurrency(transactionStats.totalIncome) }}
+                </div>
+                <div class="metric-trend text-green-6 text-caption">
+                  <q-icon name="trending_up" size="xs" />
+                  {{ transactionStats.incomeGrowth > 0 ? '+' : '' }}{{ transactionStats.incomeGrowth.toFixed(1) }}% este mês
+                </div>
+              </div>
+              <div v-else class="full-width">
+                <q-skeleton type="text" width="30%" />
+                <q-skeleton type="text" width="60%" height="2rem" class="q-mt-xs" />
+                <q-skeleton type="text" width="40%" />
+              </div>
+              <q-icon 
+                name="trending_up" 
+                size="2.5rem" 
+                color="green-6" 
+                class="metric-icon"
+              />
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <!-- Card de Despesas -->
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-card class="metric-card expense-card" flat bordered>
+            <q-card-section class="flex items-center justify-between">
+              <div v-if="!isLoadingStats">
+                <div class="metric-label text-grey-6 text-caption">
+                  Despesas
+                </div>
+                <div class="metric-value text-h5 text-red-7 q-mb-xs">
+                  {{ formatCurrency(transactionStats.totalExpense) }}
+                </div>
+                <div class="metric-trend text-red-6 text-caption">
+                  <q-icon name="trending_down" size="xs" />
+                  {{ transactionStats.expenseGrowth > 0 ? '+' : '' }}{{ transactionStats.expenseGrowth.toFixed(1) }}% este mês
+                </div>
+              </div>
+              <div v-else class="full-width">
+                <q-skeleton type="text" width="30%" />
+                <q-skeleton type="text" width="60%" height="2rem" class="q-mt-xs" />
+                <q-skeleton type="text" width="40%" />
+              </div>
+              <q-icon 
+                name="trending_down" 
+                size="2.5rem" 
+                color="red-6" 
+                class="metric-icon"
+              />
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <!-- Card de Saldo -->
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-card class="metric-card balance-card" flat bordered>
+            <q-card-section class="flex items-center justify-between">
+              <div v-if="!isLoadingStats">
+                <div class="metric-label text-grey-6 text-caption">
+                  Saldo
+                </div>
+                <div class="metric-value text-h5 q-mb-xs" :class="balanceColor">
+                  {{ formatCurrency(transactionStats.balance) }}
+                </div>
+                <div class="metric-trend text-grey-6 text-caption">
+                  <q-icon name="account_balance_wallet" size="xs" />
+                  Posição atual
+                </div>
+              </div>
+              <div v-else class="full-width">
+                <q-skeleton type="text" width="30%" />
+                <q-skeleton type="text" width="60%" height="2rem" class="q-mt-xs" />
+                <q-skeleton type="text" width="40%" />
+              </div>
+              <q-icon 
+                name="account_balance_wallet" 
+                size="2.5rem" 
+                :color="transactionStats.balance >= 0 ? 'blue-6' : 'orange-6'" 
+                class="metric-icon"
+              />
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <!-- Card de Transações -->
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-card class="metric-card transactions-card" flat bordered>
+            <q-card-section class="flex items-center justify-between">
+              <div v-if="!isLoadingStats">
+                <div class="metric-label text-grey-6 text-caption">
+                  Transações
+                </div>
+                <div class="metric-value text-h5 text-purple-7 q-mb-xs">
+                  {{ transactionStats.transactionCount }}
+                </div>
+                <div class="metric-trend text-purple-6 text-caption">
+                  <q-icon name="receipt_long" size="xs" />
+                  Este período
+                </div>
+              </div>
+              <div v-else class="full-width">
+                <q-skeleton type="text" width="30%" />
+                <q-skeleton type="text" width="60%" height="2rem" class="q-mt-xs" />
+                <q-skeleton type="text" width="40%" />
+              </div>
+              <q-icon 
+                name="receipt_long" 
+                size="2.5rem" 
+                color="purple-6" 
+                class="metric-icon"
+              />
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
+
+      <!-- ==========================================================================
+      GRÁFICOS E ANÁLISES
+      ========================================================================== -->
+      <div class="row q-col-gutter-md q-mb-lg">
+        
+        <!-- Gráfico de Evolução Financeira -->
+        <div class="col-12 col-md-8">
+          <q-card class="chart-card" flat bordered>
+            <q-card-section class="flex items-center justify-between">
+              <div>
+                <h6 class="text-h6 q-ma-none text-grey-8">
+                  Evolução Financeira
+                </h6>
+                <p class="text-caption text-grey-6 q-ma-none">
+                  Receitas vs Despesas nos últimos meses
+                </p>
+              </div>
+              
+              <!-- Filtros de período -->
+              <q-btn-toggle
+                v-model="chartPeriod"
+                toggle-color="primary"
+                :options="[
+                  { label: '3M', value: '3months' },
+                  { label: '6M', value: '6months' },
+                  { label: '1A', value: '1year' }
+                ]"
+                no-caps
+                flat
+                dense
+                @update:model-value="updateChartData"
+              />
+            </q-card-section>
+            
+            <q-card-section class="chart-container">
+              <div v-if="isLoadingCharts" class="flex items-center justify-center full-height">
+                <q-spinner-dots color="primary" size="2em" />
+              </div>
+              <canvas 
+                v-else
+                ref="lineChartRef" 
+                id="lineChart"
+                class="full-width"
+              ></canvas>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <!-- Gráfico de Categorias -->
+        <div class="col-12 col-md-4">
+          <q-card class="chart-card" flat bordered>
+            <q-card-section>
+              <h6 class="text-h6 q-ma-none text-grey-8">
+                Por Categoria
+              </h6>
+              <p class="text-caption text-grey-6 q-ma-none">
+                Distribuição das despesas
+              </p>
+            </q-card-section>
+            
+            <q-card-section class="chart-container">
+              <div v-if="isLoadingCharts" class="flex items-center justify-center full-height">
+                <q-spinner-dots color="primary" size="2em" />
+              </div>
+              <canvas 
+                v-else
+                ref="doughnutChartRef" 
+                id="doughnutChart"
+                class="full-width"
+              ></canvas>
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
+
+      <!-- ==========================================================================
+      TRANSAÇÕES RECENTES E AÇÕES RÁPIDAS
+      ========================================================================== -->
+      <div class="row q-col-gutter-md">
+        
+        <!-- Lista de Transações Recentes -->
+        <div class="col-12 col-md-8">
+          <q-card class="recent-transactions-card" flat bordered>
+            <q-card-section class="flex items-center justify-between">
+              <div>
+                <h6 class="text-h6 q-ma-none text-grey-8">
+                  Transações Recentes
+                </h6>
+                <p class="text-caption text-grey-6 q-ma-none">
+                  Últimas movimentações financeiras
+                </p>
+              </div>
+              
+              <q-btn
+                label="Ver todas"
+                color="primary"
+                flat
+                no-caps
+                icon-right="arrow_forward"
+                @click="$router.push('/transactions')"
+              />
+            </q-card-section>
+
+            <q-card-section class="q-pt-none">
+              <div v-if="dashboardStore.isLoadingRecent" class="text-center q-py-lg">
+                <q-spinner color="primary" size="2rem" />
+                <p class="text-caption text-grey-6 q-mt-md">
+                  Carregando transações...
+                </p>
+              </div>
+
+              <div v-else-if="recentTransactions.length === 0" class="text-center q-py-lg">
+                <q-icon name="receipt_long" size="3rem" color="grey-4" />
+                <p class="text-subtitle2 text-grey-6 q-mt-md">
+                  Nenhuma transação encontrada
+                </p>
+                <q-btn
+                  label="Adicionar primeira transação"
+                  color="primary"
+                  outline
+                  no-caps
+                  @click="showAddTransactionDialog = true"
+                />
+              </div>
+
+              <div v-else class="transactions-list">
+                <q-list separator>
+                  <q-item
+                    v-for="transaction in recentTransactions"
+                    :key="transaction.id"
+                    class="transaction-item q-px-none"
+                  >
+                    <q-item-section avatar>
+                      <q-avatar 
+                        :color="transaction.type === 'income' ? 'green-1' : 'red-1'" 
+                        :text-color="transaction.type === 'income' ? 'green-7' : 'red-7'"
+                      >
+                        <q-icon 
+                          :name="transaction.type === 'income' ? 'add' : 'remove'"
+                        />
+                      </q-avatar>
+                    </q-item-section>
+
+                    <q-item-section>
+                      <q-item-label class="text-grey-8 text-weight-medium">
+                        {{ transaction.description }}
+                      </q-item-label>
+                      <q-item-label caption class="text-grey-6">
+                        {{ transaction.category }} • {{ formatDate(transaction.date) }}
+                      </q-item-label>
+                    </q-item-section>
+
+                    <q-item-section side>
+                      <q-item-label 
+                        class="text-weight-bold"
+                        :class="transaction.type === 'income' ? 'text-green-7' : 'text-red-7'"
+                      >
+                        {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
+                      </q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <!-- Ações Rápidas -->
+        <div class="col-12 col-md-4">
+          <q-card class="quick-actions-card" flat bordered>
+            <q-card-section>
+              <h6 class="text-h6 q-ma-none text-grey-8">
+                Ações Rápidas
+              </h6>
+              <p class="text-caption text-grey-6 q-ma-none">
+                Adicionar movimentações
+              </p>
+            </q-card-section>
+
+            <q-card-section class="q-pt-none">
+              <div class="q-gutter-md">
+                
+                <!-- Botão Adicionar Receita -->
+                <q-btn
+                  label="Nova Receita"
+                  icon="add_circle"
+                  color="green-6"
+                  class="full-width"
+                  size="md"
+                  no-caps
+                  @click="openTransactionDialog('income')"
+                />
+
+                <!-- Botão Adicionar Despesa -->
+                <q-btn
+                  label="Nova Despesa"
+                  icon="remove_circle"
+                  color="red-6"
+                  class="full-width"
+                  size="md"
+                  no-caps
+                  @click="openTransactionDialog('expense')"
+                />
+
+                <!-- Separador -->
+                <q-separator class="q-my-md" />
+
+                <!-- Links Úteis -->
+                <div class="quick-links">
+                  <q-btn
+                    label="Relatórios"
+                    icon="assessment"
+                    flat
+                    color="primary"
+                    class="full-width"
+                    no-caps
+                    align="left"
+                    @click="$router.push('/reports')"
+                  />
+                  
+                  <q-btn
+                    label="Configurações"
+                    icon="settings"
+                    flat
+                    color="primary"
+                    class="full-width"
+                    no-caps
+                    align="left"
+                    @click="$router.push('/profile')"
+                  />
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+    DIALOG DE NOVA TRANSAÇÃO
+    ========================================================================== -->
+    <q-dialog 
+      v-model="showAddTransactionDialog" 
+      persistent 
+      maximized 
+      transition-show="slide-up" 
+      transition-hide="slide-down"
+    >
+      <q-card class="transaction-dialog">
+        <q-bar class="bg-primary text-white">
+          <q-icon name="receipt_long" />
+          <div class="text-weight-medium">
+            {{ newTransactionType === 'income' ? 'Nova Receita' : 'Nova Despesa' }}
+          </div>
+          <q-space />
+          <q-btn 
+            dense 
+            flat 
+            icon="close" 
+            @click="closeTransactionDialog"
+          />
+        </q-bar>
+
+        <q-card-section class="q-pa-lg">
+          <!-- Formulário será implementado no próximo componente -->
+          <div class="text-center q-py-xl">
+            <q-icon name="construction" size="4rem" color="grey-4" />
+            <p class="text-h6 text-grey-6 q-mt-md">
+              Formulário de transação
+            </p>
+            <p class="text-caption text-grey-6">
+              Será implementado na página de transações
+            </p>
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+  </q-page>
+</template>
+
+<script setup>
+import { ref, computed, onMounted, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from 'src/stores/auth'
+import { useTransactionStore } from 'src/stores/transactions'
+import { useDashboardStore } from 'src/stores/dashboard'
+import { useCurrency } from 'src/composables/useCurrency'
+import { useDate } from 'src/composables/useDate'
+import { Chart, registerables } from 'chart.js'
+
+// Registrar componentes do Chart.js
+Chart.register(...registerables)
+
+// ==========================================================================
+// COMPOSABLES E STORES
+// ==========================================================================
+const router = useRouter()
+const authStore = useAuthStore()
+const transactionStore = useTransactionStore()
+const dashboardStore = useDashboardStore()
+const { formatCurrency } = useCurrency()
+const { formatDate } = useDate()
+
+// ==========================================================================
+// ESTADO REATIVO
+// ==========================================================================
+const showAddTransactionDialog = ref(false)
+const newTransactionType = ref('income')
+const chartPeriod = ref('6months')
+
+// Referências dos gráficos
+const lineChartRef = ref(null)
+const doughnutChartRef = ref(null)
+let lineChart = null
+let doughnutChart = null
+
+// ==========================================================================
+// COMPUTED PROPERTIES
+// ==========================================================================
+
+/**
+ * Estatísticas das transações
+ */
+const transactionStats = computed(() => {
+  return dashboardStore.formattedStats
+})
+
+/**
+ * Cor do saldo baseada no valor
+ */
+const balanceColor = computed(() => {
+  return dashboardStore.balanceColor
+})
+
+/**
+ * Transações recentes (últimas 5)
+ */
+const recentTransactions = computed(() => {
+  return dashboardStore.recentTransactions
+})
+
+/**
+ * Estados de loading
+ */
+const isLoadingStats = computed(() => {
+  return dashboardStore.isLoadingStats
+})
+
+const isLoadingCharts = computed(() => {
+  return dashboardStore.isLoadingCharts
+})
+
+// ==========================================================================
+// MÉTODOS
+// ==========================================================================
+
+/**
+ * Carrega dados iniciais do dashboard
+ */
+const loadDashboardData = async () => {
+  console.log('📊 [DASHBOARD] Carregando dados iniciais')
+  
+  try {
+    // Carrega todos os dados do dashboard usando a nova store
+    await dashboardStore.loadDashboard({
+      dateRange: {}, // Pode adicionar filtros aqui
+      recentLimit: 5
+    })
+    
+  } catch (error) {
+    console.error('❌ [DASHBOARD] Erro ao carregar dados:', error.message)
+  }
+}
+
+/**
+ * Abre dialog de nova transação
+ */
+const openTransactionDialog = (type) => {
+  console.log('➕ [DASHBOARD] Abrindo dialog de transação:', type)
+  newTransactionType.value = type
+  showAddTransactionDialog.value = true
+}
+
+/**
+ * Fecha dialog de transação
+ */
+const closeTransactionDialog = () => {
+  showAddTransactionDialog.value = false
+  newTransactionType.value = 'income'
+}
+
+/**
+ * Inicializa gráfico de linha (Evolução Financeira)
+ */
+const initLineChart = () => {
+  if (!lineChartRef.value) return
+  
+  const ctx = lineChartRef.value.getContext('2d')
+  
+  // Usar dados reais da dashboard store
+  const chartData = dashboardStore.monthlyEvolution
+
+  const config = {
+    type: 'line',
+    data: chartData,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom'
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return formatCurrency(value)
+            }
+          }
+        }
+      },
+      elements: {
+        point: {
+          radius: 4,
+          hoverRadius: 6
+        }
+      }
+    }
+  }
+
+  lineChart = new Chart(ctx, config)
+}
+
+/**
+ * Inicializa gráfico de rosca (Categorias)
+ */
+const initDoughnutChart = () => {
+  if (!doughnutChartRef.value) return
+  
+  const ctx = doughnutChartRef.value.getContext('2d')
+  
+  // Usar dados reais da dashboard store
+  const chartData = dashboardStore.categoryAnalysis
+
+  const config = {
+    type: 'doughnut',
+    data: chartData,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom'
+        }
+      }
+    }
+  }
+
+  doughnutChart = new Chart(ctx, config)
+}
+
+/**
+ * Atualiza dados dos gráficos baseado no período
+ */
+const updateChartData = async () => {
+  console.log('📈 [DASHBOARD] Atualizando dados dos gráficos para:', chartPeriod.value)
+  
+  try {
+    // Atualiza período na store e recarrega dados
+    await dashboardStore.updateChartPeriod(chartPeriod.value)
+    
+    // Destroi gráficos existentes
+    if (lineChart) {
+      lineChart.destroy()
+      lineChart = null
+    }
+    if (doughnutChart) {
+      doughnutChart.destroy()
+      doughnutChart = null
+    }
+    
+    // Reinicializa gráficos com novos dados
+    await nextTick()
+    initLineChart()
+    initDoughnutChart()
+    
+  } catch (error) {
+    console.error('❌ [DASHBOARD] Erro ao atualizar gráficos:', error.message)
+  }
+}
+
+// ==========================================================================
+// LIFECYCLE
+// ==========================================================================
+onMounted(async () => {
+  console.log('🚀 [DASHBOARD] Dashboard montado')
+  
+  // Carrega dados iniciais
+  await loadDashboardData()
+  
+  // Inicializa gráficos após próximo tick
+  await nextTick()
+  initLineChart()
+  initDoughnutChart()
+})
+</script>
+
+<style lang="scss" scoped>
+// ==========================================================================
+// ESTILOS DO DASHBOARD
+// ==========================================================================
+
+.dashboard-page {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.welcome-section {
+  padding: 1rem 0;
+}
+
+// Cards de métricas
+.metric-card {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+  
+  &.income-card {
+    border-left-color: #4CAF50;
+  }
+  
+  &.expense-card {
+    border-left-color: #f44336;
+  }
+  
+  &.balance-card {
+    border-left-color: #2196F3;
+  }
+  
+  &.transactions-card {
+    border-left-color: #9C27B0;
+  }
+}
+
+.metric-value {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.metric-icon {
+  opacity: 0.7;
+}
+
+// Cards de gráficos
+.chart-card {
+  border-radius: 12px;
+  
+  .chart-container {
+    height: 300px;
+    position: relative;
+  }
+}
+
+// Transações recentes
+.recent-transactions-card {
+  border-radius: 12px;
+  
+  .transaction-item {
+    padding: 0.75rem 0;
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+  }
+}
+
+// Ações rápidas
+.quick-actions-card {
+  border-radius: 12px;
+  
+  .quick-links {
+    .q-btn {
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+// Dialog de transação
+.transaction-dialog {
+  .q-bar {
+    border-radius: 0;
+  }
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .metric-value {
+    font-size: 1.2rem;
+  }
+  
+  .chart-container {
+    height: 250px;
+  }
+}
+</style>
