@@ -8,9 +8,9 @@
   },
   "scripts": {
     "dev": "quasar dev",
-    "build": "quasar build && npm run postbuild",
-    "postbuild": "echo '/*    /index.html   200' > dist/spa/_redirects",
-    "start": "http-server dist/spa -p $PORT -a 0.0.0.0 --cors -c-1 --proxy http://localhost:$PORT?",
+    "build": "quasar build && ./scripts/prepare-build.sh",
+    "build:only": "quasar build",
+    "start": "http-server dist/spa -p $PORT -a 0.0.0.0 --proxy http://localhost:$PORT?",
     "preview": "quasar serve dist/spa --port 4173",
     "lint": "eslint --ext .js,.vue ./src",
     "format": "prettier --write \"**/*.{js,vue,css,md,json}\" --ignore-path .gitignore"
