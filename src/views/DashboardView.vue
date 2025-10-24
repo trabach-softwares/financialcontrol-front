@@ -1,233 +1,350 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <header class="bg-white shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex justify-between items-center">
-          <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <div class="flex items-center space-x-4">
-            <router-link to="/plans" class="text-primary hover:text-primary-dark">
-              Plans
-            </router-link>
-            <router-link to="/profile" class="text-primary hover:text-primary-dark">
-              Profile
-            </router-link>
-            <router-link v-if="authStore.isAdmin" to="/admin" class="text-primary hover:text-primary-dark">
-              Admin
-            </router-link>
-            <button
-              @click="handleSignOut"
-              class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-            >
-              Sign Out
-            </button>
-          </div>
-        </div>
+  <AppLayout>
+    <div
+      v-motion
+      :initial="{ opacity: 0, y: 20 }"
+      :enter="{ opacity: 1, y: 0, transition: { duration: 600, ease: 'easeOut' } }"
+      class="space-y-8"
+    >
+      <!-- Welcome Section -->
+      <div
+        v-motion
+        :initial="{ opacity: 0, x: -20 }"
+        :enter="{ opacity: 1, x: 0, transition: { duration: 500, delay: 200 } }"
+        class="space-y-2"
+      >
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+          Welcome back, {{ authStore.user?.name }}! 👋
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400 text-lg">
+          Here's your financial overview for today
+        </p>
       </div>
-    </header>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Summary Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow p-6">
+      <!-- Stats Cards -->
+      <div
+        v-motion
+        :initial="{ opacity: 0 }"
+        :enter="{ 
+          opacity: 1,
+          transition: { 
+            duration: 600,
+            delay: 400,
+            staggerChildren: 100,
+            delayChildren: 100
+          }
+        }"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
+        <!-- Balance Card -->
+        <BaseCard
+          v-motion
+          :initial="{ opacity: 0, y: 20, scale: 0.9 }"
+          :enter="{ opacity: 1, y: 0, scale: 1 }"
+          :hover="{ y: -4, transition: { duration: 200 } }"
+          variant="glass"
+          class="group cursor-default"
+        >
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-600">Total Income</p>
-              <p class="text-2xl font-bold text-green-600">
-                ${{ transactionsStore.totalIncome.toFixed(2) }}
+            <div class="space-y-2">
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Balance</p>
+              <p class="text-2xl font-bold text-gradient">
+                ${{ balance.toLocaleString() }}
               </p>
+              <div class="flex items-center text-xs">
+                <TrendingUp :size="12" class="mr-1 text-green-500" />
+                <span class="text-green-600 dark:text-green-400">+2.5% from last month</span>
+              </div>
             </div>
-            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-              </svg>
+            <div class="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+              <Wallet :size="24" class="text-white" />
             </div>
           </div>
-        </div>
+        </BaseCard>
 
-        <div class="bg-white rounded-lg shadow p-6">
+        <!-- Income Card -->
+        <BaseCard
+          v-motion
+          :initial="{ opacity: 0, y: 20, scale: 0.9 }"
+          :enter="{ opacity: 1, y: 0, scale: 1 }"
+          :hover="{ y: -4, transition: { duration: 200 } }"
+          variant="glass"
+          class="group cursor-default"
+        >
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-600">Total Expenses</p>
-              <p class="text-2xl font-bold text-red-600">
-                ${{ transactionsStore.totalExpenses.toFixed(2) }}
+            <div class="space-y-2">
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Income</p>
+              <p class="text-2xl font-bold text-green-600 dark:text-green-400">
+                +${{ totalIncome.toLocaleString() }}
               </p>
+              <div class="flex items-center text-xs">
+                <ArrowUp :size="12" class="mr-1 text-green-500" />
+                <span class="text-green-600 dark:text-green-400">+8.2% from last month</span>
+              </div>
             </div>
-            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-              <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-              </svg>
+            <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+              <TrendingUp :size="24" class="text-white" />
             </div>
           </div>
-        </div>
+        </BaseCard>
 
-        <div class="bg-white rounded-lg shadow p-6">
+        <!-- Expenses Card -->
+        <BaseCard
+          v-motion
+          :initial="{ opacity: 0, y: 20, scale: 0.9 }"
+          :enter="{ opacity: 1, y: 0, scale: 1 }"
+          :hover="{ y: -4, transition: { duration: 200 } }"
+          variant="glass"
+          class="group cursor-default"
+        >
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-600">Balance</p>
-              <p class="text-2xl font-bold" :class="transactionsStore.balance >= 0 ? 'text-green-600' : 'text-red-600'">
-                ${{ transactionsStore.balance.toFixed(2) }}
+            <div class="space-y-2">
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Expenses</p>
+              <p class="text-2xl font-bold text-red-600 dark:text-red-400">
+                -${{ totalExpenses.toLocaleString() }}
               </p>
+              <div class="flex items-center text-xs">
+                <ArrowDown :size="12" class="mr-1 text-red-500" />
+                <span class="text-red-600 dark:text-red-400">-3.1% from last month</span>
+              </div>
             </div>
-            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
+            <div class="w-14 h-14 bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+              <TrendingDown :size="24" class="text-white" />
             </div>
           </div>
-        </div>
+        </BaseCard>
+
+        <!-- Transactions Card -->
+        <BaseCard
+          v-motion
+          :initial="{ opacity: 0, y: 20, scale: 0.9 }"
+          :enter="{ opacity: 1, y: 0, scale: 1 }"
+          :hover="{ y: -4, transition: { duration: 200 } }"
+          variant="glass"
+          class="group cursor-default"
+        >
+          <div class="flex items-center justify-between">
+            <div class="space-y-2">
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Transactions</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                {{ filteredTransactions.length }}
+              </p>
+              <div class="flex items-center text-xs">
+                <Activity :size="12" class="mr-1 text-blue-500" />
+                <span class="text-blue-600 dark:text-blue-400">{{ recentTransactions.length }} this week</span>
+              </div>
+            </div>
+            <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+              <BarChart3 :size="24" class="text-white" />
+            </div>
+          </div>
+        </BaseCard>
       </div>
 
-      <!-- Filters -->
-      <div class="bg-white rounded-lg shadow p-6 mb-8">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Filters</h2>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
-            <select
-              v-model="selectedType"
-              @change="applyFilters"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary"
-            >
-              <option value="all">All</option>
-              <option value="income">Income</option>
-              <option value="expense">Expense</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-            <input
-              v-model="selectedCategory"
-              @input="applyFilters"
-              type="text"
-              placeholder="Filter by category"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary"
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
-            <input
-              v-model="startDate"
-              @change="applyFilters"
-              type="date"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary"
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
-            <input
-              v-model="endDate"
-              @change="applyFilters"
-              type="date"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary"
-            />
-          </div>
-        </div>
-        <div class="mt-4">
-          <button
-            @click="clearAllFilters"
-            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
-          >
-            Clear Filters
-          </button>
-        </div>
-      </div>
-
-      <!-- Charts -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Expenses by Category</h3>
-          <PieChart :data="expensesChartData" />
-        </div>
-
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Income by Category</h3>
-          <PieChart :data="incomeChartData" />
-        </div>
-      </div>
-
-      <!-- Add Transaction Button -->
-      <div class="mb-6">
-        <button
-          @click="showAddModal = true"
-          class="px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+      <!-- Quick Actions -->
+      <div
+        v-motion
+        :initial="{ opacity: 0, y: 20 }"
+        :enter="{ opacity: 1, y: 0, transition: { duration: 500, delay: 600 } }"
+        class="flex flex-wrap gap-3"
+      >
+        <BaseButton
+          variant="primary"
+          size="lg"
+          :icon-left="Plus"
+          class="shadow-lg hover:shadow-xl"
+          @click="showTransactionModal = true"
         >
           Add Transaction
-        </button>
+        </BaseButton>
+        
+        <BaseButton
+          variant="outline"
+          size="lg"
+          :icon-left="Download"
+          class="shadow-sm hover:shadow-md"
+        >
+          Export Data
+        </BaseButton>
+        
+        <BaseButton
+          variant="ghost"
+          size="lg"
+          :icon-left="PieChart"
+          class="hover:bg-primary-50 dark:hover:bg-primary-900/20"
+        >
+          View Reports
+        </BaseButton>
       </div>
 
-      <!-- Transactions List -->
-      <div class="bg-white rounded-lg shadow">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h2 class="text-lg font-semibold text-gray-900">Transactions</h2>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="transaction in transactionsStore.filteredTransactions" :key="transaction.id">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ formatDate(transaction.date) }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span
-                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                    :class="transaction.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
-                  >
-                    {{ transaction.type }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ transaction.category }}</td>
-                <td class="px-6 py-4 text-sm text-gray-900">{{ transaction.description }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'">
-                  {{ transaction.type === 'income' ? '+' : '-' }}${{ transaction.amount.toFixed(2) }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button
-                    @click="deleteTransaction(transaction.id!)"
-                    class="text-red-600 hover:text-red-900"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div v-if="transactionsStore.filteredTransactions.length === 0" class="px-6 py-8 text-center text-gray-500">
-            No transactions found.
+      <!-- Charts and Analytics -->
+      <div
+        v-motion
+        :initial="{ opacity: 0, y: 30 }"
+        :enter="{ opacity: 1, y: 0, transition: { duration: 600, delay: 800 } }"
+        class="grid grid-cols-1 lg:grid-cols-3 gap-8"
+      >
+        <!-- Expenses Chart -->
+        <BaseCard
+          variant="elevated"
+          class="lg:col-span-2"
+          title="Expenses by Category"
+        >
+          <template #headerActions>
+            <BaseButton
+              variant="ghost"
+              size="sm"
+              :icon-right="ExternalLink"
+            >
+              View Details
+            </BaseButton>
+          </template>
+          
+          <div class="h-80 flex items-center justify-center">
+            <PieChart
+              v-if="Object.keys(expensesByCategory).length > 0"
+              :data="chartData"
+            />
+            <div
+              v-else
+              class="text-center space-y-4"
+            >
+              <div class="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+                <PieChart :size="24" class="text-gray-400" />
+              </div>
+              <div>
+                <h4 class="font-medium text-gray-900 dark:text-white">No expense data</h4>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Add some transactions to see your spending breakdown</p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </main>
+        </BaseCard>
 
-    <!-- Add Transaction Modal -->
+        <!-- Recent Activity -->
+        <BaseCard
+          variant="elevated"
+          title="Recent Activity"
+        >
+          <template #headerActions>
+            <BaseButton
+              variant="ghost"
+              size="sm"
+              :icon-right="ArrowRight"
+            >
+              View All
+            </BaseButton>
+          </template>
+          
+          <div class="space-y-4 max-h-80 overflow-y-auto">
+            <div
+              v-for="(transaction, index) in recentTransactions.slice(0, 6)"
+              :key="transaction.id"
+              v-motion
+              :initial="{ opacity: 0, x: -20 }"
+              :enter="{ 
+                opacity: 1, 
+                x: 0,
+                transition: { 
+                  duration: 300,
+                  delay: 100 * index
+                }
+              }"
+              class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200 group"
+            >
+              <div
+                class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 group-hover:scale-110"
+                :class="{
+                  'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400': transaction.type === 'income',
+                  'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400': transaction.type === 'expense'
+                }"
+              >
+                <ArrowUp v-if="transaction.type === 'income'" :size="16" />
+                <ArrowDown v-else :size="16" />
+              </div>
+              
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-gray-900 dark:text-white truncate">
+                  {{ transaction.description }}
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ transaction.category }}
+                </p>
+              </div>
+              
+              <div class="text-right">
+                <p
+                  class="font-semibold"
+                  :class="{
+                    'text-green-600 dark:text-green-400': transaction.type === 'income',
+                    'text-red-600 dark:text-red-400': transaction.type === 'expense'
+                  }"
+                >
+                  {{ transaction.type === 'income' ? '+' : '-' }}${{ transaction.amount.toLocaleString() }}
+                </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  {{ formatDate(transaction.date) }}
+                </p>
+              </div>
+            </div>
+            
+            <div
+              v-if="recentTransactions.length === 0"
+              class="text-center py-12 space-y-4"
+            >
+              <div class="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+                <Activity :size="24" class="text-gray-400" />
+              </div>
+              <div>
+                <h4 class="font-medium text-gray-900 dark:text-white">No transactions yet</h4>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                  Start tracking your finances by adding your first transaction
+                </p>
+                <BaseButton
+                  variant="primary"
+                  size="sm"
+                  :icon-left="Plus"
+                  @click="showTransactionModal = true"
+                >
+                  Add Transaction
+                </BaseButton>
+              </div>
+            </div>
+          </div>
+        </BaseCard>
+      </div>
+    </div>
+
+    <!-- Transaction Modal -->
     <TransactionModal
-      v-if="showAddModal"
-      @close="showAddModal = false"
-      @save="handleAddTransaction"
+      v-if="showTransactionModal"
+      @close="showTransactionModal = false"
+      @save="handleTransactionAdded"
     />
-  </div>
+  </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { 
+  Plus, 
+  Download, 
+  PieChart, 
+  ExternalLink, 
+  ArrowRight, 
+  ArrowUp, 
+  ArrowDown, 
+  Activity,
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  BarChart3,
+} from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { useTransactionsStore } from '@/stores/transactions'
-import type { Transaction } from '@/stores/transactions'
+import AppLayout from '@/components/layout/AppLayout.vue'
+import BaseCard from '@/components/base/BaseCard.vue'
+import BaseButton from '@/components/base/BaseButton.vue'
 import PieChart from '@/components/PieChart.vue'
 import TransactionModal from '@/components/TransactionModal.vue'
 
@@ -235,89 +352,68 @@ const router = useRouter()
 const authStore = useAuthStore()
 const transactionsStore = useTransactionsStore()
 
-const showAddModal = ref(false)
-const selectedType = ref('all')
-const selectedCategory = ref('')
-const startDate = ref('')
-const endDate = ref('')
+const showTransactionModal = ref(false)
 
-// Chart data
-const expensesChartData = computed(() => {
-  const data = transactionsStore.expensesByCategory
+// Computed values
+const filteredTransactions = computed(() => transactionsStore.filteredTransactions)
+const totalIncome = computed(() => transactionsStore.totalIncome)
+const totalExpenses = computed(() => transactionsStore.totalExpenses)
+const balance = computed(() => transactionsStore.balance)
+const expensesByCategory = computed(() => transactionsStore.expensesByCategory)
+
+const recentTransactions = computed(() => {
+  return filteredTransactions.value.slice(0, 10)
+})
+
+const chartData = computed(() => {
+  const categories = Object.keys(expensesByCategory.value)
+  const amounts = Object.values(expensesByCategory.value)
+  
   return {
-    labels: Object.keys(data),
+    labels: categories,
     datasets: [{
-      data: Object.values(data),
+      data: amounts,
       backgroundColor: [
-        '#ef4444',
-        '#f97316',
-        '#f59e0b',
-        '#eab308',
-        '#84cc16',
-        '#22c55e',
+        '#FF6384',
+        '#36A2EB',
+        '#FFCE56',
+        '#4BC0C0',
+        '#9966FF',
+        '#FF9F40',
+        '#FF6384',
+        '#C9CBCF'
       ]
     }]
   }
 })
 
-const incomeChartData = computed(() => {
-  const data = transactionsStore.incomeByCategory
-  return {
-    labels: Object.keys(data),
-    datasets: [{
-      data: Object.values(data),
-      backgroundColor: [
-        '#10b981',
-        '#14b8a6',
-        '#06b6d4',
-        '#0ea5e9',
-        '#3b82f6',
-        '#6366f1',
-      ]
-    }]
-  }
-})
-
-const applyFilters = () => {
-  transactionsStore.setFilterType(selectedType.value as 'all' | 'income' | 'expense')
-  transactionsStore.setFilterCategory(selectedCategory.value)
-  transactionsStore.setFilterDateRange({ start: startDate.value, end: endDate.value })
-}
-
-const clearAllFilters = () => {
-  selectedType.value = 'all'
-  selectedCategory.value = ''
-  startDate.value = ''
-  endDate.value = ''
-  transactionsStore.clearFilters()
-}
-
-const handleAddTransaction = async (transaction: Transaction) => {
-  await transactionsStore.addTransaction(transaction)
-  showAddModal.value = false
-}
-
-const deleteTransaction = async (id: string) => {
-  if (confirm('Are you sure you want to delete this transaction?')) {
-    await transactionsStore.deleteTransaction(id)
-  }
-}
-
-const handleSignOut = async () => {
-  await authStore.signOut()
-  router.push({ name: 'login' })
-}
-
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', {
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   })
 }
 
+const handleTransactionAdded = async (transaction: any) => {
+  showTransactionModal.value = false
+  await transactionsStore.addTransaction(transaction)
+}
+
 onMounted(async () => {
-  // Fetch transactions on component mount
+  if (!authStore.isAuthenticated) {
+    router.push('/login')
+    return
+  }
+  
   await transactionsStore.fetchTransactions()
 })
 </script>
+
+<style scoped>
+.text-gradient {
+  background: linear-gradient(to right, #4f46e5, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+</style>

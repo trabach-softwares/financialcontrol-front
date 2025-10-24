@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { supabase } from '@/lib/supabase'
+import { apiClient } from '@/lib/api'
 
 export type PlanType = 'free' | 'pro' | 'premium'
 
@@ -99,18 +99,23 @@ export const useSubscriptionStore = defineStore('subscription', () => {
     loading.value = true
     error.value = null
     try {
-      const { data, error: fetchError } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .single()
-
-      if (fetchError) throw fetchError
-      if (data) {
-        currentSubscription.value = data
+      const response = await apiClient.get('/users/profile')
+      if (response.success && response.data.plan_id) {
+        // Mapear plan_id para o formato local
+        const planMap: Record<string, PlanType> = {
+          'free': 'free',
+          'pro': 'pro', 
+          'premium': 'premium'
+        }
+        
+        currentSubscription.value = {
+          plan: planMap[response.data.plan_id] || 'free',
+          status: 'active',
+          start_date: new Date().toISOString()
+        }
       }
     } catch (err: unknown) {
       error.value = (err instanceof Error ? err.message : String(err))
-      // Use default free plan if not configured
       console.log('Using default free plan')
     } finally {
       loading.value = false
@@ -121,30 +126,35 @@ export const useSubscriptionStore = defineStore('subscription', () => {
     loading.value = true
     error.value = null
     try {
-      const newSubscription: UserSubscription = {
-        ...currentSubscription.value,
-        plan: planId,
-        status: 'active',
-        start_date: new Date().toISOString()
+      // Buscar o plano correto da API
+      const plansResponse = await apiClient.get('/plans')
+      if (!plansResponse.success) {
+        throw new Error('Failed to fetch plans')
+      }
+      
+      const apiPlan = plansResponse.data.find((p: any) => p.name.toLowerCase() === planId)
+      if (!apiPlan) {
+        throw new Error('Plan not found')
       }
 
-      const { data, error: updateError } = await supabase
-        .from('subscriptions')
-        .upsert([newSubscription])
-        .select()
-        .single()
-
-      if (updateError) throw updateError
-      currentSubscription.value = data || newSubscription
-      return { success: true }
+      const response = await apiClient.put('/users/plan', {
+        planId: apiPlan.id
+      })
+      
+      if (response.success) {
+        currentSubscription.value = {
+          ...currentSubscription.value,
+          plan: planId,
+          status: 'active',
+          start_date: new Date().toISOString()
+        }
+        return { success: true }
+      } else {
+        throw new Error(response.message)
+      }
     } catch (err: unknown) {
       error.value = (err instanceof Error ? err.message : String(err))
-      // Update local state if Supabase is not configured
-      if ((err instanceof Error ? err.message : String(err)).includes('relation') || (err instanceof Error ? err.message : String(err)).includes('does not exist')) {
-        currentSubscription.value.plan = planId
-        return { success: true }
-      }
-      return { success: false, error: (err instanceof Error ? err.message : String(err)) }
+      return { success: false, error: error.value }
     } finally {
       loading.value = false
     }
@@ -154,22 +164,15 @@ export const useSubscriptionStore = defineStore('subscription', () => {
     loading.value = true
     error.value = null
     try {
-      const { error: cancelError } = await supabase
-        .from('subscriptions')
-        .update({ status: 'cancelled' })
-        .eq('id', currentSubscription.value.id)
-
-      if (cancelError) throw cancelError
-      currentSubscription.value.status = 'cancelled'
-      return { success: true }
+      // Para cancelar, mudamos para o plano free
+      const response = await updateSubscription('free')
+      if (response.success) {
+        currentSubscription.value.status = 'cancelled'
+      }
+      return response
     } catch (err: unknown) {
       error.value = (err instanceof Error ? err.message : String(err))
-      // Update local state if Supabase is not configured
-      if ((err instanceof Error ? err.message : String(err)).includes('relation') || (err instanceof Error ? err.message : String(err)).includes('does not exist')) {
-        currentSubscription.value.status = 'cancelled'
-        return { success: true }
-      }
-      return { success: false, error: (err instanceof Error ? err.message : String(err)) }
+      return { success: false, error: error.value }
     } finally {
       loading.value = false
     }

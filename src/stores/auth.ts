@@ -1,7 +1,15 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { supabase } from '@/lib/supabase'
-import type { User } from '@supabase/supabase-js'
+import { apiClient } from '@/lib/api'
+
+interface User {
+  id: string
+  email: string
+  name: string
+  role: 'user' | 'admin'
+  plan_id?: string
+  created_at?: string
+}
 
 export const useAuthStore = defineStore('auth', () => {
   // State
@@ -12,10 +20,7 @@ export const useAuthStore = defineStore('auth', () => {
   // Getters
   const isAuthenticated = computed(() => !!user.value)
   const userEmail = computed(() => user.value?.email || '')
-  const userRole = computed(() => {
-    // Check user metadata for role (admin or regular user)
-    return user.value?.user_metadata?.role || 'user'
-  })
+  const userRole = computed(() => user.value?.role || 'user')
   const isAdmin = computed(() => userRole.value === 'admin')
 
   // Actions
@@ -23,22 +28,33 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true
     error.value = null
     try {
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      const response = await apiClient.post('/auth/register', {
         email,
         password,
-        options: {
-          data: {
-            full_name: fullName,
-            role: 'user'
-          }
-        }
+        name: fullName
       })
-      if (signUpError) throw signUpError
-      user.value = data.user
-      return { success: true }
+      
+      if (response.success) {
+        if (response.data.user && response.data.token) {
+          user.value = response.data.user
+          apiClient.setToken(response.data.token)
+        }
+        return { success: true }
+      } else {
+        throw new Error(response.message)
+      }
     } catch (err: unknown) {
-      error.value = (err instanceof Error ? err.message : String(err))
-      return { success: false, error: (err instanceof Error ? err.message : String(err)) }
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      error.value = errorMessage
+      
+      // Handle specific error types
+      if (errorMessage.includes('Too many requests')) {
+        error.value = 'Too many registration attempts. Please wait a moment and try again.'
+      } else if (errorMessage.includes('User already registered')) {
+        error.value = 'An account with this email already exists. Please try logging in instead.'
+      }
+      
+      return { success: false, error: error.value }
     } finally {
       loading.value = false
     }
@@ -48,16 +64,34 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true
     error.value = null
     try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      const response = await apiClient.post('/auth/login', {
         email,
         password
       })
-      if (signInError) throw signInError
-      user.value = data.user
-      return { success: true }
+      
+      if (response.success) {
+        if (response.data.user && response.data.token) {
+          user.value = response.data.user
+          apiClient.setToken(response.data.token)
+        }
+        return { success: true }
+      } else {
+        throw new Error(response.message)
+      }
     } catch (err: unknown) {
-      error.value = (err instanceof Error ? err.message : String(err))
-      return { success: false, error: (err instanceof Error ? err.message : String(err)) }
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      error.value = errorMessage
+      
+      // Handle specific error types
+      if (errorMessage.includes('Too many requests')) {
+        error.value = 'Too many login attempts. Please wait a moment and try again.'
+      } else if (errorMessage.includes('Invalid login credentials')) {
+        error.value = 'Invalid email or password. Please check your credentials and try again.'
+      } else if (errorMessage.includes('Unable to connect')) {
+        error.value = 'Unable to connect to server. Please check your internet connection.'
+      }
+      
+      return { success: false, error: error.value }
     } finally {
       loading.value = false
     }
@@ -67,13 +101,12 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true
     error.value = null
     try {
-      const { error: signOutError } = await supabase.auth.signOut()
-      if (signOutError) throw signOutError
+      apiClient.clearToken()
       user.value = null
       return { success: true }
     } catch (err: unknown) {
       error.value = (err instanceof Error ? err.message : String(err))
-      return { success: false, error: (err instanceof Error ? err.message : String(err)) }
+      return { success: false, error: error.value }
     } finally {
       loading.value = false
     }
@@ -82,22 +115,27 @@ export const useAuthStore = defineStore('auth', () => {
   async function getCurrentUser() {
     loading.value = true
     try {
-      const { data: { user: currentUser }, error: getUserError } = await supabase.auth.getUser()
-      if (getUserError) throw getUserError
-      user.value = currentUser
+      const response = await apiClient.get<{ user: User }>('/auth/me')
+      if (response.success && response.data.user) {
+        user.value = response.data.user
+      }
     } catch (err: unknown) {
-      error.value = (err instanceof Error ? err.message : String(err))
+      console.log('Failed to get current user:', err)
       user.value = null
+      apiClient.clearToken()
     } finally {
       loading.value = false
     }
   }
 
-  // Initialize auth state listener
+  // Initialize auth state
   function initAuthListener() {
-    supabase.auth.onAuthStateChange((event, session) => {
-      user.value = session?.user || null
-    })
+    // Com API REST, verificamos se há token salvo
+    const token = localStorage.getItem('auth_token')
+    if (token) {
+      apiClient.setToken(token)
+      getCurrentUser()
+    }
   }
 
   return {

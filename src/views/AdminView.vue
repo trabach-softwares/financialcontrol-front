@@ -194,7 +194,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { supabase } from '@/lib/supabase'
+import { apiClient } from '@/lib/api'
 
 interface User {
   id: string
@@ -210,7 +210,7 @@ const searchQuery = ref('')
 const filterPlan = ref('')
 const filterStatus = ref('')
 
-// Mock data for demonstration
+// Mock data para demonstração
 const mockUsers: User[] = [
   {
     id: '1',
@@ -289,17 +289,35 @@ const filteredUsers = computed(() => {
 
 const fetchUsers = async () => {
   try {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-
-    if (error) throw error
-    users.value = data || mockUsers
+    const response = await apiClient.get('/admin/users')
+    if (response.success) {
+      // Mapear dados da API para o formato local
+      users.value = response.data.map((user: any) => ({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        plan: mapPlanIdToPlan(user.plan_id),
+        status: 'active', // Assumir ativo por padrão
+        joinedDate: user.created_at
+      }))
+    } else {
+      throw new Error(response.message)
+    }
   } catch (err) {
     console.error('Error fetching users:', err)
-    // Use mock data if Supabase is not configured
+    // Use mock data if API is not available
     users.value = mockUsers
   }
+}
+
+const mapPlanIdToPlan = (planId: string): 'free' | 'pro' | 'premium' => {
+  // Mapear IDs de plano da API para os tipos locais
+  const planMap: Record<string, 'free' | 'pro' | 'premium'> = {
+    'free': 'free',
+    'pro': 'pro',
+    'premium': 'premium'
+  }
+  return planMap[planId] || 'free'
 }
 
 const viewUserDetails = (user: User) => {
@@ -312,16 +330,15 @@ const deleteUser = async (userId: string) => {
   }
 
   try {
-    const { error } = await supabase
-      .from('users')
-      .delete()
-      .eq('id', userId)
-
-    if (error) throw error
-    users.value = users.value.filter(u => u.id !== userId)
+    const response = await apiClient.delete(`/admin/users/${userId}`)
+    if (response.success) {
+      users.value = users.value.filter(u => u.id !== userId)
+    } else {
+      throw new Error(response.message)
+    }
   } catch (err) {
     console.error('Error deleting user:', err)
-    // Delete from local state if Supabase is not configured
+    // Delete from local state if API is not available
     users.value = users.value.filter(u => u.id !== userId)
   }
 }
