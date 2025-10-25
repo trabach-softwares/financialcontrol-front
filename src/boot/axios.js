@@ -18,8 +18,18 @@ import { Notify, LocalStorage } from 'quasar'
  * Instância principal do Axios para comunicação com a API
  * Base URL: http://localhost:3000/api (configurada via env)
  */
+// Debug: Verificar se a variável de ambiente está sendo carregada
+console.log('🔧 API Base URL configurada:', process.env.VITE_API_BASE_URL)
+
+// Em desenvolvimento, usar proxy local. Em produção, usar URL da variável de ambiente
+const isDevelopment = process.env.NODE_ENV === 'development'
+const baseURL = isDevelopment ? '/api' : process.env.VITE_API_BASE_URL
+
+console.log('🌍 Ambiente:', process.env.NODE_ENV)
+console.log('📡 Base URL sendo utilizada:', baseURL)
+
 const api = axios.create({ 
-  baseURL: process.env.VITE_API_BASE_URL,
+  baseURL,
   timeout: parseInt(process.env.VITE_API_TIMEOUT) || 15000,
   headers: {
     'Content-Type': 'application/json'
