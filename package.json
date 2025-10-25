@@ -4,13 +4,11 @@
   "description": "Sistema de Controle Financeiro para PMEs",
   "private": true,
   "engines": {
-    "node": "16.x"
+    "node": "^18.0.0 || >=20.0.0"
   },
   "scripts": {
     "dev": "quasar dev",
-    "build": "quasar build && node scripts/prepare-build.js",
-    "build:static": "CI=true NODE_OPTIONS='--max-old-space-size=4096' quasar build",
-    "start": "http-server dist/spa -p $PORT -a 0.0.0.0 --proxy http://localhost:$PORT?",
+    "build": "quasar build",
     "preview": "quasar serve dist/spa --port 4173",
     "lint": "eslint --ext .js,.vue ./src",
     "format": "prettier --write \"**/*.{js,vue,css,md,json}\" --ignore-path .gitignore"
@@ -28,10 +26,10 @@
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.6.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz",
-    "http-server": "^14.1.1"
+    "serve": "^14.2.1"
   },
   "devDependencies": {
-    "@quasar/app-vite": "^1.8.0",
+    "@quasar/app-vite": "^1.7.3",
     "eslint": "^8.56.0",
     "eslint-plugin-vue": "^9.20.1",
     "eslint-config-prettier": "^9.1.0",
