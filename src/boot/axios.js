@@ -18,15 +18,32 @@ import { Notify, LocalStorage } from 'quasar'
  * Instância principal do Axios para comunicação com a API
  * Base URL: http://localhost:3000/api (configurada via env)
  */
-// Debug: Verificar se a variável de ambiente está sendo carregada
-console.log('🔧 API Base URL configurada:', process.env.VITE_API_BASE_URL)
+// Debug: Verificar variáveis de ambiente
+console.log('🔧 VITE_API_BASE_URL:', process.env.VITE_API_BASE_URL)
+console.log('🌍 NODE_ENV:', process.env.NODE_ENV)
 
-// Em desenvolvimento, usar proxy local. Em produção, usar URL da variável de ambiente
-const isDevelopment = process.env.NODE_ENV === 'development'
-const baseURL = isDevelopment ? '/api' : process.env.VITE_API_BASE_URL
+// Configuração de URL base com fallbacks
+const getBaseURL = () => {
+  // Em desenvolvimento, usar proxy local
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔧 Modo desenvolvimento: usando proxy /api')
+    return '/api'
+  }
+  
+  // Em produção, verificar se VITE_API_BASE_URL está definida
+  if (process.env.VITE_API_BASE_URL) {
+    console.log('� Produção: usando URL da API:', process.env.VITE_API_BASE_URL)
+    return process.env.VITE_API_BASE_URL
+  }
+  
+  // Fallback de emergência - erro se chegar aqui
+  console.error('❌ ERRO: VITE_API_BASE_URL não está definida em produção!')
+  console.error('❌ Configure a variável VITE_API_BASE_URL no Render com a URL da sua API backend')
+  throw new Error('API Base URL não configurada. Configure VITE_API_BASE_URL nas environment variables do Render.')
+}
 
-console.log('🌍 Ambiente:', process.env.NODE_ENV)
-console.log('📡 Base URL sendo utilizada:', baseURL)
+const baseURL = getBaseURL()
+console.log('📡 URL base final do axios:', baseURL)
 
 const api = axios.create({ 
   baseURL,
