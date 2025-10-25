@@ -11,6 +11,7 @@
 const { configure } = require('quasar/wrappers');
 
 module.exports = configure(function (/* ctx */) {
+
   return {
     eslint: {
       // fix: true,
@@ -60,7 +61,7 @@ module.exports = configure(function (/* ctx */) {
 
       vueRouterMode: 'history', // available values: 'hash', 'history'
       // vueRouterBase,
-      // vueDevtools,
+      vueDevtools: false, // Use browser extension instead of standalone app
       // vueOptionsAPI: false,
 
       // rebuildCache: true, // rebuilds Vite/ESBuild cache on startup
@@ -251,4 +252,4 @@ module.exports = configure(function (/* ctx */) {
       // extendBexManifestJson (json) {}
     }
   }
-});
+})

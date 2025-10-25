@@ -1,45 +1,134 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <title><%= productName %></title>
 
-    <meta charset="utf-8">
-    <meta name="description" content="<%= productDescription %>">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="msapplication-tap-highlight" content="no">
-    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width<% if (ctx.mode.cordova || ctx.mode.capacitor) { %>, viewport-fit=cover<% } %>">
+<head>
+  <meta charset="utf-8">
+  <title>
+    <%= productName %>
+  </title>
 
-    <!-- Favicons e Ícones -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="icon" type="image/svg+xml" sizes="16x16" href="/favicon-16x16.svg">
-    <link rel="icon" type="image/svg+xml" sizes="32x32" href="/favicon.svg">
-    <link rel="icon" type="image/svg+xml" sizes="64x64" href="/icon-64x64.svg">
-    <link rel="icon" type="image/svg+xml" sizes="192x192" href="/icon-192x192.svg">
-    <link rel="icon" type="image/ico" href="/favicon.ico">
-    
-    <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/icon-192x192.svg">
-    <link rel="apple-touch-icon" sizes="152x152" href="/icon-192x192.svg">
-    <link rel="apple-touch-icon" sizes="144x144" href="/icon-192x192.svg">
-    <link rel="apple-touch-icon" sizes="120x120" href="/icon-192x192.svg">
-    <link rel="apple-touch-icon" sizes="114x114" href="/icon-192x192.svg">
-    <link rel="apple-touch-icon" sizes="76x76" href="/icon-64x64.svg">
-    <link rel="apple-touch-icon" sizes="72x72" href="/icon-64x64.svg">
-    <link rel="apple-touch-icon" sizes="60x60" href="/favicon.svg">
-    <link rel="apple-touch-icon" sizes="57x57" href="/favicon.svg">
-    
-    <!-- Web App Manifest -->
-    <link rel="manifest" href="/site.webmanifest">
-    <meta name="theme-color" content="#007bff">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Controle Financeiro">
-    
-    <!-- Microsoft Tiles -->
-    <meta name="msapplication-TileColor" content="#007bff">
-    <meta name="msapplication-TileImage" content="/icon-192x192.svg">
-  </head>
-  <body>
+  <!-- Meta Tags Principais -->
+  <meta name="description" content="<%= productDescription %>">
+  <meta name="keywords"
+    content="controle financeiro, gestão financeira, PME, finanças, relatórios, dashboard, fluxo de caixa">
+  <meta name="author" content="Trabach Softwares">
+  <meta name="robots" content="index, follow">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport"
+    content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width<% if (ctx.mode.cordova || ctx.mode.capacitor) { %>, viewport-fit=cover<% } %>">
+
+  <!-- Preconexões para melhorar performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+
+  <!-- Favicons e Ícones -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/svg+xml" sizes="16x16" href="/favicon-16x16.svg">
+  <link rel="icon" type="image/svg+xml" sizes="32x32" href="/favicon.svg">
+  <link rel="icon" type="image/svg+xml" sizes="64x64" href="/icon-64x64.svg">
+  <link rel="icon" type="image/svg+xml" sizes="192x192" href="/icon-192x192.svg">
+  <link rel="icon" type="image/ico" href="/favicon.ico">
+
+  <!-- Apple Touch Icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/icon-192x192.svg">
+  <link rel="apple-touch-icon" sizes="152x152" href="/icon-192x192.svg">
+  <link rel="apple-touch-icon" sizes="144x144" href="/icon-192x192.svg">
+  <link rel="apple-touch-icon" sizes="120x120" href="/icon-192x192.svg">
+  <link rel="apple-touch-icon" sizes="114x114" href="/icon-192x192.svg">
+  <link rel="apple-touch-icon" sizes="76x76" href="/icon-64x64.svg">
+  <link rel="apple-touch-icon" sizes="72x72" href="/icon-64x64.svg">
+  <link rel="apple-touch-icon" sizes="60x60" href="/favicon.svg">
+  <link rel="apple-touch-icon" sizes="57x57" href="/favicon.svg">
+
+  <!-- Web App Manifest e PWA -->
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#1976D2">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#1976D2">
+  <meta name="apple-mobile-web-app-title" content="Controle Financeiro Pro">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- Microsoft Tiles -->
+  <meta name="msapplication-TileColor" content="#1976D2">
+  <meta name="msapplication-TileImage" content="/icon-192x192.svg">
+  <meta name="msapplication-config" content="/browserconfig.xml">
+
+  <!-- Meta tags de acessibilidade -->
+  <meta name="accessibility-control" content="fullKeyboardControl">
+  <meta name="accessibility-control" content="fullMouseControl">
+  <meta name="accessibility-control" content="fullTouchControl">
+
+  <!-- Tags Open Graph para compartilhamento em redes sociais -->
+  <meta property="og:title" content="<%= productName %>">
+  <meta property="og:description" content="<%= productDescription %>">
+  <meta property="og:image" content="/icon-192x192.svg">
+  <meta property="og:image:alt" content="Logo do Controle Financeiro Pro">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://seu-dominio.com">
+  <meta property="og:site_name" content="Controle Financeiro Pro">
+  <meta property="og:locale" content="pt_BR">
+
+  <!-- Tags Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="<%= productName %>">
+  <meta name="twitter:description" content="<%= productDescription %>">
+  <meta name="twitter:image" content="/icon-192x192.svg">
+  <meta name="twitter:image:alt" content="Logo do Controle Financeiro Pro">
+
+  <!-- Tags de Segurança -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+  <!-- Schema.org JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "<%= productName %>",
+    "description": "<%= productDescription %>",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "BRL"
+    }
+  }
+  </script>
+</head>
+
+<body>
+  <!-- Container principal da aplicação Quasar/Vue -->
+  <div id="q-app" role="main" aria-live="polite">
     <!-- quasar:entry-point -->
-  </body>
+  </div>
+
+  <!-- Noscript para mensagem quando JavaScript estiver desativado -->
+  <noscript>
+    <div style="
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #1976D2 0%, #26A69A 100%);
+      color: white;
+      font-family: 'Roboto', sans-serif;
+      padding: 20px;
+      text-align: center;
+    ">
+      <div>
+        <h1 style="font-size: 2rem; margin-bottom: 1rem;">⚠️ JavaScript Desabilitado</h1>
+        <p style="font-size: 1.2rem; margin-bottom: 1rem;">
+          Para utilizar o <strong>Controle Financeiro Pro</strong>, por favor, habilite o JavaScript no seu navegador.
+        </p>
+        <p style="font-size: 1rem; opacity: 0.9;">
+          Este sistema requer JavaScript para funcionar corretamente e oferecer a melhor experiência.
+        </p>
+      </div>
+    </div>
+  </noscript>
+</body>
+
 </html>
