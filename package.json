@@ -8,12 +8,13 @@
   },
   "scripts": {
     "dev": "npx quasar dev",
-    "build": "npx quasar build",
+    "build": "npx @quasar/cli build",
     "preview": "npx quasar serve dist/spa --port 4173",
     "lint": "eslint --ext .js,.vue ./src",
     "format": "prettier --write \"**/*.{js,vue,css,md,json}\" --ignore-path .gitignore"
   },
   "dependencies": {
+    "@quasar/cli": "^2.5.0",
     "@quasar/extras": "^1.16.9",
     "axios": "^1.6.5",
     "chart.js": "^4.4.1",
@@ -30,7 +31,6 @@
   },
   "devDependencies": {
     "@quasar/app-vite": "^1.7.3",
-    "@quasar/cli": "^2.5.0",
     "autoprefixer": "^10.4.17",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
