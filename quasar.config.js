@@ -68,7 +68,7 @@ module.exports = configure(function (/* ctx */) {
       // publicPath: '/',
       // analyze: true,
       env: {
-        API_BASE_URL: process.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
+        API_BASE_URL: process.env.VITE_API_BASE_URL
       },
       
       // Variáveis para o template HTML

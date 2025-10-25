@@ -19,7 +19,7 @@ import { Notify, LocalStorage } from 'quasar'
  * Base URL: http://localhost:3000/api (configurada via env)
  */
 const api = axios.create({ 
-  baseURL: process.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
+  baseURL: process.env.VITE_API_BASE_URL,
   timeout: parseInt(process.env.VITE_API_TIMEOUT) || 15000,
   headers: {
     'Content-Type': 'application/json'
