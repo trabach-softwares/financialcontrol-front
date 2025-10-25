@@ -8,17 +8,11 @@ Efeitos: Interface limpa e focada na autenticação -->
 
 <template>
   <q-layout view="hHh lpR fFf" class="auth-layout">
-    
-    <!-- ==========================================================================
-    CONTEÚDO PRINCIPAL
-    ========================================================================== -->
+  
     <q-page-container class="auth-container">
       <router-view />
     </q-page-container>
 
-    <!-- ==========================================================================
-    FOOTER DE INFORMAÇÕES (OPCIONAL)
-    ========================================================================== -->
     <q-footer class="auth-footer bg-transparent text-center" reveal>
       <div class="q-pa-md">
         <p class="text-caption text-grey-6">
@@ -51,11 +45,6 @@ Efeitos: Interface limpa e focada na autenticação -->
         </div>
       </div>
     </q-footer>
-
-    <!-- ==========================================================================
-    DIALOGS DE INFORMAÇÕES
-    ========================================================================== -->
-    <!-- Dialog Política de Privacidade -->
     <q-dialog v-model="showPrivacyPolicy" maximized>
       <q-card class="policy-card">
         <q-bar class="bg-primary text-white">
@@ -220,16 +209,9 @@ Efeitos: Interface limpa e focada na autenticação -->
 <script setup>
 import { ref, computed } from 'vue'
 
-// ==========================================================================
-// ESTADO REATIVO
-// ==========================================================================
 const showPrivacyPolicy = ref(false)
 const showTermsOfService = ref(false)
 const showSupport = ref(false)
-
-// ==========================================================================
-// COMPUTED PROPERTIES
-// ==========================================================================
 const currentYear = computed(() => {
   return new Date().getFullYear()
 })
@@ -237,10 +219,6 @@ const currentYear = computed(() => {
 const currentDate = computed(() => {
   return new Date().toLocaleDateString('pt-BR')
 })
-
-// ==========================================================================
-// MÉTODOS
-// ==========================================================================
 
 /**
  * Abre FAQ (implementação futura)
@@ -285,10 +263,6 @@ Dados do sistema:
 </script>
 
 <style lang="scss" scoped>
-// ==========================================================================
-// ESTILOS DO LAYOUT DE AUTENTICAÇÃO
-// ==========================================================================
-
 .auth-layout {
   background: linear-gradient(
     135deg,

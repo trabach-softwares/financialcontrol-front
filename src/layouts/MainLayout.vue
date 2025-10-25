@@ -232,17 +232,10 @@ Efeitos: Navegação completa e interface responsiva -->
         </q-btn-dropdown>
       </q-toolbar>
     </q-header>
-
-    <!-- ==========================================================================
-    CONTEÚDO PRINCIPAL
-    ========================================================================== -->
     <q-page-container class="main-content">
       <router-view />
     </q-page-container>
 
-    <!-- ==========================================================================
-    DIALOGS
-    ========================================================================== -->
     <!-- Dialog de Notificações -->
     <q-dialog v-model="showNotifications" position="right">
       <q-card style="width: 400px; max-width: 90vw;">

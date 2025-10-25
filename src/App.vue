@@ -1,11 +1,3 @@
-<!-- ==========================================================================
-APP.VUE - COMPONENTE RAIZ DA APLICAÇÃO
-==========================================================================
-Propósito: Ponto de entrada principal da aplicação Vue.js
-Origem: Inicialização do sistema
-Destino: Layouts e páginas via router
-Efeitos: Configuração global, inicialização de stores -->
-
 <template>
   <div id="q-app">
     <router-view />
@@ -17,32 +9,18 @@ import { onMounted } from 'vue'
 import { useAuthStore } from 'src/stores/auth'
 import { useTransactionStore } from 'src/stores/transactions'
 
-// ==========================================================================
-// STORES
-// ==========================================================================
 const authStore = useAuthStore()
 const transactionStore = useTransactionStore()
 
-// ==========================================================================
-// INICIALIZAÇÃO DA APLICAÇÃO
-// ==========================================================================
 onMounted(async () => {
-  console.log('🚀 [APP] Inicializando aplicação Controle Financeiro')
   
   try {
-    // Inicializa autenticação
-    console.log('🔐 [APP] Inicializando sistema de autenticação')
     await authStore.initialize()
     
-    // Se usuário autenticado, inicializa dados básicos
     if (authStore.isAuthenticated) {
-      console.log('✅ [APP] Usuário autenticado, carregando dados iniciais')
       
-      // Carrega categorias de transação
       transactionStore.loadCategories()
     }
-    
-    console.log('✅ [APP] Aplicação inicializada com sucesso')
     
   } catch (error) {
     console.error('❌ [APP] Erro na inicialização:', error.message)
@@ -50,17 +28,8 @@ onMounted(async () => {
 })
 </script>
 
-<style lang="scss">
-// ==========================================================================
-// ESTILOS GLOBAIS DA APLICAÇÃO
-// ==========================================================================
-
-// Importações do Quasar (se necessário customizar)
-// @import '~quasar/src/css/index.sass';
-
-// Variáveis globais
+<!-- <style lang="scss">
 :root {
-  // Cores principais
   --primary: #1976D2;
   --secondary: #26A69A;
   --accent: #9C27B0;
@@ -354,4 +323,4 @@ body {
 ::-moz-selection {
   background-color: rgba(25, 118, 210, 0.2);
 }
-</style>
+</style> -->

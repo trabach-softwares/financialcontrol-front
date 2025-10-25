@@ -1,11 +1,3 @@
-/* ==========================================================================
-APP.CSS - ESTILOS GLOBAIS DA APLICAÇÃO
-==========================================================================
-Propósito: Definir estilos globais e customizações do Quasar
-Aplicação: Toda a aplicação via main.js
-Efeitos: Tema personalizado, utility classes, overrides */
-
-/* CSS Variables para cores customizadas */
 :root {
   --primary: #1976D2;
   --secondary: #26A69A;
