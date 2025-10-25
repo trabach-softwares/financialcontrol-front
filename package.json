@@ -7,37 +7,35 @@
     "node": "^18.0.0 || >=20.0.0"
   },
   "scripts": {
-    "dev": "quasar dev",
-    "build": "quasar build",
-    "preview": "quasar serve dist/spa --port 4173",
+    "dev": "npx quasar dev",
+    "build": "npx quasar build",
+    "preview": "npx quasar serve dist/spa --port 4173",
     "lint": "eslint --ext .js,.vue ./src",
     "format": "prettier --write \"**/*.{js,vue,css,md,json}\" --ignore-path .gitignore"
   },
   "dependencies": {
-    "@quasar/cli": "^2.0.0",
     "@quasar/extras": "^1.16.9",
-    "quasar": "^2.14.2",
-    "vue": "^3.4.15",
-    "vue-router": "^4.2.5",
-    "pinia": "^2.1.7",
     "axios": "^1.6.5",
     "chart.js": "^4.4.1",
-    "vue-chartjs": "^5.3.0",
     "date-fns": "^3.2.0",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.6.0",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz",
-    "serve": "^14.2.1"
+    "pinia": "^2.1.7",
+    "quasar": "^2.14.2",
+    "serve": "^14.2.1",
+    "vue": "^3.4.15",
+    "vue-chartjs": "^5.3.0",
+    "vue-router": "^4.2.5",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz"
   },
   "devDependencies": {
-    "@quasar/cli": "^2.0.0",
     "@quasar/app-vite": "^1.7.3",
-    "eslint": "^8.56.0",
-    "eslint-plugin-vue": "^9.20.1",
-    "eslint-config-prettier": "^9.1.0",
-    "prettier": "^3.2.4",
     "autoprefixer": "^10.4.17",
-    "postcss": "^8.4.33"
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-vue": "^9.20.1",
+    "postcss": "^8.4.33",
+    "prettier": "^3.2.4"
   },
   "browserslist": [
     "last 10 Chrome versions",
