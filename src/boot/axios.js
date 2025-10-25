@@ -36,6 +36,13 @@ const getBaseURL = () => {
     return process.env.VITE_API_BASE_URL
   }
   
+  // Fallback temporário para produção específica
+  if (typeof window !== 'undefined' && window.location?.hostname === 'app.financialcontrol.com.br') {
+    const fallbackURL = 'https://api.financialcontrol.com.br/api'
+    console.warn('⚠️ FALLBACK: Usando URL temporária:', fallbackURL)
+    return fallbackURL
+  }
+  
   // Fallback de emergência - erro se chegar aqui
   console.error('❌ ERRO: VITE_API_BASE_URL não está definida em produção!')
   console.error('❌ Configure a variável VITE_API_BASE_URL no Render com a URL da sua API backend')
