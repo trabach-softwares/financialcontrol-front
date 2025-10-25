@@ -24,7 +24,13 @@ console.log('🌍 NODE_ENV:', process.env.NODE_ENV)
 
 // Configuração de URL base com fallbacks
 const getBaseURL = () => {
-  // Em desenvolvimento, usar proxy local
+  // Sempre usar a VITE_API_BASE_URL se estiver definida
+  if (process.env.VITE_API_BASE_URL) {
+    console.log('🔧 Usando URL da variável de ambiente:', process.env.VITE_API_BASE_URL)
+    return process.env.VITE_API_BASE_URL
+  }
+  
+  // Fallback para desenvolvimento (caso não tenha VITE_API_BASE_URL)
   if (process.env.NODE_ENV === 'development') {
     console.log('🔧 Modo desenvolvimento: usando proxy /api')
     return '/api'
