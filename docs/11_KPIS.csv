@@ -1,0 +1,21 @@
+KPI,Definição,Fonte de Dados,Meta Inicial,Frequência,Owner
+Time-to-First-Transaction,Tempo médio desde cadastro até primeira transação criada,Analytics (timestamp cadastro vs primeira transaction),< 2 minutos,Diária,Product Manager
+Trial-to-Paid Conversion,% de usuários trial que convertem para plano pago,CRM (trial_start_date vs subscription_active),> 25%,Semanal,Growth Lead
+Monthly Active Users (MAU),Usuários únicos que fazem login ao menos 1x no mês,Auth logs (unique user_id por mês),80% dos pagantes,Mensal,Product Manager
+Feature Adoption - Export,% de usuários pagantes que usaram export ao menos 1x,Feature usage logs (export_count > 0),> 60%,Mensal,Product Manager
+Feature Adoption - Filtros,% de usuários que aplicaram filtro customizado,Transaction filters applied,> 50%,Mensal,Product Manager
+Onboarding Completion Rate,% de novos usuários que completam wizard de 3 passos,Onboarding analytics (step_completed = 3),> 70%,Diária,UX Designer
+Churn Rate Mensal,% de assinantes que cancelam no mês,Subscriptions (status = cancelled / total active),< 5%,Mensal,Customer Success
+Average Session Duration,Tempo médio de sessão ativa no app,Analytics (session_start vs session_end),> 8 minutos,Semanal,Product Manager
+Transactions per User (avg),Média de transações criadas por usuário ativo,Transactions table (count / active_users),> 30/mês,Mensal,Product Manager
+Customer Acquisition Cost (CAC),Custo total de marketing / novos clientes,Marketing spend / new signups,< R$ 150,Mensal,CMO
+Lifetime Value (LTV),Receita média por cliente durante vida útil,ARPU * (1/churn_rate),> R$ 2.400 (24 meses),Trimestral,CFO
+LTV/CAC Ratio,Retorno sobre investimento em aquisição,LTV / CAC,> 3:1,Trimestral,CFO
+Net Promoter Score (NPS),% promotores - % detratores,Survey in-app (escala 0-10),> 50,Trimestral,Customer Success
+Customer Satisfaction (CSAT),% satisfeitos com produto,Survey pós-interação (5 estrelas),> 4.2/5,Mensal,Customer Success
+Support Ticket Volume,Número de tickets de suporte abertos,Helpdesk system,< 5% dos MAU,Semanal,Support Lead
+First Response Time,Tempo médio até primeira resposta de suporte,Helpdesk timestamps,< 2 horas,Diária,Support Lead
+Bug Rate,Bugs reportados / total de features lançadas,Jira/GitHub Issues,< 0.1,Sprint,Engineering Lead
+Deploy Frequency,Frequência de deploys em produção,CI/CD logs,> 2x/semana,Semanal,DevOps
+Time to First Value (TTFV),Tempo até usuário perceber valor (ver primeiro insight),Analytics (primeiro gráfico visualizado),< 5 minutos,Diária,Product Manager
+Revenue Churn,Perda de receita mensal por cancelamentos,MRR perdida / MRR total,< 3%,Mensal,CFO

@@ -1,0 +1,97 @@
+{
+  "project": "Financial Control - Frontend",
+  "version": "1.0.0",
+  "generated": "2025-10-25",
+  "summary": {
+    "total_tasks": 32,
+    "high_priority": 18,
+    "medium_priority": 10,
+    "low_priority": 4
+  },
+  "tasks": [
+    {
+      "id": "D001",
+      "title": "Implementar Paleta Finance Trust no Quasar",
+      "owner": "Design Lead",
+      "priority": "High",
+      "estimate": "4h"
+    },
+    {
+      "id": "D002",
+      "title": "Criar design-tokens.css",
+      "owner": "Frontend Dev",
+      "priority": "High",
+      "estimate": "4h"
+    },
+    {
+      "id": "D003",
+      "title": "Criar componente MetricCard.vue",
+      "owner": "Frontend Dev",
+      "priority": "Medium",
+      "estimate": "6h"
+    },
+    {
+      "id": "UX001",
+      "title": "Implementar Onboarding Wizard (3 passos)",
+      "owner": "Product + Frontend",
+      "priority": "High",
+      "estimate": "32h"
+    },
+    {
+      "id": "UX002",
+      "title": "Melhorar empty states",
+      "owner": "Frontend Dev",
+      "priority": "Medium",
+      "estimate": "8h"
+    },
+    {
+      "id": "F001",
+      "title": "Exportação relatórios CSV",
+      "owner": "Backend + Frontend",
+      "priority": "High",
+      "estimate": "16h"
+    },
+    {
+      "id": "F002",
+      "title": "Exportação relatórios PDF",
+      "owner": "Backend + Frontend",
+      "priority": "High",
+      "estimate": "12h"
+    },
+    {
+      "id": "F004",
+      "title": "IA categorização automática",
+      "owner": "Backend",
+      "priority": "High",
+      "estimate": "48h"
+    },
+    {
+      "id": "F005",
+      "title": "Forecast simples (média móvel)",
+      "owner": "Backend",
+      "priority": "High",
+      "estimate": "24h"
+    },
+    {
+      "id": "F006",
+      "title": "Integração Open Banking",
+      "owner": "Backend + DevOps",
+      "priority": "High",
+      "estimate": "56h"
+    },
+    {
+      "id": "A001",
+      "title": "Auditoria contraste WCAG AA",
+      "owner": "Design",
+      "priority": "High",
+      "estimate": "8h"
+    },
+    {
+      "id": "A002",
+      "title": "Adicionar ARIA labels",
+      "owner": "Frontend",
+      "priority": "High",
+      "estimate": "8h"
+    }
+  ]
+}
