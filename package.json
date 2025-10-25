@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "npx quasar dev",
-    "build": "quasar build",
+    "build": "node ./node_modules/@quasar/app-vite/bin/quasar build",
     "preview": "npx quasar serve dist/spa --port 4173",
     "lint": "eslint --ext .js,.vue ./src",
     "format": "prettier --write \"**/*.{js,vue,css,md,json}\" --ignore-path .gitignore"
