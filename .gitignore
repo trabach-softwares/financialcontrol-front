@@ -7,7 +7,9 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-.env
+# Arquivos de Ambiente (inclui .env, .env.local, .env.development, etc.)
+.env*
+
 node_modules
 .DS_Store
 dist
