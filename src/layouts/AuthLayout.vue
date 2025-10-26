@@ -27,38 +27,6 @@ Efeitos: Interface limpa e focada na autenticação -->
       <router-view />
     </q-page-container>
 
-    <q-footer class="auth-footer bg-transparent text-center" reveal>
-      <div class="q-pa-md">
-        <p class="text-caption text-grey-6">
-          Controle Financeiro © {{ currentYear }}
-        </p>
-        <div class="footer-links q-gutter-sm">
-          <q-btn 
-            flat 
-            size="sm" 
-            color="grey-6" 
-            label="Política de Privacidade"
-            @click="showPrivacyPolicy = true"
-          />
-          <span class="text-grey-5">•</span>
-          <q-btn 
-            flat 
-            size="sm" 
-            color="grey-6" 
-            label="Termos de Uso"
-            @click="showTermsOfService = true"
-          />
-          <span class="text-grey-5">•</span>
-          <q-btn 
-            flat 
-            size="sm" 
-            color="grey-6" 
-            label="Suporte"
-            @click="showSupport = true"
-          />
-        </div>
-      </div>
-    </q-footer>
     <q-dialog v-model="showPrivacyPolicy" maximized>
       <q-card class="policy-card">
         <q-bar class="bg-primary text-white">

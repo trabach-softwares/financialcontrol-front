@@ -181,7 +181,7 @@ Responsividade: Mobile-first design
                 label="Entrar"
                 color="primary"
                 size="lg"
-                class="full-width q-mt-lg btn-primary-sage"
+                class="q-mt-lg btn-primary-sage "
                 :loading="isLoading"
                 :disable="!isLoginFormValid"
                 no-caps
@@ -566,7 +566,28 @@ const handleForgotPassword = () => {
   align-items: center;
   justify-content: center;
   padding: var(--spacing-4);
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8ebe9 100%);
+  border-radius: 12px;
+  
+  // Background moderno com gradiente animado e padrão
+  background: radial-gradient(circle at 5% 0%, rgba(44, 95, 45, 0.08) 0%, transparent 45%), radial-gradient(circle at 43% 25%, rgba(151, 180, 152, 0.08) 0%, transparent 138%), linear-gradient(135deg, #e8eceb 0%, #d4dcd6 0%, #c8d3ca 17%
+42%
+);
+  background-size: 100% 100%;
+  position: relative;
+  overflow: hidden;
+  
+  // Padrão de textura sutil
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.03) 35px, rgba(255,255,255,.03) 70px);
+    pointer-events: none;
+  }
   
   @media (max-width: 599px) {
     padding: var(--spacing-2);
@@ -577,48 +598,145 @@ const handleForgotPassword = () => {
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
-// Header com Logo
+// Header com Logo - Glassmorphism
 .login-header {
   .logo-container {
     display: inline-flex;
     padding: var(--spacing-4);
-    background: white;
+    
+    // Efeito Glassmorphism no logo
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    
     border-radius: var(--radius-full);
-    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    
+    box-shadow: 
+      0 8px 32px 0 rgba(44, 95, 45, 0.15),
+      0 2px 8px 0 rgba(0, 0, 0, 0.05),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+    
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    &:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 
+        0 12px 40px 0 rgba(44, 95, 45, 0.2),
+        0 4px 12px 0 rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.7);
+    }
     
     .logo-icon {
-      animation: fadeInScale 0.6s ease-out;
+      animation: fadeInScale 0.6s ease-out, floatIcon 3s ease-in-out infinite;
+      filter: drop-shadow(0 2px 4px rgba(44, 95, 45, 0.2));
     }
   }
 }
 
-// Card de Autenticação
+// Card de Autenticação - Glassmorphism Premium
 .auth-card {
-  background: white;
-  border-radius: var(--radius-lg);
+  // Glassmorphism com blur forte
+  background: rgba(255, 255, 255, 0.4) !important;
+  backdrop-filter: blur(30px) saturate(150%);
+  -webkit-backdrop-filter: blur(30px) saturate(150%);
+  
+  border-radius: 24px !important;
   padding: var(--spacing-8);
-  box-shadow: var(--shadow-xl);
-  border: 1px solid var(--color-grey-200);
+  
+  // Borda gradiente sutil
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  
+  // Sombras modernas em camadas
+  box-shadow: 
+    0 8px 32px 0 rgba(44, 95, 45, 0.12),
+    0 2px 8px 0 rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.02) !important;
+  
   animation: fadeInUp 0.5s ease-out;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  // Efeito de brilho no hover
+  position: relative;
+  overflow: hidden;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+      0 16px 48px 0 rgba(44, 95, 45, 0.18),
+      0 4px 16px 0 rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
+      inset 0 -1px 0 0 rgba(0, 0, 0, 0.03) !important;
+    
+    &::before {
+      left: 100%;
+    }
+  }
+  
+  // Inputs com glassmorphism
+  :deep(.q-field__control) {
+    background: rgba(255, 255, 255, 0.6) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px !important;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.75) !important;
+    }
+  }
+  
+  :deep(.q-field--focused .q-field__control) {
+    background: rgba(255, 255, 255, 0.85) !important;
+    box-shadow: 0 4px 12px rgba(44, 95, 45, 0.15);
+  }
   
   @media (max-width: 599px) {
     padding: var(--spacing-6);
+    border-radius: 20px !important;
   }
 }
 
-// Tabs
+// Tabs com glassmorphism
 .auth-tabs {
+  border-radius: 12px;
+  padding: 4px;
+  
   :deep(.q-tab) {
     font-weight: var(--font-semibold);
     text-transform: none;
     font-size: var(--text-base);
+    border-radius: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     &.q-tab--active {
       color: var(--color-primary);
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 2px 8px rgba(44, 95, 45, 0.15);
+    }
+    
+    &:not(.q-tab--active):hover {
+      background: rgba(255, 255, 255, 0.4);
     }
   }
+  
+  :deep(.q-tab__indicator) {
+    display: none; // Removemos o indicador padrão pois temos background
+  }
+}
+
+// Tab Panels com background transparente
+:deep(.q-tab-panels) {
+  background: transparent !important; // #ffffff00
+}
+
+:deep(.q-tab-panel) {
+  background: transparent !important;
 }
 
 // Formulários
@@ -632,33 +750,65 @@ const handleForgotPassword = () => {
   font-weight: var(--font-medium);
   color: var(--text-primary);
   margin-bottom: var(--spacing-2);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 }
 
-// Botões personalizados
+// Botões personalizados com glassmorphism
 .btn-primary-sage {
-  background: var(--color-primary) !important;
+  background: linear-gradient(135deg, #2C5F2D 0%, #3d7a3e 100%) !important;
   color: white !important;
   font-weight: var(--font-semibold);
-  border-radius: var(--radius-md);
-  transition: all var(--transition-base) var(--ease-out);
+  border-radius: 14px !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 95%;
+  position: relative;
+  overflow: hidden;
+  
+  // Brilho interno
+  box-shadow: 
+    0 4px 12px rgba(44, 95, 45, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  
+  // Efeito de onda ao clicar
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+  
+  &:active::after {
+    width: 300px;
+    height: 300px;
+  }
   
   &:hover:not(:disabled) {
-    background: darken(#2C5F2D, 8%) !important;
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, #1a3a1b 0%, #2C5F2D 100%) !important;
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 
+      0 8px 24px rgba(44, 95, 45, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
   
   &:focus-visible {
-    outline: 3px solid rgba(44, 95, 45, 0.4);
-    outline-offset: 2px;
+    outline: 3px solid rgba(44, 95, 45, 0.5);
+    outline-offset: 3px;
   }
 }
 
 .link-button {
   font-weight: var(--font-medium);
+  transition: all 0.3s ease;
   
   &:hover {
     text-decoration: underline;
+    transform: translateX(2px);
   }
 }
 
@@ -666,15 +816,22 @@ const handleForgotPassword = () => {
   font-weight: var(--font-semibold);
   padding: 0;
   min-height: auto;
+  transition: all 0.3s ease;
   
   &:hover {
     text-decoration: underline;
+    transform: scale(1.05);
   }
 }
 
-// Footer
+// Footer com glassmorphism sutil
 .login-footer {
   margin-top: var(--spacing-8);
+  padding: var(--spacing-4);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 // Animações
@@ -700,6 +857,86 @@ const handleForgotPassword = () => {
   }
 }
 
+@keyframes floatIcon {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+// Títulos e textos com melhor legibilidade
+.login-title {
+  text-shadow: 0 2px 4px rgba(44, 95, 45, 0.15);
+  background: linear-gradient(135deg, #2C5F2D 0%, #107C10 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-subtitle {
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.panel-title {
+  color: var(--text-primary);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.panel-subtitle {
+  color: var(--text-secondary);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+// Checkbox com estilo moderno
+:deep(.q-checkbox__inner) {
+  border-radius: 6px !important;
+}
+
+:deep(.q-checkbox__bg) {
+  border-radius: 6px !important;
+}
+
+// Separador moderno
+:deep(.q-separator) {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(44, 95, 45, 0.15) 50%,
+    transparent 100%
+  ) !important;
+  height: 2px !important;
+}
+
+// Dialog de recuperação com glassmorphism
+.forgot-password-card {
+  background: rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: blur(30px) saturate(150%);
+  -webkit-backdrop-filter: blur(30px) saturate(150%);
+  border-radius: 20px !important;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 
+    0 8px 32px 0 rgba(44, 95, 45, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.7) !important;
+  
+  .dialog-title {
+    color: var(--text-primary);
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  }
+  
+  .dialog-text {
+    color: var(--text-secondary);
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  }
+  
+  :deep(.q-field__control) {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(10px);
+    border-radius: 12px !important;
+  }
+}
+
 // Responsividade adicional
 @media (max-width: 599px) {
   .text-h3 {
@@ -708,6 +945,13 @@ const handleForgotPassword = () => {
   
   .text-h5 {
     font-size: var(--text-xl) !important;
+  }
+  
+  .login-page {
+    &::before {
+      background-image: 
+        repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,.03) 20px, rgba(255,255,255,.03) 40px);
+    }
   }
 }
 </style>
