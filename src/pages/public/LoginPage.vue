@@ -1,18 +1,9 @@
-<!-- ==========================================================================
-LOGIN PAGE - PÁGINA DE AUTENTICAÇÃO
-==========================================================================
-Propósito: Interface de login e registro de usuários
-Origem: Usuários não autenticados, logout, sessão expirada  
-Destino: Dashboard após login bem-sucedido
-Efeitos: Autenticação JWT, redirecionamento, estado global -->
+
 
 <template>
   <q-page class="flex flex-center bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
     <div class="login-container">
       
-      <!-- ==========================================================================
-      LOGO E TÍTULO PRINCIPAL
-      ========================================================================== -->
       <div class="text-center q-mb-xl">
         <div class="logo-container q-mb-md">
           <q-icon 
@@ -31,15 +22,12 @@ Efeitos: Autenticação JWT, redirecionamento, estado global -->
         </p>
       </div>
 
-      <!-- ==========================================================================
-      CARD DE AUTENTICAÇÃO
-      ========================================================================== -->
       <q-card 
         class="auth-card q-pa-xl shadow-10" 
         flat 
         bordered
       >
-        <!-- Tabs de Login/Registro -->
+        
         <q-tabs
           v-model="activeTab"
           dense
@@ -55,9 +43,6 @@ Efeitos: Autenticação JWT, redirecionamento, estado global -->
 
         <q-separator class="q-mb-lg" />
 
-        <!-- ==========================================================================
-        FORMULÁRIO DE LOGIN
-        ========================================================================== -->
         <q-tab-panels v-model="activeTab" animated>
           <q-tab-panel name="login" class="q-pa-none">
             <q-form @submit="handleLogin" class="q-gutter-md">
@@ -285,9 +270,6 @@ Efeitos: Autenticação JWT, redirecionamento, estado global -->
           </q-tab-panel>
         </q-tab-panels>
 
-        <!-- ==========================================================================
-        DIVISOR E LOGIN SOCIAL (FUTURO)
-        ========================================================================== -->
         <div class="q-mt-xl">
           <q-separator class="q-mb-md">
             <span class="text-grey-6 text-caption bg-white q-px-sm">
@@ -304,9 +286,6 @@ Efeitos: Autenticação JWT, redirecionamento, estado global -->
         </div>
       </q-card>
 
-      <!-- ==========================================================================
-      FOOTER
-      ========================================================================== -->
       <div class="text-center q-mt-lg">
         <p class="text-grey-6 text-caption">
           © 2024 Controle Financeiro. Todos os direitos reservados.
@@ -314,9 +293,6 @@ Efeitos: Autenticação JWT, redirecionamento, estado global -->
       </div>
     </div>
 
-    <!-- ==========================================================================
-    DIALOGS
-    ========================================================================== -->
     <!-- Dialog de Esqueci a Senha -->
     <q-dialog v-model="showForgotPassword" persistent>
       <q-card style="min-width: 350px">

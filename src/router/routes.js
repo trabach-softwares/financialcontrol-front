@@ -24,7 +24,7 @@ const routes = [
       {
         path: '',
         name: 'login',
-        component: () => import('pages/LoginPage.vue'),
+        component: () => import('pages/public/LoginPage.vue'),
         meta: {
           title: 'Login',
           requiresAuth: false,
@@ -137,7 +137,7 @@ const routes = [
       {
         path: '/admin/dashboard',
         name: 'admin-dashboard',
-        component: () => import('pages/admin/AdminDashboardPage.vue'),
+        component: () => import('pages/auth/admin/AdminDashboardPage.vue'),
         meta: {
           title: 'Admin Dashboard',
           requiresAuth: true,
@@ -151,7 +151,7 @@ const routes = [
       {
         path: '/admin/users',
         name: 'admin-users',
-        component: () => import('pages/admin/AdminUsersPage.vue'),
+        component: () => import('pages/auth/admin/AdminUsersPage.vue'),
         meta: {
           title: 'Usuários',
           requiresAuth: true,
@@ -165,7 +165,7 @@ const routes = [
       {
         path: '/admin/plans',
         name: 'admin-plans',
-        component: () => import('pages/admin/AdminPlansPage.vue'),
+        component: () => import('pages/auth/admin/AdminPlansPage.vue'),
         meta: {
           title: 'Gestão de Planos',
           requiresAuth: true,
@@ -179,7 +179,7 @@ const routes = [
       {
         path: '/admin/system',
         name: 'admin-system',
-        component: () => import('pages/admin/AdminSystemPage.vue'),
+        component: () => import('pages/auth/admin/AdminSystemPage.vue'),
         meta: {
           title: 'Sistema',
           requiresAuth: true,
