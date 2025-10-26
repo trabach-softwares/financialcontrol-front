@@ -1,0 +1,58 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "filter": "Filter",
+    "loading": "Loading...",
+    "noData": "No data available",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information"
+  },
+  "auth": {
+    "login": "Sign In",
+    "logout": "Sign Out",
+    "register": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "rememberMe": "Remember me",
+    "welcomeBack": "Welcome back",
+    "loginSubtitle": "Sign in with your credentials to access the system",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Invalid email",
+    "passwordRequired": "Password is required",
+    "passwordMinLength": "Password must be at least 6 characters",
+    "loginError": "Login error",
+    "loginSuccess": "Login successful"
+  },
+  "menu": {
+    "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "reports": "Reports",
+    "settings": "Settings",
+    "admin": "Administration",
+    "users": "Users",
+    "plans": "Plans",
+    "system": "System"
+  },
+  "accessibility": {
+    "skipToContent": "Skip to main content",
+    "mainMenu": "Main menu",
+    "userMenu": "User menu",
+    "closeDialog": "Close dialog",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  }
+}

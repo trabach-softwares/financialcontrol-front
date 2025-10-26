@@ -1,18 +1,7 @@
-:root {
-  --primary: #1976D2;
-  --secondary: #26A69A;
-  --accent: #9C27B0;
-  --dark: #1d1d1d;
-  --positive: #21BA45;
-  --negative: #C10015;
-  --info: #31CCEC;
-  --warning: #F2C037;
-  
-  /* Cores específicas do sistema financeiro */
-  --income: #4CAF50;
-  --expense: #F44336;
-  --balance: #2196F3;
-}
+/* Main CSS - Financial Control App */
+@import './design-tokens.scss'; /* Design Tokens */
+@import './typography.scss'; /* Typography */
+@import './themes.scss'; /* Theme System (Light/Dark Mode) */
 
 /* Utility classes for financial colors */
 .text-income { color: var(--income) !important; }

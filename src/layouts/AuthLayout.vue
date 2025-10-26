@@ -8,6 +8,20 @@ Efeitos: Interface limpa e focada na autenticação -->
 
 <template>
   <q-layout view="hHh lpR fFf" class="auth-layout">
+    
+    <!-- Background 3D Animado -->
+    <div class="auth-background">
+      <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+        <div class="shape shape-5"></div>
+        <div class="shape shape-6"></div>
+      </div>
+      <div class="gradient-overlay"></div>
+      <div class="texture-overlay"></div>
+    </div>
   
     <q-page-container class="auth-container">
       <router-view />
@@ -176,7 +190,7 @@ Efeitos: Interface limpa e focada na autenticação -->
               <q-btn
                 label="Documentação"
                 icon="description"
-                color="blue-6"
+                color="secondary"
                 outline
                 class="full-width"
                 no-caps
@@ -186,7 +200,7 @@ Efeitos: Interface limpa e focada na autenticação -->
               <q-btn
                 label="Contato por Email"
                 icon="email"
-                color="green-6"
+                color="positive"
                 outline
                 class="full-width"
                 no-caps
@@ -264,42 +278,238 @@ Dados do sistema:
 
 <style lang="scss" scoped>
 .auth-layout {
-  background: linear-gradient(
-    135deg,
-    #667eea 0%,
-    #764ba2 100%
-  );
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
   
   // Container principal
   .auth-container {
+    position: relative;
+    z-index: 10;
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    padding: 1rem;
+    padding: var(--spacing-4);
   }
+}
+
+// ==========================================================================
+// BACKGROUND 3D ANIMADO - SAGE ACCOUNTANT
+// ==========================================================================
+
+.auth-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    #2C5F2D 0%,
+    #3d7a3e 50%,
+    #107C10 100%
+  );
+}
+
+// Formas Geométricas 3D Flutuantes
+.floating-shapes {
+  position: absolute;
+  width: 100%;
+  height: 100%;
   
-  // Footer
-  .auth-footer {
-    backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.1) !important;
+  .shape {
+    position: absolute;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(40px);
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.1),
+      inset 0 0 60px rgba(255, 255, 255, 0.05);
+    animation: float 20s ease-in-out infinite;
     
-    .footer-links {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-wrap: wrap;
+    // Efeito 3D
+    transform-style: preserve-3d;
+    transform: perspective(1000px) rotateX(20deg) rotateY(20deg);
+    
+    &.shape-1 {
+      width: 300px;
+      height: 300px;
+      top: 10%;
+      left: 5%;
+      animation-duration: 25s;
+      animation-delay: 0s;
+    }
+    
+    &.shape-2 {
+      width: 200px;
+      height: 200px;
+      top: 60%;
+      right: 10%;
+      animation-duration: 30s;
+      animation-delay: -5s;
+      border-radius: 50%;
+    }
+    
+    &.shape-3 {
+      width: 150px;
+      height: 150px;
+      bottom: 20%;
+      left: 15%;
+      animation-duration: 22s;
+      animation-delay: -10s;
+    }
+    
+    &.shape-4 {
+      width: 250px;
+      height: 250px;
+      top: 30%;
+      right: 20%;
+      animation-duration: 28s;
+      animation-delay: -15s;
+      border-radius: 40% 60% 60% 40% / 60% 40% 60% 40%;
+    }
+    
+    &.shape-5 {
+      width: 180px;
+      height: 180px;
+      bottom: 10%;
+      right: 5%;
+      animation-duration: 26s;
+      animation-delay: -20s;
+    }
+    
+    &.shape-6 {
+      width: 220px;
+      height: 220px;
+      top: 5%;
+      left: 50%;
+      animation-duration: 24s;
+      animation-delay: -8s;
+      border-radius: 50%;
     }
   }
+}
+
+// Animação de Flutuação 3D
+@keyframes float {
+  0%, 100% {
+    transform: 
+      perspective(1000px) 
+      rotateX(20deg) 
+      rotateY(20deg) 
+      translateY(0px) 
+      translateX(0px) 
+      scale(1);
+  }
+  25% {
+    transform: 
+      perspective(1000px) 
+      rotateX(-10deg) 
+      rotateY(30deg) 
+      translateY(-30px) 
+      translateX(20px) 
+      scale(1.05);
+  }
+  50% {
+    transform: 
+      perspective(1000px) 
+      rotateX(15deg) 
+      rotateY(-20deg) 
+      translateY(-50px) 
+      translateX(-20px) 
+      scale(1.1);
+  }
+  75% {
+    transform: 
+      perspective(1000px) 
+      rotateX(-20deg) 
+      rotateY(10deg) 
+      translateY(-30px) 
+      translateX(30px) 
+      scale(1.05);
+  }
+}
+
+// Gradiente Overlay Animado
+.gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    45deg,
+    rgba(44, 95, 45, 0.3) 0%,
+    transparent 50%,
+    rgba(16, 124, 16, 0.3) 100%
+  );
+  animation: gradientShift 15s ease-in-out infinite;
+  mix-blend-mode: overlay;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    opacity: 0.5;
+    transform: translateX(0) translateY(0);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateX(-20px) translateY(-20px);
+  }
+}
+
+// Textura Sutil
+.texture-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.03;
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.05) 2px,
+      rgba(255, 255, 255, 0.05) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.05) 2px,
+      rgba(255, 255, 255, 0.05) 4px
+    );
+  pointer-events: none;
+}
+
+// Footer
+.auth-footer {
+  position: relative;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1) !important;
   
-  // Cards de política
-  .policy-card {
+  .footer-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+// Cards de política
+.policy-card {
     .q-bar {
       border-radius: 0;
     }
     
     h6 {
-      color: #1976D2;
+      color: var(--color-primary); // Verde contábil #2C5F2D
       margin: 1.5rem 0 0.5rem 0;
       
       &:first-child {
@@ -321,7 +531,7 @@ Dados do sistema:
       line-height: 1.6;
     }
   }
-}
+
 
 // Animação de entrada
 .auth-layout {
@@ -339,14 +549,23 @@ Dados do sistema:
 
 // Responsividade
 @media (max-width: 768px) {
-  .auth-layout {
-    .auth-container {
-      padding: 0.5rem;
-    }
+  .auth-layout .auth-container {
+    padding: var(--spacing-2);
+  }
+  
+  .auth-footer .footer-links {
+    flex-direction: column;
+    gap: var(--spacing-1);
+  }
+  
+  // Reduzir complexidade das formas em mobile
+  .floating-shapes .shape {
+    opacity: 0.5;
     
-    .footer-links {
-      flex-direction: column;
-      gap: 0.25rem;
+    &.shape-4,
+    &.shape-5,
+    &.shape-6 {
+      display: none;
     }
   }
 }

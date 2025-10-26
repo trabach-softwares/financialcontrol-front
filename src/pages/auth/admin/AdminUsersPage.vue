@@ -168,10 +168,11 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useNotifications } from '../../composables/useNotifications'
+import { useNotifications } from 'src/composables/useNotifications'
 
-// Composables
+// Composables  
 const { showSuccess, showError, showConfirm } = useNotifications()
+
 
 // Refs
 const loading = ref(false)

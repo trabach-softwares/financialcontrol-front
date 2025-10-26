@@ -1,0 +1,280 @@
+// ==========================================================================
+// SAGE ACCOUNTANT - THEME SYSTEM
+// ==========================================================================
+// Light & Dark Mode com paleta Sage Accountant
+// WCAG 2.1 AA Compliant
+// ==========================================================================
+
+// ==========================================================================
+// LIGHT THEME (DEFAULT)
+// ==========================================================================
+:root,
+[data-theme="light"],
+.sage-light-theme {
+  // Primary Colors
+  --sage-primary: #2C5F2D;
+  --sage-primary-light: #97B498;
+  --sage-primary-dark: #1a3a1b;
+  --sage-accent: #5F7C60;
+  --sage-positive: #107C10;
+  
+  // Background Colors
+  --sage-bg-primary: #ffffff;
+  --sage-bg-secondary: #f8faf8;
+  --sage-bg-tertiary: #f0f4f0;
+  --sage-bg-hover: rgba(44, 95, 45, 0.04);
+  
+  // Text Colors
+  --sage-text-primary: #1a1a1a;
+  --sage-text-secondary: #4a4a4a;
+  --sage-text-tertiary: #6b6b6b;
+  --sage-text-muted: #9e9e9e;
+  
+  // Border Colors
+  --sage-border: rgba(44, 95, 45, 0.12);
+  --sage-border-light: rgba(44, 95, 45, 0.06);
+  --sage-border-strong: rgba(44, 95, 45, 0.2);
+  
+  // Shadow
+  --sage-shadow-sm: 0 2px 8px rgba(44, 95, 45, 0.08);
+  --sage-shadow-md: 0 4px 12px rgba(44, 95, 45, 0.12);
+  --sage-shadow-lg: 0 8px 24px rgba(44, 95, 45, 0.15);
+  --sage-shadow-xl: 0 12px 28px rgba(44, 95, 45, 0.18);
+  
+  // Gradient
+  --sage-gradient: linear-gradient(135deg, #2C5F2D 0%, #3d7a3e 50%, #107C10 100%);
+  --sage-gradient-subtle: linear-gradient(180deg, #f8faf8 0%, #f0f4f0 100%);
+  
+  // Status Colors
+  --sage-success: #107C10;
+  --sage-error: #d32f2f;
+  --sage-warning: #f57c00;
+  --sage-info: #1976d2;
+}
+
+// ==========================================================================
+// DARK THEME
+// ==========================================================================
+[data-theme="dark"],
+.sage-dark-theme,
+body.body--dark {
+  // Primary Colors (mais claros para contraste no escuro)
+  --sage-primary: #97B498;
+  --sage-primary-light: #b8d4b9;
+  --sage-primary-dark: #6b8f6c;
+  --sage-accent: #8fa890;
+  --sage-positive: #4CAF50;
+  
+  // Background Colors (escuros com toque verde sage)
+  --sage-bg-primary: #121212;
+  --sage-bg-secondary: #1a1f1a;
+  --sage-bg-tertiary: #232b23;
+  --sage-bg-hover: rgba(151, 180, 152, 0.08);
+  
+  // Text Colors (claros para contraste)
+  --sage-text-primary: #e8e8e8;
+  --sage-text-secondary: #b8b8b8;
+  --sage-text-tertiary: #888888;
+  --sage-text-muted: #666666;
+  
+  // Border Colors
+  --sage-border: rgba(151, 180, 152, 0.15);
+  --sage-border-light: rgba(151, 180, 152, 0.08);
+  --sage-border-strong: rgba(151, 180, 152, 0.25);
+  
+  // Shadow (mais escura no dark mode)
+  --sage-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --sage-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --sage-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --sage-shadow-xl: 0 12px 28px rgba(0, 0, 0, 0.6);
+  
+  // Gradient (invertido para dark)
+  --sage-gradient: linear-gradient(135deg, #97B498 0%, #8fa890 50%, #4CAF50 100%);
+  --sage-gradient-subtle: linear-gradient(180deg, #1a1f1a 0%, #232b23 100%);
+  
+  // Status Colors (ajustados para dark)
+  --sage-success: #4CAF50;
+  --sage-error: #ef5350;
+  --sage-warning: #ffa726;
+  --sage-info: #42a5f5;
+}
+
+// ==========================================================================
+// GLOBAL DARK MODE OVERRIDES
+// ==========================================================================
+.sage-dark-theme,
+body.body--dark {
+  // Background geral
+  background-color: var(--sage-bg-primary);
+  color: var(--sage-text-primary);
+  
+  // Cards
+  .q-card {
+    background-color: var(--sage-bg-secondary);
+    color: var(--sage-text-primary);
+  }
+  
+  // Inputs
+  .q-field__control {
+    background-color: var(--sage-bg-tertiary);
+    color: var(--sage-text-primary);
+  }
+  
+  .q-field__label {
+    color: var(--sage-text-secondary);
+  }
+  
+  // Sidebar
+  .main-sidebar,
+  .q-drawer {
+    background: var(--sage-gradient-subtle);
+    border-color: var(--sage-border);
+  }
+  
+  // Headers
+  .main-header {
+    background-color: var(--sage-bg-secondary);
+    border-color: var(--sage-border);
+    color: var(--sage-text-primary);
+  }
+  
+  // Buttons
+  .q-btn:not(.q-btn--outline) {
+    &.bg-primary {
+      background: var(--sage-gradient) !important;
+    }
+  }
+  
+  // Lists
+  .q-list {
+    background-color: transparent;
+  }
+  
+  .q-item {
+    color: var(--sage-text-primary);
+    
+    &:hover {
+      background-color: var(--sage-bg-hover);
+    }
+  }
+  
+  // Separators
+  .q-separator {
+    background-color: var(--sage-border);
+  }
+  
+  // Badges & Chips
+  .q-badge,
+  .q-chip {
+    border-color: var(--sage-border);
+  }
+  
+  // Tables
+  .q-table {
+    background-color: var(--sage-bg-secondary);
+    color: var(--sage-text-primary);
+    
+    th {
+      color: var(--sage-text-primary);
+    }
+    
+    tbody tr:hover {
+      background-color: var(--sage-bg-hover);
+    }
+  }
+  
+  // Dialogs
+  .q-dialog__backdrop {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+  
+  // Scrollbars (Webkit)
+  ::-webkit-scrollbar-track {
+    background: var(--sage-bg-secondary);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--sage-accent);
+    
+    &:hover {
+      background: var(--sage-primary);
+    }
+  }
+}
+
+// ==========================================================================
+// UTILITY CLASSES
+// ==========================================================================
+
+// Texto com cores do tema
+.text-sage-primary {
+  color: var(--sage-primary) !important;
+}
+
+.text-sage-secondary {
+  color: var(--sage-text-secondary) !important;
+}
+
+.text-sage-tertiary {
+  color: var(--sage-text-tertiary) !important;
+}
+
+// Background com cores do tema
+.bg-sage-primary {
+  background-color: var(--sage-bg-primary) !important;
+}
+
+.bg-sage-secondary {
+  background-color: var(--sage-bg-secondary) !important;
+}
+
+.bg-sage-tertiary {
+  background-color: var(--sage-bg-tertiary) !important;
+}
+
+.bg-sage-gradient {
+  background: var(--sage-gradient) !important;
+}
+
+// Border com cores do tema
+.border-sage {
+  border-color: var(--sage-border) !important;
+}
+
+.border-sage-light {
+  border-color: var(--sage-border-light) !important;
+}
+
+// Shadows com cores do tema
+.shadow-sage-sm {
+  box-shadow: var(--sage-shadow-sm) !important;
+}
+
+.shadow-sage-md {
+  box-shadow: var(--sage-shadow-md) !important;
+}
+
+.shadow-sage-lg {
+  box-shadow: var(--sage-shadow-lg) !important;
+}
+
+.shadow-sage-xl {
+  box-shadow: var(--sage-shadow-xl) !important;
+}
+
+// ==========================================================================
+// TRANSITIONS SUAVES
+// ==========================================================================
+* {
+  transition: background-color 0.3s ease, 
+              color 0.3s ease, 
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+}
+
+// ==========================================================================
+// MEDIA QUERY - AUTO DARK MODE
+// ==========================================================================
+// Note: Auto mode é gerenciado pelo JavaScript (useTheme.js)
+// O composable detecta prefers-color-scheme e aplica a classe apropriada
+// Updated: 2025-01-26

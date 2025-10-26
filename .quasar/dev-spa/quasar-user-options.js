@@ -17,5 +17,5 @@ import {Notify,Dialog,Loading,LoadingBar,LocalStorage,SessionStorage} from 'quas
 
 
 
-export default { config: {"brand":{"primary":"#1976D2","secondary":"#26A69A","accent":"#9C27B0","dark":"#1d1d1d","positive":"#21BA45","negative":"#C10015","info":"#31CCEC","warning":"#F2C037"}},plugins: {Notify,Dialog,Loading,LoadingBar,LocalStorage,SessionStorage} }
+export default { config: {"brand":{"primary":"#2C5F2D","secondary":"#0078D4","accent":"#744DA9","positive":"#107C10","negative":"#D13438","info":"#4A90E2","warning":"#FFB900","dark":"#201F1E"}},plugins: {Notify,Dialog,Loading,LoadingBar,LocalStorage,SessionStorage} }
 

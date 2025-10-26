@@ -1,11 +1,3 @@
-<!-- ==========================================================================
-DASHBOARD PAGE - PÁGINA PRINCIPAL DO SISTEMA
-==========================================================================
-Propósito: Visão geral financeira com gráficos e métricas
-Origem: Login bem-sucedido, navegação principal
-Destino: Outras páginas do sistema via sidebar
-Efeitos: Carregamento de estatísticas e dados do usuário -->
-
 <template>
   <q-page class="dashboard-page">
     <div class="q-pa-md">
@@ -17,7 +9,7 @@ Efeitos: Carregamento de estatísticas e dados do usuário -->
         <div class="col-12">
           <div class="welcome-section">
             <h1 class="text-h4 text-grey-8 q-mb-xs">
-              Olá, {{ authStore.userDisplayName }}! 👋
+              Olá, {{ authStore.userDisplayName }}!
             </h1>
             <p class="text-subtitle1 text-grey-6">
               Aqui está um resumo das suas finanças
@@ -669,85 +661,231 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 // ==========================================================================
-// ESTILOS DO DASHBOARD
+// SAGE ACCOUNTANT DESIGN SYSTEM - DASHBOARD PAGE
 // ==========================================================================
 
+:root {
+  --sage-primary: #2C5F2D;
+  --sage-primary-light: #97B498;
+  --sage-positive: #107C10;
+  --sage-accent: #5F7C60;
+  --sage-gradient: linear-gradient(135deg, #2C5F2D 0%, #3d7a3e 50%, #107C10 100%);
+}
+
 .dashboard-page {
-  background-color: #f5f5f5;
+  background: linear-gradient(180deg, #f8faf8 0%, #f0f4f0 100%);
   min-height: 100vh;
 }
 
 .welcome-section {
-  padding: 1rem 0;
+  padding: 1.5rem 0;
+  animation: fadeIn 0.6s ease;
+  
+  h1 {
+    color: var(--sage-primary);
+    text-shadow: 0 2px 4px rgba(44, 95, 45, 0.1);
+  }
 }
 
-// Cards de métricas
+// Cards de métricas com gradientes Sage
 .metric-card {
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  border-left: 4px solid transparent;
+  border-radius: 16px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(44, 95, 45, 0.1);
+  background: white;
+  overflow: hidden;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    transition: width 0.3s ease;
+  }
   
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 28px rgba(44, 95, 45, 0.15);
+    border-color: var(--sage-primary-light);
+    
+    &::before {
+      width: 8px;
+    }
+    
+    .metric-icon {
+      transform: scale(1.1) rotate(5deg);
+      opacity: 1;
+    }
   }
   
   &.income-card {
-    border-left-color: #4CAF50;
+    &::before {
+      background: linear-gradient(180deg, #107C10 0%, #0f6e0f 100%);
+    }
+    
+    &:hover {
+      box-shadow: 0 12px 28px rgba(16, 124, 16, 0.2);
+    }
   }
   
   &.expense-card {
-    border-left-color: #f44336;
+    &::before {
+      background: linear-gradient(180deg, #d32f2f 0%, #b71c1c 100%);
+    }
+    
+    &:hover {
+      box-shadow: 0 12px 28px rgba(211, 47, 47, 0.2);
+    }
   }
   
   &.balance-card {
-    border-left-color: #2196F3;
+    &::before {
+      background: var(--sage-gradient);
+    }
+    
+    &:hover {
+      box-shadow: 0 12px 28px rgba(44, 95, 45, 0.2);
+    }
   }
   
   &.transactions-card {
-    border-left-color: #9C27B0;
+    &::before {
+      background: linear-gradient(180deg, #5F7C60 0%, #4a6350 100%);
+    }
+    
+    &:hover {
+      box-shadow: 0 12px 28px rgba(95, 124, 96, 0.2);
+    }
   }
 }
 
 .metric-value {
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.2;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .metric-icon {
-  opacity: 0.7;
+  opacity: 0.75;
+  transition: all 0.3s ease;
 }
 
 // Cards de gráficos
 .chart-card {
-  border-radius: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(44, 95, 45, 0.1);
+  transition: all 0.3s ease;
+  background: white;
+  
+  &:hover {
+    box-shadow: 0 8px 20px rgba(44, 95, 45, 0.12);
+    transform: translateY(-2px);
+  }
   
   .chart-container {
     height: 300px;
     position: relative;
+    padding: 1rem;
+  }
+  
+  .q-btn-toggle {
+    border: 1px solid rgba(44, 95, 45, 0.2);
+    border-radius: 8px;
+    
+    .q-btn {
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: rgba(44, 95, 45, 0.05);
+      }
+    }
   }
 }
 
 // Transações recentes
 .recent-transactions-card {
-  border-radius: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(44, 95, 45, 0.1);
+  background: white;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 8px 20px rgba(44, 95, 45, 0.12);
+  }
   
   .transaction-item {
-    padding: 0.75rem 0;
+    padding: 1rem;
+    margin: 0 0.5rem;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--sage-positive);
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+      border-radius: 0 4px 4px 0;
+    }
     
     &:hover {
-      background-color: rgba(0, 0, 0, 0.02);
+      background: linear-gradient(90deg, rgba(44, 95, 45, 0.04) 0%, rgba(44, 95, 45, 0.02) 100%);
+      transform: translateX(4px);
+      
+      &::before {
+        transform: scaleY(1);
+      }
+    }
+    
+    .q-avatar {
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+    
+    &:hover .q-avatar {
+      border-color: var(--sage-primary-light);
+      transform: scale(1.05);
     }
   }
 }
 
 // Ações rápidas
 .quick-actions-card {
-  border-radius: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(44, 95, 45, 0.1);
+  background: white;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 8px 20px rgba(44, 95, 45, 0.12);
+  }
+  
+  .q-btn {
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+  }
   
   .quick-links {
     .q-btn {
       margin-bottom: 0.5rem;
+      
+      &:hover {
+        background: rgba(44, 95, 45, 0.05);
+      }
     }
   }
 }
@@ -755,7 +893,20 @@ onMounted(async () => {
 // Dialog de transação
 .transaction-dialog {
   .q-bar {
+    background: var(--sage-gradient);
     border-radius: 0;
+  }
+}
+
+// Animações
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -767,6 +918,13 @@ onMounted(async () => {
   
   .chart-container {
     height: 250px;
+    padding: 0.5rem;
+  }
+  
+  .metric-card {
+    &:hover {
+      transform: translateY(-3px);
+    }
   }
 }
 </style>

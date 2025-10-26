@@ -152,13 +152,7 @@
                   </div>
                 </div>
                 <div class="col-12 col-sm-8">
-                  <q-btn-toggle
-                    v-model="settings.theme"
-                    :options="themeOptions"
-                    outline
-                    toggle-color="primary"
-                    @update:model-value="saveSettings"
-                  />
+                  <ThemeSwitcher />
                 </div>
               </div>
 
@@ -428,6 +422,7 @@
 import { ref, onMounted } from 'vue'
 import { userService } from '../services/userService'
 import { useNotifications } from '../composables/useNotifications'
+import ThemeSwitcher from '../components/ThemeSwitcher.vue'
 
 // Composables
 const { showSuccess, showError, showConfirm } = useNotifications()

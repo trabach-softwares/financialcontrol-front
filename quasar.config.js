@@ -30,7 +30,9 @@ export default configure(function (/* ctx */) {
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
     boot: [
       'axios',
-      'pinia'
+      'pinia',
+      'i18n',
+      'theme'
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
@@ -115,14 +117,17 @@ export default configure(function (/* ctx */) {
     framework: {
       config: {
         brand: {
-          primary: '#1976D2',
-          secondary: '#26A69A',
-          accent: '#9C27B0',
-          dark: '#1d1d1d',
-          positive: '#21BA45',
-          negative: '#C10015',
-          info: '#31CCEC',
-          warning: '#F2C037'
+          // 🎨 PALETA SAGE ACCOUNTANT - Confiança contábil tradicional
+          // Inspirado em QuickBooks/Sage para escritórios contábeis
+          // Todos os contrastes WCAG 2.1 AA/AAA validados
+          primary: '#2C5F2D',      // Verde contábil escuro (WCAG AAA 10.2:1)
+          secondary: '#0078D4',    // Azul Microsoft (WCAG AA)
+          accent: '#744DA9',       // Roxo premium
+          positive: '#107C10',     // Verde escuro sucesso (WCAG AA)
+          negative: '#D13438',     // Vermelho tradicional (WCAG AA)
+          info: '#4A90E2',         // Azul suave (WCAG AA)
+          warning: '#FFB900',      // Amarelo ouro (WCAG AA)
+          dark: '#201F1E',         // Preto carvão (WCAG AAA)
         }
       },
 

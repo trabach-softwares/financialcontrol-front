@@ -22,8 +22,8 @@ Efeitos: Navegação completa e interface responsiva -->
     >
       <!-- Logo e título -->
       <div class="sidebar-header q-pa-lg text-center">
-        <q-avatar size="60px" class="q-mb-md">
-          <img src="/favicon.svg" alt="Controle Financeiro" style="width: 100%; height: 100%;" />
+        <q-avatar size="80px" class="q-mb-md">
+          <img src="/ControleFinanceiro.png" alt="Controle Financeiro" style="width: 100%; height: 100%;" />
         </q-avatar>
         <div class="text-h6 text-grey-8 text-weight-bold">
           Controle Financeiro
@@ -386,37 +386,96 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-// ==========================================================================
-// ESTILOS DO LAYOUT PRINCIPAL
-// ==========================================================================
 
 .main-layout {
   // Sidebar
   .main-sidebar {
-    background: #fafafa;
+    background: linear-gradient(180deg, #f8faf8 0%, #f0f4f0 100%);
+    border-right: 1px solid rgba(44, 95, 45, 0.1);
     
     .sidebar-header {
-      background: linear-gradient(145deg, #ffffff 0%, #f5f5f5 100%);
-      border-bottom: 1px solid #e0e0e0;
+      background: var(--sage-gradient);
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      padding: 1.5rem 1rem;
+      position: relative;
+      overflow: hidden;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: shine 3s ease-in-out infinite;
+      }
+      
+      .text-h6, .text-caption {
+        color: white !important;
+      }
     }
     
     .sidebar-menu {
+      padding: 1rem 0.5rem;
+      
       .sidebar-item {
-        margin: 0 0.5rem;
-        border-radius: 8px;
-        transition: all 0.3s ease;
+        margin: 0.25rem 0;
+        border-radius: 12px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 3px;
+          background: var(--sage-positive);
+          transform: scaleY(0);
+          transition: transform 0.3s ease;
+        }
         
         &:hover {
-          background-color: rgba(25, 118, 210, 0.08);
+          background: linear-gradient(90deg, rgba(44, 95, 45, 0.08) 0%, rgba(44, 95, 45, 0.04) 100%);
+          transform: translateX(4px);
+          box-shadow: 0 2px 8px rgba(44, 95, 45, 0.1);
+          
+          &::before {
+            transform: scaleY(1);
+          }
+          
+          .q-icon {
+            color: var(--sage-primary);
+            transform: scale(1.1);
+          }
         }
         
         &.sidebar-item-active {
-          background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+          background: var(--sage-gradient);
           color: white;
+          box-shadow: 0 4px 12px rgba(44, 95, 45, 0.3);
+          transform: translateX(4px);
+          
+          &::before {
+            transform: scaleY(1);
+            background: white;
+          }
           
           .q-icon {
             color: white;
+            transform: scale(1.1);
           }
+          
+          .q-item-label {
+            font-weight: 600;
+          }
+        }
+        
+        .q-icon {
+          transition: all 0.3s ease;
         }
       }
     }
@@ -426,52 +485,132 @@ onMounted(() => {
       bottom: 0;
       left: 0;
       right: 0;
+      padding: 1rem;
       
       .upgrade-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 12px;
+        background: var(--sage-gradient);
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(44, 95, 45, 0.25);
+        position: relative;
+        overflow: hidden;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+          animation: rotate 8s linear infinite;
+        }
+        
+        .q-btn {
+          background: white;
+          color: var(--sage-primary);
+          font-weight: 600;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          }
+        }
       }
     }
   }
   
   // Header
   .main-header {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: white;
+    box-shadow: 0 2px 12px rgba(44, 95, 45, 0.08);
+    border-bottom: 1px solid rgba(44, 95, 45, 0.1);
+    
+    .q-breadcrumbs {
+      .q-breadcrumbs-el {
+        color: var(--sage-primary);
+      }
+    }
     
     .user-menu-btn {
-      padding: 0.25rem 0.5rem;
-      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      border-radius: 12px;
+      transition: all 0.3s ease;
       
       &:hover {
-        background-color: rgba(0, 0, 0, 0.05);
+        background: linear-gradient(135deg, rgba(44, 95, 45, 0.05) 0%, rgba(44, 95, 45, 0.08) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(44, 95, 45, 0.12);
+      }
+      
+      .q-avatar {
+        border: 2px solid var(--sage-primary-light);
+        transition: all 0.3s ease;
+        
+        &:hover {
+          border-color: var(--sage-positive);
+        }
       }
     }
     
     .user-info-item {
-      padding: 1rem;
-      background: linear-gradient(145deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 1.25rem;
+      background: linear-gradient(135deg, #f8faf8 0%, #ecf2ec 100%);
+      border-bottom: 2px solid var(--sage-primary-light);
+      
+      .q-avatar {
+        border: 2px solid var(--sage-primary);
+      }
+    }
+    
+    .q-btn {
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+      }
     }
   }
   
   // Conteúdo principal
   .main-content {
-    background-color: #f5f5f5;
+    background: linear-gradient(180deg, #f8faf8 0%, #f0f4f0 100%);
   }
 }
 
 // Animações
 .sidebar-item {
-  animation: slideInLeft 0.3s ease;
+  animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes slideInLeft {
   from {
     opacity: 0;
-    transform: translateX(-20px);
+    transform: translateX(-30px);
   }
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+@keyframes shine {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 1;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 

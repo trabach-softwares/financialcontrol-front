@@ -1,0 +1,58 @@
+{
+  "common": {
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "close": "Fechar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "search": "Pesquisar",
+    "filter": "Filtrar",
+    "loading": "Carregando...",
+    "noData": "Nenhum dado disponível",
+    "error": "Erro",
+    "success": "Sucesso",
+    "warning": "Aviso",
+    "info": "Informação"
+  },
+  "auth": {
+    "login": "Entrar",
+    "logout": "Sair",
+    "register": "Cadastrar",
+    "email": "E-mail",
+    "password": "Senha",
+    "forgotPassword": "Esqueceu a senha?",
+    "rememberMe": "Lembrar-me",
+    "welcomeBack": "Bem-vindo de volta",
+    "loginSubtitle": "Entre com suas credenciais para acessar o sistema",
+    "noAccount": "Não tem uma conta?",
+    "hasAccount": "Já tem uma conta?",
+    "emailRequired": "E-mail é obrigatório",
+    "emailInvalid": "E-mail inválido",
+    "passwordRequired": "Senha é obrigatória",
+    "passwordMinLength": "A senha deve ter no mínimo 6 caracteres",
+    "loginError": "Erro ao fazer login",
+    "loginSuccess": "Login realizado com sucesso"
+  },
+  "menu": {
+    "dashboard": "Dashboard",
+    "transactions": "Transações",
+    "reports": "Relatórios",
+    "settings": "Configurações",
+    "admin": "Administração",
+    "users": "Usuários",
+    "plans": "Planos",
+    "system": "Sistema"
+  },
+  "accessibility": {
+    "skipToContent": "Pular para o conteúdo principal",
+    "mainMenu": "Menu principal",
+    "userMenu": "Menu do usuário",
+    "closeDialog": "Fechar diálogo",
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu"
+  }
+}

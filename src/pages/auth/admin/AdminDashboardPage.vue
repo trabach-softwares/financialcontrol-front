@@ -427,9 +427,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useCurrency } from '../../composables/useCurrency'
-import { useDate } from '../../composables/useDate'
-import { useNotifications } from '../../composables/useNotifications'
+import { useCurrency } from 'src/composables/useCurrency'
+import { useDate } from 'src/composables/useDate'
+import { useNotifications } from 'src/composables/useNotifications'
 
 // Composables
 const { formatCurrency } = useCurrency()

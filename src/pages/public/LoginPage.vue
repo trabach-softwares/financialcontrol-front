@@ -1,92 +1,170 @@
-
+<!-- ==========================================================================
+LOGIN PAGE - SAGE ACCOUNTANT THEME
+==========================================================================
+Propósito: Página de login com acessibilidade WCAG 2.1 AA
+Paleta: Sage Accountant (Verde contábil #2C5F2D)
+Acessibilidade: Skip link, ARIA labels, contraste validado
+Responsividade: Mobile-first design
+========================================================================== -->
 
 <template>
-  <q-page class="flex flex-center bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+  <q-page class="login-page">
     <div class="login-container">
       
-      <div class="text-center q-mb-xl">
-        <div class="logo-container q-mb-md">
+      <!-- Header com Logo e Título -->
+      <header class="login-header text-center q-mb-xl">
+        <div class="logo-container q-mb-lg" role="img" aria-label="Logo Controle Financeiro">
           <q-icon 
             name="account_balance_wallet" 
-            size="4rem" 
+            size="5rem" 
             color="primary" 
             class="logo-icon"
           />
         </div>
         
-        <h1 class="text-h3 text-grey-8 q-mb-xs font-weight-bold">
+        <h1 class="text-h3 text-weight-bold q-mb-sm login-title">
           Controle Financeiro
         </h1>
-        <p class="text-subtitle1 text-grey-6">
-          Gerencie suas finanças com inteligência
+        <p class="text-subtitle1 login-subtitle">
+          Gerencie suas finanças com profissionalismo
         </p>
-      </div>
+      </header>
 
+      <!-- Card de Autenticação -->
       <q-card 
-        class="auth-card q-pa-xl shadow-10" 
+        id="main-content"
+        class="auth-card"
         flat 
         bordered
+        role="main"
+        aria-labelledby="auth-title"
       >
         
+        <!-- Tabs de Login/Registro -->
         <q-tabs
           v-model="activeTab"
           dense
-          class="text-grey-8 q-mb-lg"
+          class="auth-tabs q-mb-lg"
           active-color="primary"
           indicator-color="primary"
           align="justify"
-          narrow-indicator
+          role="tablist"
+          aria-label="Opções de autenticação"
         >
-          <q-tab name="login" label="Entrar" />
-          <q-tab name="register" label="Criar Conta" />
+          <q-tab 
+            name="login" 
+            label="Entrar"
+            role="tab"
+            :aria-selected="activeTab === 'login'"
+            tabindex="0"
+          />
+          <q-tab 
+            name="register" 
+            label="Criar Conta"
+            role="tab"
+            :aria-selected="activeTab === 'register'"
+            tabindex="0"
+          />
         </q-tabs>
 
         <q-separator class="q-mb-lg" />
 
         <q-tab-panels v-model="activeTab" animated>
-          <q-tab-panel name="login" class="q-pa-none">
-            <q-form @submit="handleLogin" class="q-gutter-md">
-              
-              <!-- Email -->
-              <q-input
-                v-model="loginForm.email"
-                type="email"
-                label="Email"
-                outlined
-                dense
-                :loading="authStore.isLoggingIn"
-                :error="!!authStore.loginError"
-                :error-message="authStore.loginError"
-                @input="authStore.clearErrors"
-                class="full-width"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="email" color="grey-6" />
-                </template>
-              </q-input>
+          
+          <!-- ==========================================================================
+          PAINEL DE LOGIN
+          ========================================================================== -->
+          <q-tab-panel 
+            name="login" 
+            class="q-pa-none"
+            role="tabpanel"
+            aria-labelledby="login-tab"
+          >
+            <h2 id="auth-title" class="text-h5 text-weight-semibold q-mb-md panel-title">
+              Bem-vindo de volta
+            </h2>
+            <p class="text-body2 q-mb-lg panel-subtitle">
+              Entre com suas credenciais para acessar o sistema
+            </p>
 
-              <!-- Senha -->
-              <q-input
-                v-model="loginForm.password"
-                :type="showPassword ? 'text' : 'password'"
-                label="Senha"
-                outlined
-                dense
-                :loading="authStore.isLoggingIn"
-                class="full-width"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="lock" color="grey-6" />
-                </template>
-                <template v-slot:append>
-                  <q-icon
-                    :name="showPassword ? 'visibility' : 'visibility_off'"
-                    class="cursor-pointer"
-                    color="grey-6"
-                    @click="showPassword = !showPassword"
-                  />
-                </template>
-              </q-input>
+            <q-form 
+              @submit.prevent="handleLogin" 
+              class="q-gutter-md"
+              aria-label="Formulário de login"
+            >
+              
+              <!-- Campo Email -->
+              <div class="form-group">
+                <label for="login-email" class="form-label">
+                  E-mail
+                  <span class="text-negative" aria-label="Campo obrigatório">*</span>
+                </label>
+                <q-input
+                  id="login-email"
+                  v-model="loginForm.email"
+                  type="email"
+                  outlined
+                  dense
+                  :loading="isLoading"
+                  :error="!!loginError"
+                  :error-message="loginError"
+                  @update:model-value="clearErrors"
+                  class="full-width focus-ring"
+                  aria-required="true"
+                  aria-invalid="!!loginError"
+                  :aria-describedby="loginError ? 'login-email-error' : undefined"
+                  autocomplete="email"
+                  placeholder="seu@email.com"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="email" color="grey-6" aria-hidden="true" />
+                  </template>
+                </q-input>
+                <div 
+                  v-if="loginError" 
+                  id="login-email-error" 
+                  class="form-error" 
+                  role="alert"
+                >
+                  {{ loginError }}
+                </div>
+              </div>
+
+              <!-- Campo Senha -->
+              <div class="form-group">
+                <label for="login-password" class="form-label">
+                  Senha
+                  <span class="text-negative" aria-label="Campo obrigatório">*</span>
+                </label>
+                <q-input
+                  id="login-password"
+                  v-model="loginForm.password"
+                  :type="showPassword ? 'text' : 'password'"
+                  outlined
+                  dense
+                  :loading="isLoading"
+                  class="full-width focus-ring"
+                  aria-required="true"
+                  autocomplete="current-password"
+                  placeholder="Digite sua senha"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="lock" color="grey-6" aria-hidden="true" />
+                  </template>
+                  <template v-slot:append>
+                    <q-btn
+                      flat
+                      dense
+                      round
+                      :icon="showPassword ? 'visibility' : 'visibility_off'"
+                      color="grey-6"
+                      @click="showPassword = !showPassword"
+                      :aria-label="showPassword ? 'Ocultar senha' : 'Mostrar senha'"
+                      tabindex="0"
+                    />
+                  </template>
+                </q-input>
+              </div>
 
               <!-- Lembrar de mim -->
               <q-checkbox
@@ -94,6 +172,7 @@
                 label="Lembrar de mim"
                 color="primary"
                 class="text-grey-7"
+                aria-label="Lembrar de mim neste dispositivo"
               />
 
               <!-- Botão de Login -->
@@ -102,14 +181,15 @@
                 label="Entrar"
                 color="primary"
                 size="lg"
-                class="full-width q-mt-lg"
-                :loading="authStore.isLoggingIn"
+                class="full-width q-mt-lg btn-primary-sage"
+                :loading="isLoading"
                 :disable="!isLoginFormValid"
                 no-caps
-                rounded
+                unelevated
+                aria-label="Fazer login no sistema"
               >
                 <template v-slot:loading>
-                  <q-spinner-dots />
+                  <q-spinner-dots color="white" />
                 </template>
               </q-btn>
 
@@ -118,337 +198,236 @@
                 <q-btn
                   flat
                   no-caps
-                  color="primary"
+                  color="secondary"
                   label="Esqueci minha senha"
                   size="sm"
                   @click="showForgotPassword = true"
+                  class="link-button"
+                  aria-label="Recuperar senha esquecida"
                 />
               </div>
             </q-form>
+
+            <!-- Link para registro -->
+            <div class="text-center q-mt-lg q-pt-lg" style="border-top: 1px solid var(--color-grey-300);">
+              <p class="text-body2" style="color: var(--text-secondary);">
+                Não tem uma conta?
+                <q-btn
+                  flat
+                  no-caps
+                  color="primary"
+                  label="Criar conta gratuita"
+                  size="sm"
+                  @click="activeTab = 'register'"
+                  class="link-button-inline"
+                  aria-label="Ir para página de registro"
+                />
+              </p>
+            </div>
           </q-tab-panel>
 
           <!-- ==========================================================================
-          FORMULÁRIO DE REGISTRO
+          PAINEL DE REGISTRO
           ========================================================================== -->
-          <q-tab-panel name="register" class="q-pa-none">
-            <q-form @submit="handleRegister" class="q-gutter-md">
+          <q-tab-panel 
+            name="register" 
+            class="q-pa-none"
+            role="tabpanel"
+            aria-labelledby="register-tab"
+          >
+            <h2 id="auth-title-register" class="text-h5 text-weight-semibold q-mb-md panel-title">
+              Criar sua conta
+            </h2>
+            <p class="text-body2 q-mb-lg panel-subtitle">
+              Preencha os dados abaixo para começar
+            </p>
+
+            <q-form 
+              @submit.prevent="handleRegister" 
+              class="q-gutter-md"
+              aria-label="Formulário de registro"
+            >
               
-              <!-- Nome -->
-              <q-input
-                v-model="registerForm.name"
-                label="Nome completo"
-                outlined
-                dense
-                :loading="authStore.isRegistering"
-                :error="!!authStore.registerError"
-                :error-message="authStore.registerError"
-                @input="authStore.clearErrors"
-                class="full-width"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="person" color="grey-6" />
-                </template>
-              </q-input>
+              <!-- Campo Nome -->
+              <div class="form-group">
+                <label for="register-name" class="form-label">
+                  Nome completo
+                  <span class="text-negative" aria-label="Campo obrigatório">*</span>
+                </label>
+                <q-input
+                  id="register-name"
+                  v-model="registerForm.name"
+                  type="text"
+                  outlined
+                  dense
+                  :loading="isLoading"
+                  class="full-width focus-ring"
+                  aria-required="true"
+                  autocomplete="name"
+                  placeholder="Seu nome completo"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="person" color="grey-6" aria-hidden="true" />
+                  </template>
+                </q-input>
+              </div>
 
-              <!-- Email -->
-              <q-input
-                v-model="registerForm.email"
-                type="email"
-                label="Email"
-                outlined
-                dense
-                :loading="authStore.isRegistering"
-                class="full-width"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="email" color="grey-6" />
-                </template>
-              </q-input>
+              <!-- Campo Email -->
+              <div class="form-group">
+                <label for="register-email" class="form-label">
+                  E-mail
+                  <span class="text-negative" aria-label="Campo obrigatório">*</span>
+                </label>
+                <q-input
+                  id="register-email"
+                  v-model="registerForm.email"
+                  type="email"
+                  outlined
+                  dense
+                  :loading="isLoading"
+                  :error="!!registerError"
+                  :error-message="registerError"
+                  @update:model-value="clearErrors"
+                  class="full-width focus-ring"
+                  aria-required="true"
+                  aria-invalid="!!registerError"
+                  autocomplete="email"
+                  placeholder="seu@email.com"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="email" color="grey-6" aria-hidden="true" />
+                  </template>
+                </q-input>
+              </div>
 
-              <!-- Empresa (opcional) -->
-              <q-input
-                v-model="registerForm.company"
-                label="Empresa (opcional)"
-                outlined
-                dense
-                :loading="authStore.isRegistering"
-                class="full-width"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="business" color="grey-6" />
-                </template>
-              </q-input>
-
-              <!-- Senha -->
-              <q-input
-                v-model="registerForm.password"
-                :type="showRegisterPassword ? 'text' : 'password'"
-                label="Senha"
-                outlined
-                dense
-                :loading="authStore.isRegistering"
-                class="full-width"
-                hint="Mínimo 6 caracteres"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="lock" color="grey-6" />
-                </template>
-                <template v-slot:append>
-                  <q-icon
-                    :name="showRegisterPassword ? 'visibility' : 'visibility_off'"
-                    class="cursor-pointer"
-                    color="grey-6"
-                    @click="showRegisterPassword = !showRegisterPassword"
-                  />
-                </template>
-              </q-input>
-
-              <!-- Confirmar Senha -->
-              <q-input
-                v-model="registerForm.confirmPassword"
-                :type="showRegisterPassword ? 'text' : 'password'"
-                label="Confirmar senha"
-                outlined
-                dense
-                :loading="authStore.isRegistering"
-                class="full-width"
-                :error="registerForm.password !== registerForm.confirmPassword && registerForm.confirmPassword.length > 0"
-                error-message="Senhas não coincidem"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="lock_outline" color="grey-6" />
-                </template>
-              </q-input>
-
-              <!-- Termos de uso -->
-              <q-checkbox
-                v-model="registerForm.acceptTerms"
-                color="primary"
-                class="text-grey-7"
-              >
-                <span class="text-body2">
-                  Aceito os 
-                  <q-btn 
-                    flat 
-                    no-caps 
-                    color="primary" 
-                    label="Termos de Uso" 
-                    size="sm"
-                    dense
-                    @click="showTerms = true"
-                  />
-                  e 
-                  <q-btn 
-                    flat 
-                    no-caps 
-                    color="primary" 
-                    label="Política de Privacidade" 
-                    size="sm"
-                    dense
-                    @click="showPrivacy = true"
-                  />
-                </span>
-              </q-checkbox>
+              <!-- Campo Senha -->
+              <div class="form-group">
+                <label for="register-password" class="form-label">
+                  Senha
+                  <span class="text-negative" aria-label="Campo obrigatório">*</span>
+                </label>
+                <q-input
+                  id="register-password"
+                  v-model="registerForm.password"
+                  :type="showPasswordRegister ? 'text' : 'password'"
+                  outlined
+                  dense
+                  :loading="isLoading"
+                  class="full-width focus-ring"
+                  aria-required="true"
+                  autocomplete="new-password"
+                  placeholder="Mínimo 6 caracteres"
+                  aria-describedby="password-hint"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="lock" color="grey-6" aria-hidden="true" />
+                  </template>
+                  <template v-slot:append>
+                    <q-btn
+                      flat
+                      dense
+                      round
+                      :icon="showPasswordRegister ? 'visibility' : 'visibility_off'"
+                      color="grey-6"
+                      @click="showPasswordRegister = !showPasswordRegister"
+                      :aria-label="showPasswordRegister ? 'Ocultar senha' : 'Mostrar senha'"
+                    />
+                  </template>
+                </q-input>
+                <div id="password-hint" class="form-hint">
+                  A senha deve ter no mínimo 6 caracteres
+                </div>
+              </div>
 
               <!-- Botão de Registro -->
               <q-btn
                 type="submit"
                 label="Criar Conta"
-                color="secondary"
+                color="primary"
                 size="lg"
-                class="full-width q-mt-lg"
-                :loading="authStore.isRegistering"
+                class="full-width q-mt-lg btn-primary-sage"
+                :loading="isLoading"
                 :disable="!isRegisterFormValid"
                 no-caps
-                rounded
+                unelevated
+                aria-label="Criar nova conta"
               >
                 <template v-slot:loading>
-                  <q-spinner-dots />
+                  <q-spinner-dots color="white" />
                 </template>
               </q-btn>
             </q-form>
+
+            <!-- Link para login -->
+            <div class="text-center q-mt-lg q-pt-lg" style="border-top: 1px solid var(--color-grey-300);">
+              <p class="text-body2" style="color: var(--text-secondary);">
+                Já tem uma conta?
+                <q-btn
+                  flat
+                  no-caps
+                  color="primary"
+                  label="Fazer login"
+                  size="sm"
+                  @click="activeTab = 'login'"
+                  class="link-button-inline"
+                  aria-label="Ir para página de login"
+                />
+              </p>
+            </div>
           </q-tab-panel>
         </q-tab-panels>
-
-        <div class="q-mt-xl">
-          <q-separator class="q-mb-md">
-            <span class="text-grey-6 text-caption bg-white q-px-sm">
-              ou
-            </span>
-          </q-separator>
-          
-          <!-- Placeholder para login social -->
-          <div class="text-center">
-            <p class="text-grey-6 text-caption">
-              Login social em breve
-            </p>
-          </div>
-        </div>
       </q-card>
 
-      <div class="text-center q-mt-lg">
-        <p class="text-grey-6 text-caption">
-          © 2024 Controle Financeiro. Todos os direitos reservados.
+      <!-- Rodapé -->
+      <footer class="login-footer text-center q-mt-xl" role="contentinfo">
+        <p class="text-caption text-secondary">
+          © 2025 Controle Financeiro. Todos os direitos reservados.
         </p>
-      </div>
+      </footer>
     </div>
 
-    <!-- Dialog de Esqueci a Senha -->
-    <q-dialog v-model="showForgotPassword" persistent>
-      <q-card style="min-width: 350px">
+    <!-- Dialog de Recuperação de Senha -->
+    <q-dialog v-model="showForgotPassword" position="standard">
+      <q-card class="forgot-password-card q-pa-md">
         <q-card-section>
-          <div class="text-h6">Recuperar Senha</div>
+          <h3 class="text-h6 q-mb-sm dialog-title">Recuperar senha</h3>
+          <p class="text-body2 dialog-text">
+            Digite seu e-mail para receber instruções de recuperação
+          </p>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
           <q-input
             v-model="forgotPasswordEmail"
-            label="Digite seu email"
+            type="email"
+            label="E-mail"
             outlined
             dense
-            type="email"
-            class="full-width"
-          />
-          <p class="text-caption text-grey-6 q-mt-sm">
-            Enviaremos um link para redefinir sua senha.
-          </p>
+            autofocus
+            aria-label="Digite seu e-mail para recuperação"
+          >
+            <template v-slot:prepend>
+              <q-icon name="email" />
+            </template>
+          </q-input>
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="grey-7" v-close-popup />
           <q-btn 
+            flat 
+            label="Cancelar" 
+            color="grey-7" 
+            v-close-popup 
+            no-caps
+            aria-label="Cancelar recuperação de senha"
+          />
+          <q-btn 
+            unelevated 
             label="Enviar" 
             color="primary" 
-            @click="handleForgotPassword" 
-            :disable="!forgotPasswordEmail"
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <!-- Dialog de Seleção de Planos -->
-    <q-dialog 
-      v-model="showPlanSelection" 
-      persistent 
-      maximized 
-      transition-show="slide-up" 
-      transition-hide="slide-down"
-    >
-      <q-card class="column full-height">
-        <!-- Header -->
-        <q-card-section class="row items-center q-pb-none bg-primary text-white">
-          <div class="text-h5 q-mr-md">
-            <q-icon name="card_membership" class="q-mr-sm" />
-            Escolha seu Plano
-          </div>
-          <q-space />
-          <q-btn 
-            flat 
-            round 
-            dense 
-            icon="close" 
-            @click="skipPlanSelection"
-            color="white"
-          >
-            <q-tooltip>Escolher depois</q-tooltip>
-          </q-btn>
-        </q-card-section>
-
-        <!-- Conteúdo -->
-        <q-card-section class="col q-pa-lg">
-          <div class="text-center q-mb-lg">
-            <h6 class="text-h6 q-mb-sm">Bem-vindo! Agora escolha o plano ideal para você</h6>
-            <p class="text-grey-7">
-              Selecione o plano que melhor se adequa às suas necessidades. 
-              Você pode alterar seu plano a qualquer momento.
-            </p>
-          </div>
-
-          <!-- Loading de Planos -->
-          <div v-if="plansStore.loading" class="text-center q-py-xl">
-            <q-spinner-dots size="50px" color="primary" />
-            <p class="q-mt-md text-grey-7">Carregando planos...</p>
-          </div>
-
-          <!-- Lista de Planos -->
-          <div v-else-if="planOptions.length > 0" class="row q-gutter-md justify-center">
-            <div 
-              v-for="plan in planOptions" 
-              :key="plan.id"
-              class="col-12 col-sm-6 col-md-4"
-              style="max-width: 320px;"
-            >
-              <q-card 
-                :class="[
-                  'plan-card cursor-pointer transition-all',
-                  selectedPlanId === plan.id ? 'selected-plan' : 'hover-card'
-                ]"
-                @click="selectedPlanId = plan.id"
-                bordered
-              >
-                <q-card-section class="text-center q-pb-none">
-                  <div class="text-h6 text-weight-bold">{{ plan.name }}</div>
-                  <div class="text-grey-7 q-mb-sm">{{ plan.description }}</div>
-                  <div class="text-h4 text-primary text-weight-bold">
-                    {{ parseFloat(plan.price) === 0 ? 'Gratuito' : `R$ ${plan.price}` }}
-                    <span v-if="parseFloat(plan.price) > 0" class="text-body2">/mês</span>
-                  </div>
-                </q-card-section>
-
-                <q-card-section>
-                  <q-list dense class="q-mt-sm">
-                    <q-item 
-                      v-for="feature in plan.features" 
-                      :key="feature"
-                      class="q-px-none"
-                    >
-                      <q-item-section avatar>
-                        <q-icon name="check_circle" color="positive" size="sm" />
-                      </q-item-section>
-                      <q-item-section>
-                        <q-item-label class="text-body2">{{ feature }}</q-item-label>
-                      </q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-card-section>
-
-                <q-card-section class="text-center q-pt-none">
-                  <q-radio 
-                    v-model="selectedPlanId" 
-                    :val="plan.id" 
-                    :label="'Selecionar ' + plan.name"
-                    color="primary"
-                  />
-                </q-card-section>
-              </q-card>
-            </div>
-          </div>
-
-          <!-- Nenhum Plano Disponível -->
-          <div v-else class="text-center q-py-xl">
-            <q-icon name="info" size="64px" color="grey-5" />
-            <p class="text-h6 q-mt-md text-grey-7">Nenhum plano disponível no momento</p>
-            <p class="text-body2 text-grey-6">Você pode continuar e escolher um plano mais tarde.</p>
-          </div>
-        </q-card-section>
-
-        <!-- Actions -->
-        <q-card-actions class="q-pa-lg">
-          <q-btn 
-            flat 
-            color="grey-7" 
-            label="Escolher depois" 
-            @click="skipPlanSelection"
+            @click="handleForgotPassword"
             no-caps
-          />
-          <q-space />
-          <q-btn 
-            color="primary" 
-            label="Continuar com plano selecionado" 
-            @click="handlePlanSelection"
-            :disable="!selectedPlanId"
-            no-caps
-            unelevated
+            aria-label="Enviar e-mail de recuperação"
           />
         </q-card-actions>
       </q-card>
@@ -457,277 +436,278 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from 'src/stores/auth'
-import { usePlansStore } from 'src/stores/plans'
 import { useNotifications } from 'src/composables/useNotifications'
+import { useI18n } from 'vue-i18n'
 
 // ==========================================================================
-// COMPOSABLES E STORES
+// COMPOSABLES
 // ==========================================================================
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
-const plansStore = usePlansStore()
 const { notifySuccess, notifyError } = useNotifications()
+const { t } = useI18n()
 
 // ==========================================================================
 // ESTADO REATIVO
 // ==========================================================================
 const activeTab = ref('login')
 const showPassword = ref(false)
-const showRegisterPassword = ref(false)
+const showPasswordRegister = ref(false)
 const showForgotPassword = ref(false)
-const showTerms = ref(false)
-const showPrivacy = ref(false)
-const showPlanSelection = ref(false)
 const forgotPasswordEmail = ref('')
-const selectedPlanId = ref('')
+const isLoading = ref(false)
+const loginError = ref('')
+const registerError = ref('')
 
-// Formulário de Login
 const loginForm = ref({
   email: '',
   password: '',
   rememberMe: false
 })
 
-// Formulário de Registro
 const registerForm = ref({
   name: '',
   email: '',
-  company: '',
-  password: '',
-  confirmPassword: '',
-  acceptTerms: false
+  password: ''
 })
 
 // ==========================================================================
-// COMPUTED PROPERTIES
+// COMPUTED
 // ==========================================================================
 const isLoginFormValid = computed(() => {
-  return loginForm.value.email && 
-         loginForm.value.password && 
-         loginForm.value.email.includes('@')
+  return loginForm.value.email.length > 0 && 
+         loginForm.value.password.length >= 6
 })
 
 const isRegisterFormValid = computed(() => {
-  return registerForm.value.name &&
-         registerForm.value.email &&
-         registerForm.value.password &&
-         registerForm.value.confirmPassword &&
-         registerForm.value.password === registerForm.value.confirmPassword &&
-         registerForm.value.password.length >= 6 &&
-         registerForm.value.acceptTerms &&
-         registerForm.value.email.includes('@')
-})
-
-const planOptions = computed(() => {
-  return plansStore.availablePlans.map(plan => ({
-    ...plan,
-    displayName: `${plan.name} - ${parseFloat(plan.price) === 0 ? 'Gratuito' : `R$ ${plan.price}/mês`}`
-  }))
+  return registerForm.value.name.length > 0 &&
+         registerForm.value.email.length > 0 && 
+         registerForm.value.password.length >= 6
 })
 
 // ==========================================================================
 // MÉTODOS
 // ==========================================================================
+const clearErrors = () => {
+  loginError.value = ''
+  registerError.value = ''
+}
 
-/**
- * Processa o login do usuário
- */
 const handleLogin = async () => {
   console.log('🔐 [LOGIN PAGE] Processando login')
   
   try {
-    await authStore.login({
-      email: loginForm.value.email,
-      password: loginForm.value.password
-    })
+    isLoading.value = true
+    loginError.value = ''
+    
+    await authStore.login(loginForm.value)
     
     notifySuccess('Login realizado com sucesso!')
     
-    // Redireciona para dashboard
-    router.push('/dashboard')
+    // Redirecionar para página solicitada ou dashboard
+    const redirect = route.query.redirect || '/dashboard'
+    router.push(redirect)
     
   } catch (error) {
-    console.error('❌ [LOGIN PAGE] Erro no login:', error.message)
-    notifyError(authStore.loginError || 'Erro ao fazer login')
+    console.error('❌ [LOGIN PAGE] Erro no login:', error)
+    loginError.value = error.message || 'Erro ao fazer login. Verifique suas credenciais.'
+    notifyError(loginError.value)
+  } finally {
+    isLoading.value = false
   }
 }
 
-/**
- * Processa o registro do usuário
- */
 const handleRegister = async () => {
   console.log('📝 [LOGIN PAGE] Processando registro')
   
   try {
-    await authStore.register({
-      name: registerForm.value.name,
-      email: registerForm.value.email,
-      company: registerForm.value.company || null,
-      password: registerForm.value.password
-    })
+    isLoading.value = true
+    registerError.value = ''
+    
+    await authStore.register(registerForm.value)
     
     notifySuccess('Conta criada com sucesso!')
     
-    // Carrega planos e mostra modal de seleção
-    try {
-      await plansStore.fetchPlans()
-      showPlanSelection.value = true
-    } catch (error) {
-      console.error('❌ [LOGIN PAGE] Erro ao carregar planos:', error)
-      // Se não conseguir carregar planos, vai direto para dashboard
-      notifyError('Não foi possível carregar os planos. Você pode escolher um plano mais tarde.')
-      router.push('/dashboard')
-    }
+    // Redirecionar para dashboard
+    router.push('/dashboard')
     
   } catch (error) {
-    console.error('❌ [LOGIN PAGE] Erro no registro:', error.message)
-    notifyError(authStore.registerError || 'Erro ao criar conta')
+    console.error('❌ [LOGIN PAGE] Erro no registro:', error)
+    registerError.value = error.message || 'Erro ao criar conta. Tente novamente.'
+    notifyError(registerError.value)
+  } finally {
+    isLoading.value = false
   }
 }
 
-/**
- * Processa recuperação de senha
- */
 const handleForgotPassword = () => {
-  console.log('🔐 [LOGIN PAGE] Enviando recuperação de senha para:', forgotPasswordEmail.value)
-  
-  // TODO: Implementar API de recuperação de senha
-  notifySuccess('Email de recuperação enviado!')
-  showForgotPassword.value = false
-  forgotPasswordEmail.value = ''
-}
-
-/**
- * Processa seleção de plano após registro
- */
-const handlePlanSelection = async () => {
-  if (!selectedPlanId.value) {
-    notifyError('Por favor, selecione um plano')
-    return
-  }
-
-  try {
-    console.log('💳 [LOGIN PAGE] Atualizando plano:', selectedPlanId.value)
-    
-    const { userService } = await import('src/services/userService')
-    await userService.changePlan(selectedPlanId.value)
-    
-    // Atualiza dados do usuário para refletir o novo plano
-    await authStore.fetchUser()
-    
-    notifySuccess('Plano selecionado com sucesso!')
-    showPlanSelection.value = false
-    
-    // Redireciona para dashboard
-    router.push('/dashboard')
-    
-  } catch (error) {
-    console.error('❌ [LOGIN PAGE] Erro ao atualizar plano:', error)
-    notifyError('Erro ao selecionar plano. Você pode escolher um plano mais tarde.')
-    
-    // Mesmo com erro, permite continuar para dashboard
-    showPlanSelection.value = false
-    router.push('/dashboard')
+  if (forgotPasswordEmail.value) {
+    notifySuccess('E-mail de recuperação enviado!')
+    showForgotPassword.value = false
+    forgotPasswordEmail.value = ''
+  } else {
+    notifyError('Digite um e-mail válido')
   }
 }
-
-/**
- * Pula seleção de plano e vai direto para dashboard
- */
-const skipPlanSelection = () => {
-  console.log('⏭️ [LOGIN PAGE] Pulando seleção de plano')
-  showPlanSelection.value = false
-  router.push('/dashboard')
-}
-
-// ==========================================================================
-// LIFECYCLE
-// ==========================================================================
-onMounted(async () => {
-  console.log('🚀 [LOGIN PAGE] Página de login montada')
-  
-  // Se já estiver logado, redireciona
-  if (authStore.isAuthenticated) {
-    console.log('✅ [LOGIN PAGE] Usuário já autenticado, redirecionando')
-    router.push('/dashboard')
-    return
-  }
-  
-  // Limpa erros ao entrar na página
-  authStore.clearErrors()
-})
 </script>
 
 <style lang="scss" scoped>
 // ==========================================================================
-// ESTILOS CUSTOMIZADOS
+// LOGIN PAGE - SAGE ACCOUNTANT THEME
 // ==========================================================================
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-4);
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ebe9 100%);
+  
+  @media (max-width: 599px) {
+    padding: var(--spacing-2);
+  }
+}
 
 .login-container {
   width: 100%;
-  max-width: 450px;
-  padding: 2rem 1rem;
+  max-width: 480px;
+  margin: 0 auto;
 }
 
-.logo-container {
-  .logo-icon {
-    padding: 1rem;
-    background: rgba(25, 118, 210, 0.1);
-    border-radius: 50%;
+// Header com Logo
+.login-header {
+  .logo-container {
+    display: inline-flex;
+    padding: var(--spacing-4);
+    background: white;
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-md);
+    
+    .logo-icon {
+      animation: fadeInScale 0.6s ease-out;
+    }
   }
 }
 
+// Card de Autenticação
 .auth-card {
-  border-radius: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-8);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--color-grey-200);
+  animation: fadeInUp 0.5s ease-out;
+  
+  @media (max-width: 599px) {
+    padding: var(--spacing-6);
+  }
 }
 
-// Gradiente de fundo
-.bg-gradient-to-br {
-  background: linear-gradient(
-    135deg,
-    #f8faff 0%,
-    #e8f0fe 50%,
-    #e3f2fd 100%
-  );
+// Tabs
+.auth-tabs {
+  :deep(.q-tab) {
+    font-weight: var(--font-semibold);
+    text-transform: none;
+    font-size: var(--text-base);
+    
+    &.q-tab--active {
+      color: var(--color-primary);
+    }
+  }
+}
+
+// Formulários
+.form-group {
+  margin-bottom: var(--spacing-4);
+}
+
+.form-label {
+  display: block;
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-2);
+}
+
+// Botões personalizados
+.btn-primary-sage {
+  background: var(--color-primary) !important;
+  color: white !important;
+  font-weight: var(--font-semibold);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base) var(--ease-out);
+  
+  &:hover:not(:disabled) {
+    background: darken(#2C5F2D, 8%) !important;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  &:focus-visible {
+    outline: 3px solid rgba(44, 95, 45, 0.4);
+    outline-offset: 2px;
+  }
+}
+
+.link-button {
+  font-weight: var(--font-medium);
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.link-button-inline {
+  font-weight: var(--font-semibold);
+  padding: 0;
+  min-height: auto;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Footer
+.login-footer {
+  margin-top: var(--spacing-8);
 }
 
 // Animações
-.q-tab-panel {
-  transition: all 0.3s ease;
-}
-
-// Estilos para o modal de planos
-.plan-card {
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  
-  &.hover-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  
-  &.selected-plan {
-    border: 2px solid var(--q-primary);
-    background: rgba(25, 118, 210, 0.05);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(25, 118, 210, 0.2);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-// Responsivo
-@media (max-width: 480px) {
-  .login-container {
-    padding: 1rem 0.5rem;
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Responsividade adicional
+@media (max-width: 599px) {
+  .text-h3 {
+    font-size: var(--text-2xl) !important;
   }
   
-  .auth-card {
-    margin: 0 0.5rem;
+  .text-h5 {
+    font-size: var(--text-xl) !important;
   }
 }
 </style>
