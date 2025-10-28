@@ -2,7 +2,7 @@
   "name": "Financial Control Pro",
   "short_name": "FinancePro",
   "description": "Sistema completo de Financial Control pessoal e empresarial com relatórios avançados",
-  "theme_color": "#1976D2",
+  "theme_color": "#2C5F2D",
   "background_color": "#ffffff",
   "display": "standalone",
   "orientation": "portrait",

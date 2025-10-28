@@ -74,6 +74,14 @@ export function useTheme() {
     
     // Aplica no HTML para variáveis CSS globais
     document.documentElement.setAttribute('data-theme', theme)
+
+    // Aplica variáveis CSS da paleta escolhida
+    const palette = SAGE_COLORS[isDarkMode ? 'dark' : 'light']
+    if (palette) {
+      Object.entries(palette).forEach(([key, value]) => {
+        document.documentElement.style.setProperty(key, value)
+      })
+    }
   }
 
   /**
@@ -177,8 +185,8 @@ export const SAGE_COLORS = {
     '--sage-accent': '#5F7C60',
     '--sage-positive': '#107C10',
     
-    // Background Colors
-    '--sage-bg-primary': '#ffffff',
+    // Background Colors (usar degradê moderno como primário)
+    '--sage-bg-primary': 'linear-gradient(180deg, #f8faf8 0%, #eef3ee 50%, #e7efe7 100%)',
     '--sage-bg-secondary': '#f8faf8',
     '--sage-bg-tertiary': '#f0f4f0',
     
@@ -193,10 +201,7 @@ export const SAGE_COLORS = {
     
     // Shadow
     '--sage-shadow': 'rgba(44, 95, 45, 0.15)',
-    
-    // Gradient
-    '--sage-gradient': 'linear-gradient(135deg, #2C5F2D 0%, #3d7a3e 50%, #107C10 100%)'
-  },
+      },
   
   dark: {
     // Primary Colors (mais claros para contraste)
@@ -206,8 +211,8 @@ export const SAGE_COLORS = {
     '--sage-accent': '#8fa890',
     '--sage-positive': '#4CAF50',
     
-    // Background Colors (tons escuros com verde sage sutil)
-    '--sage-bg-primary': '#121212',
+    // Background Colors (tons escuros com degradê sutil)
+    '--sage-bg-primary': 'linear-gradient(180deg, #0f1110 0%, #141914 50%, #1a1f1a 100%)',
     '--sage-bg-secondary': '#1a1f1a',
     '--sage-bg-tertiary': '#232b23',
     
@@ -222,8 +227,5 @@ export const SAGE_COLORS = {
     
     // Shadow
     '--sage-shadow': 'rgba(0, 0, 0, 0.4)',
-    
-    // Gradient (invertido e suavizado)
-    '--sage-gradient': 'linear-gradient(135deg, #97B498 0%, #8fa890 50%, #4CAF50 100%)'
-  }
+      }
 }

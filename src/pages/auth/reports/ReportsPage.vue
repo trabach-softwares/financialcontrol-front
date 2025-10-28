@@ -537,7 +537,7 @@ const updateCategoryChart = () => {
       datasets: [{
         data: categoryAnalysis.value.map(item => Math.abs(item.total)),
         backgroundColor: [
-          '#1976D2', '#26A69A', '#FFC107', '#FF7043',
+          '#2C5F2D', '#26A69A', '#FFC107', '#FF7043',
           '#9C27B0', '#66BB6A', '#EF5350', '#42A5F5'
         ]
       }]

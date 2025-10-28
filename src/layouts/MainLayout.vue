@@ -22,14 +22,14 @@ Efeitos: Navegação completa e interface responsiva -->
     >
       <!-- Logo e título -->
       <div class="sidebar-header q-pa-lg text-center">
-        <q-avatar size="80px" class="q-mb-md">
-          <img src="/ControleFinanceiro.png" alt="Financial Control" style="width: 100%; height: 100%;" />
+        <q-avatar size="80px" square class="q-mb-md">
+          <img src="/ControleFinanceiro.png" alt="Financial Control" class="logo"/>
         </q-avatar>
         <div class="text-h6 text-grey-8 text-weight-bold">
           Financial Control
         </div>
         <div class="text-caption text-grey-6">
-          {{ authStore.userPlan.toUpperCase() }}
+          {{ authStore.userPlan }}
         </div>
       </div>
 
@@ -89,149 +89,42 @@ Efeitos: Navegação completa e interface responsiva -->
         </template>
       </q-list>
 
-      <!-- Upgrade para plano superior (se não for premium e não for admin) -->
-      <div v-if="authStore.userPlan !== 'premium' && !authStore.isAdmin" class="sidebar-footer q-pa-lg">
-        <q-card class="upgrade-card bg-gradient text-white" flat>
-          <q-card-section class="text-center q-py-lg">
-            <q-icon name="star" size="2rem" class="q-mb-md" />
-            <div class="text-subtitle2 q-mb-xs">
-              Upgrade para Premium
-            </div>
-            <div class="text-caption q-mb-md">
-              Recursos ilimitados e suporte prioritário
-            </div>
-            <q-btn
-              label="Upgrade"
-              color="white"
-              text-color="primary"
-              no-caps
-              rounded
-              size="sm"
-              @click="$router.push('/plans')"
-            />
-          </q-card-section>
-        </q-card>
+      <!-- Rodapé do Sidebar -->
+      <div class="sidebar-footer q-pa-lg">
+        <!-- Upgrade para plano superior (se não for premium e não for admin) -->
+        <template v-if="authStore.userPlan !== 'premium' && !authStore.isAdmin">
+          <q-card class="upgrade-card bg-gradient text-white q-mb-md" flat>
+            <q-card-section class="text-center q-py-lg">
+              <q-icon name="star" size="2rem" class="q-mb-md" />
+              <div class="text-subtitle2 q-mb-xs">
+                Upgrade para Premium
+              </div>
+              <div class="text-caption q-mb-md">
+                Recursos ilimitados e suporte prioritário
+              </div>
+              <q-btn
+                label="Upgrade"
+                color="white"
+                text-color="primary"
+                no-caps
+                rounded
+                size="sm"
+                @click="$router.push('/plans')"
+              />
+            </q-card-section>
+          </q-card>
+        </template>
+
+        <!-- Ações fixas do usuário no rodapé -->
+        <SidebarFooter
+          :notification-count="notificationCount"
+          @open-notifications="showNotifications = true"
+          @logout="handleLogout"
+        />
       </div>
     </q-drawer>
 
-    <!-- ==========================================================================
-    HEADER SUPERIOR
-    ========================================================================== -->
-    <q-header elevated class="main-header bg-white text-grey-8">
-      <q-toolbar class="q-px-lg">
-        
-        <!-- Botão do menu (mobile) -->
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-          class="lt-lg"
-        />
 
-        <!-- Breadcrumbs -->
-        <q-breadcrumbs
-          class="text-grey-6 q-ml-md"
-          active-color="primary"
-        >
-          <q-breadcrumbs-el 
-            :label="getCurrentPageTitle()" 
-            :icon="getCurrentPageIcon()"
-          />
-        </q-breadcrumbs>
-
-        <q-space />
-
-        <!-- Notificações -->
-        <q-btn
-          flat
-          round
-          dense
-          icon="notifications"
-          class="q-mr-sm"
-          @click="showNotifications = true"
-        >
-          <q-badge v-if="notificationCount > 0" color="red" floating>
-            {{ notificationCount }}
-          </q-badge>
-          <q-tooltip>Notificações</q-tooltip>
-        </q-btn>
-
-        <!-- Menu do usuário -->
-        <q-btn-dropdown
-          flat
-          no-caps
-          class="user-menu-btn"
-        >
-          <template v-slot:label>
-            <div class="row items-center no-wrap">
-              <q-avatar size="32px" color="primary" text-color="white">
-                <img v-if="authStore.user?.avatar" :src="authStore.user.avatar" />
-                <q-icon v-else name="person" />
-              </q-avatar>
-              <div class="text-weight-medium q-ml-sm gt-xs">
-                {{ authStore.userDisplayName }}
-              </div>
-            </div>
-          </template>
-
-          <q-list>
-            <!-- Informações do usuário -->
-            <q-item class="user-info-item">
-              <q-item-section avatar>
-                <q-avatar size="40px" color="primary" text-color="white">
-                  <img v-if="authStore.user?.avatar" :src="authStore.user.avatar" />
-                  <q-icon v-else name="person" />
-                </q-avatar>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="text-weight-medium">
-                  {{ authStore.userDisplayName }}
-                </q-item-label>
-                <q-item-label caption>
-                  {{ authStore.user?.email }}
-                </q-item-label>
-                <q-item-label caption>
-                  Plano {{ authStore.userPlan }}
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-separator />
-
-            <!-- Links do menu -->
-            <q-item
-              v-for="route in userMenuRoutes"
-              :key="route.name"
-              :to="route.path"
-              clickable
-              v-close-popup
-            >
-              <q-item-section avatar>
-                <q-icon :name="route.icon" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>{{ route.title }}</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-separator />
-
-            <!-- Logout -->
-            <q-item clickable @click="handleLogout" v-close-popup>
-              <q-item-section avatar>
-                <q-icon name="logout" color="red-6" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="text-red-6">Sair</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
-      </q-toolbar>
-    </q-header>
     <q-page-container class="main-content">
       <router-view />
     </q-page-container>
@@ -287,6 +180,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from 'src/stores/auth'
 import { useNotifications } from 'src/composables/useNotifications'
+import SidebarFooter from 'src/components/SidebarFooter.vue'
 import { getMainMenuRoutes, getAdminMenuRoutes, getUserMenuRoutes } from 'src/router/routes'
 import SessionManager from 'src/components/SessionManager.vue'
 
@@ -382,7 +276,11 @@ const handleLogout = async () => {
 // ==========================================================================
 // LIFECYCLE
 // ==========================================================================
-onMounted(() => {
+onMounted(async () => {
+  // Garante que o nome/tipo do plano esteja resolvido a partir do plan_id
+  if (authStore.user && !authStore.user.plan_name && authStore.user.plan_id) {
+    await authStore.enrichUserPlan()
+  }
 })
 </script>
 
@@ -391,7 +289,6 @@ onMounted(() => {
 .main-layout {
   // Sidebar
   .main-sidebar {
-    background: linear-gradient(180deg, #f8faf8 0%, #f0f4f0 100%);
     border-right: 1px solid rgba(44, 95, 45, 0.1);
     
     .sidebar-header {
@@ -412,8 +309,23 @@ onMounted(() => {
         animation: shine 3s ease-in-out infinite;
       }
       
+      /* Forçar avatar quadrado para o logo (evita corte circular) */
+      .q-avatar {
+        border-radius: 8px !important;
+      }
+
       .text-h6, .text-caption {
         color: white !important;
+      }
+
+      /* Override Quasar avatar img inherited sizing only for the logo */
+      .q-avatar .logo {
+        width: auto !important;
+        height: auto !important;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 0 !important;
       }
     }
     
@@ -575,7 +487,7 @@ onMounted(() => {
   
   // Conteúdo principal
   .main-content {
-    background: linear-gradient(180deg, #f8faf8 0%, #f0f4f0 100%);
+    background: var(--sage-bg-primary);
   }
 }
 

@@ -664,16 +664,8 @@ onMounted(async () => {
 // SAGE ACCOUNTANT DESIGN SYSTEM - DASHBOARD PAGE
 // ==========================================================================
 
-:root {
-  --sage-primary: #2C5F2D;
-  --sage-primary-light: #97B498;
-  --sage-positive: #107C10;
-  --sage-accent: #5F7C60;
-  --sage-gradient: linear-gradient(135deg, #2C5F2D 0%, #3d7a3e 50%, #107C10 100%);
-}
-
 .dashboard-page {
-  background: linear-gradient(180deg, #f8faf8 0%, #f0f4f0 100%);
+  background: var(--sage-app-gradient);
   min-height: 100vh;
 }
 

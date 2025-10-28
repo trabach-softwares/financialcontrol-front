@@ -184,7 +184,7 @@ Para suporte avançado do Windows:
   <msapplication>
     <tile>
       <square150x150logo src="/icon-192x192.svg"/>
-      <TileColor>#1976D2</TileColor>
+      <TileColor>#2C5F2D</TileColor>
     </tile>
   </msapplication>
 </browserconfig>
