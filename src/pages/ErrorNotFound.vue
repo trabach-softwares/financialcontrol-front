@@ -142,7 +142,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useNotifications } from '../composables/useNotifications'
+import { useNotifications } from '@/composables/useNotifications'
 
 // Composables
 const router = useRouter()

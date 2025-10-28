@@ -420,9 +420,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { userService } from '../services/userService'
-import { useNotifications } from '../composables/useNotifications'
-import ThemeSwitcher from '../components/ThemeSwitcher.vue'
+import { userService } from '@/services/userService'
+import { useNotifications } from '@/composables/useNotifications'
+import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
 
 // Composables
 const { showSuccess, showError, showConfirm } = useNotifications()

@@ -9,6 +9,10 @@
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
 
 import { configure } from 'quasar/wrappers';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default configure(function (/* ctx */) {
 
@@ -86,7 +90,15 @@ export default configure(function (/* ctx */) {
       // polyfillModulePreload: true,
       // distDir
 
-      // extendViteConf (viteConf) {},
+      extendViteConf (viteConf) {
+        // Configurar alias @ para apontar para src/
+        viteConf.resolve = viteConf.resolve || {}
+        viteConf.resolve.alias = viteConf.resolve.alias || {}
+        viteConf.resolve.alias['@'] = path.resolve(__dirname, './src')
+        
+        // Configurar extensões que o Vite resolve automaticamente
+        viteConf.resolve.extensions = ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
+      },
       // viteVuePluginOptions: {},
 
       // vitePlugins: [

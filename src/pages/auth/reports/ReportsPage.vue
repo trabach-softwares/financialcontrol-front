@@ -342,10 +342,10 @@
 <script setup>
 import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { Chart, registerables } from 'chart.js'
-import { transactionService } from '../services/transactionService'
-import { useCurrency } from '../composables/useCurrency'
-import { useDate } from '../composables/useDate'
-import { useNotifications } from '../composables/useNotifications'
+import { transactionService } from '@/services/transactionService'
+import { useCurrency } from '@/composables/useCurrency'
+import { useDate } from '@/composables/useDate'
+import { useNotifications } from '@/composables/useNotifications'
 
 // Register Chart.js components
 Chart.register(...registerables)

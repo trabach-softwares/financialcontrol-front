@@ -455,9 +455,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
-import { userService } from '../services/userService'
-import { useNotifications } from '../composables/useNotifications'
+import { useAuthStore } from '@/stores/auth'
+import { userService } from '@/services/userService'
+import { useNotifications } from '@/composables/useNotifications'
 
 // Composables
 const router = useRouter()
