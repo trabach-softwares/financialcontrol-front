@@ -9,15 +9,38 @@ Efeitos: Interface limpa e focada na autenticação -->
 <template>
   <q-layout view="hHh lpR fFf" class="auth-layout">
     
-    <!-- Background 3D Animado -->
+    <!-- Background 3D Animado com Ícones do Quasar -->
     <div class="auth-background">
       <div class="floating-shapes">
-        <div class="shape shape-1"></div>
-        <div class="shape shape-2"></div>
-        <div class="shape shape-3"></div>
-        <div class="shape shape-4"></div>
-        <div class="shape shape-5"></div>
-        <div class="shape shape-6"></div>
+        <!-- Cifrão -->
+        <div class="shape shape-1">
+          <q-icon name="attach_money" class="shape-icon" />
+        </div>
+        
+        <!-- Gráfico de linha -->
+        <div class="shape shape-2">
+          <q-icon name="show_chart" class="shape-icon" />
+        </div>
+        
+        <!-- Carteira -->
+        <div class="shape shape-3">
+          <q-icon name="account_balance_wallet" class="shape-icon" />
+        </div>
+        
+        <!-- Gráfico de barras -->
+        <div class="shape shape-4">
+          <q-icon name="bar_chart" class="shape-icon" />
+        </div>
+        
+        <!-- Monetização -->
+        <div class="shape shape-5">
+          <q-icon name="monetization_on" class="shape-icon" />
+        </div>
+        
+        <!-- Gráfico de pizza -->
+        <div class="shape shape-6">
+          <q-icon name="pie_chart" class="shape-icon" />
+        </div>
       </div>
       <div class="gradient-overlay"></div>
       <div class="texture-overlay"></div>
@@ -290,78 +313,113 @@ Dados do sistema:
   
   .shape {
     position: absolute;
-    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(40px);
-    box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.1),
-      inset 0 0 60px rgba(255, 255, 255, 0.05);
-    animation: float 20s ease-in-out infinite;
+    color: rgba(255, 255, 255, 0.1);
+    font-size: 120px;
+    z-index: 0;
+    pointer-events: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    
+    // Estilo para os ícones dentro das formas
+    .q-icon {
+      opacity: 0.8;
+      transition: all 0.3s ease;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    }
+    
+    // Efeito de hover sutil
+    &:hover .q-icon {
+      opacity: 1;
+      transform: scale(1.1);
+    }
     
     // Efeito 3D
     transform-style: preserve-3d;
     transform: perspective(1000px) rotateX(20deg) rotateY(20deg);
     
+    &::before {
+      display: block;
+    }
+    
+    // Removido o conteúdo dos pseudo-elementos pois usaremos ícones do Quasar
+    &::before {
+      display: none;
+    }
+    
+    // Estilo para os ícones do Quasar
+    .q-icon {
+      font-size: inherit;
+      width: 1em;
+      height: 1em;
+      color: inherit;
+    }
+    
     &.shape-1 {
-      width: 300px;
-      height: 300px;
+      width: auto;
+      height: auto;
       top: 10%;
       left: 5%;
-      animation-duration: 25s;
+      animation: float 25s ease-in-out infinite;
+      font-size: 200px;
       animation-delay: 0s;
     }
     
     &.shape-2 {
-      width: 200px;
-      height: 200px;
+      width: auto;
+      height: auto;
       top: 60%;
       right: 10%;
-      animation-duration: 30s;
+      animation: float 30s ease-in-out infinite reverse;
       animation-delay: -5s;
-      border-radius: 50%;
+      font-size: 120px;
     }
     
     &.shape-3 {
-      width: 150px;
-      height: 150px;
+      width: auto;
+      height: auto;
       bottom: 20%;
       left: 15%;
-      animation-duration: 22s;
+      animation: float 22s ease-in-out infinite;
       animation-delay: -10s;
+      font-size: 150px;
     }
     
     &.shape-4 {
-      width: 250px;
-      height: 250px;
+      width: auto;
+      height: auto;
       top: 30%;
       right: 20%;
-      animation-duration: 28s;
+      animation: float 28s ease-in-out infinite reverse;
       animation-delay: -15s;
-      border-radius: 40% 60% 60% 40% / 60% 40% 60% 40%;
+      font-size: 180px;
     }
     
     &.shape-5 {
-      width: 180px;
-      height: 180px;
+      width: auto;
+      height: auto;
       bottom: 10%;
       right: 5%;
-      animation-duration: 26s;
+      animation: float 26s ease-in-out infinite;
       animation-delay: -20s;
+      font-size: 160px;
     }
     
     &.shape-6 {
-      width: 220px;
-      height: 220px;
+      width: auto;
+      height: auto;
       top: 5%;
       left: 50%;
-      animation-duration: 24s;
+      animation: float 24s ease-in-out infinite reverse;
       animation-delay: -8s;
-      border-radius: 50%;
+      font-size: 140px;
     }
   }
 }
 
-// Animação de Flutuação 3D
+// Animação de Flutuação 3D com Pulsação
 @keyframes float {
   0%, 100% {
     transform: 
@@ -371,6 +429,7 @@ Dados do sistema:
       translateY(0px) 
       translateX(0px) 
       scale(1);
+    opacity: 0.6;
   }
   25% {
     transform: 
@@ -380,6 +439,7 @@ Dados do sistema:
       translateY(-30px) 
       translateX(20px) 
       scale(1.05);
+    opacity: 0.8;
   }
   50% {
     transform: 
@@ -389,6 +449,7 @@ Dados do sistema:
       translateY(-50px) 
       translateX(-20px) 
       scale(1.1);
+    opacity: 1;
   }
   75% {
     transform: 
@@ -398,6 +459,7 @@ Dados do sistema:
       translateY(-30px) 
       translateX(30px) 
       scale(1.05);
+    opacity: 0.8;
   }
 }
 
@@ -406,16 +468,28 @@ Dados do sistema:
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    45deg,
-    rgba(44, 95, 45, 0.3) 0%,
-    transparent 50%,
-    rgba(16, 124, 16, 0.3) 100%
-  );
-  animation: gradientShift 15s ease-in-out infinite;
-  mix-blend-mode: overlay;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(44, 95, 45, 0.15) 0%, transparent 30%),
+    radial-gradient(circle at 80% 70%, rgba(25, 118, 210, 0.1) 0%, transparent 30%),
+    linear-gradient(135deg, rgba(44, 95, 45, 0.1) 0%, rgba(25, 118, 210, 0.05) 100%);
+  z-index: 0;
+  
+  // Linhas de conexão entre elementos
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      linear-gradient(90deg, transparent 49.5%, rgba(255, 255, 255, 0.03) 49.5%, rgba(255, 255, 255, 0.03) 50.5%, transparent 50.5%),
+      linear-gradient(0deg, transparent 49.5%, rgba(255, 255, 255, 0.03) 49.5%, rgba(255, 255, 255, 0.03) 50.5%, transparent 50.5%);
+    background-size: 50px 50px;
+    opacity: 0.5;
+  }
 }
 
 @keyframes gradientShift {

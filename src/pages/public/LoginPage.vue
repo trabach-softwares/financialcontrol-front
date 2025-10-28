@@ -106,15 +106,23 @@ Responsividade: Mobile-first design
                   outlined
                   dense
                   :loading="isLoading"
-                  :error="!!loginError"
-                  :error-message="loginError"
                   @update:model-value="clearErrors"
                   class="full-width focus-ring"
                   aria-required="true"
-                  aria-invalid="!!loginError"
-                  :aria-describedby="loginError ? 'login-email-error' : undefined"
                   autocomplete="email"
                   placeholder="seu@email.com"
+                  hide-bottom-space
+                  :rules="[val => {
+                    if (!val) {
+                      notifyError('ERROR.REQUIRED_FIELDS')
+                      return false
+                    }
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+                      notifyError('ERROR.INVALID_EMAIL')
+                      return false
+                    }
+                    return true
+                  }]"
                 >
                   <template v-slot:prepend>
                     <q-icon name="email" color="grey-6" aria-hidden="true" />
@@ -139,6 +147,18 @@ Responsividade: Mobile-first design
                   aria-required="true"
                   autocomplete="current-password"
                   placeholder="Digite sua senha"
+                  hide-bottom-space
+                  :rules="[val => {
+                    if (!val) {
+                      notifyError('ERROR.REQUIRED_FIELDS')
+                      return false
+                    }
+                    if (val.length < 6) {
+                      notifyError('ERROR.PASSWORD_TOO_SHORT')
+                      return false
+                    }
+                    return true
+                  }]"
                 >
                   <template v-slot:prepend>
                     <q-icon name="lock" color="grey-6" aria-hidden="true" />
@@ -338,7 +358,7 @@ Responsividade: Mobile-first design
                 label="Criar Conta"
                 color="primary"
                 size="lg"
-                class="full-width q-mt-lg btn-primary-sage"
+                class="q-mt-lg btn-primary-sage"
                 :loading="isLoading"
                 :disable="!isRegisterFormValid"
                 no-caps
@@ -434,6 +454,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from 'src/stores/auth'
 import { useNotifications } from 'src/composables/useNotifications'
 import { useI18n } from 'vue-i18n'
+import { MESSAGES } from 'src/constants/messages'
 
 // ==========================================================================
 // COMPOSABLES
@@ -493,13 +514,18 @@ const clearErrors = () => {
 const handleLogin = async () => {
   console.log('🔐 [LOGIN PAGE] Processando login')
   
+  // Validação do formulário
+  if (!loginForm.value.email || !loginForm.value.password) {
+    notifyError('ERROR.REQUIRED_FIELDS')
+    return
+  }
+  
   try {
     isLoading.value = true
-    loginError.value = ''
     
     await authStore.login(loginForm.value)
     
-    notifySuccess('Login realizado com sucesso!')
+    notifySuccess('SUCCESS.LOGIN')
     
     // Redirecionar para página solicitada ou dashboard
     const redirect = route.query.redirect || '/dashboard'
@@ -507,8 +533,7 @@ const handleLogin = async () => {
     
   } catch (error) {
     console.error('❌ [LOGIN PAGE] Erro no login:', error)
-    loginError.value = error.message || 'Erro ao fazer login. Verifique suas credenciais.'
-    notifyError(loginError.value)
+    notifyError(error)
   } finally {
     isLoading.value = false
   }
@@ -517,21 +542,30 @@ const handleLogin = async () => {
 const handleRegister = async () => {
   console.log('📝 [LOGIN PAGE] Processando registro')
   
+  // Validação do formulário
+  if (!registerForm.value.name || !registerForm.value.email || !registerForm.value.password) {
+    notifyError('ERROR.REQUIRED_FIELDS')
+    return
+  }
+  
+  if (registerForm.value.password.length < 6) {
+    notifyError('ERROR.PASSWORD_TOO_SHORT')
+    return
+  }
+  
   try {
     isLoading.value = true
-    registerError.value = ''
     
     await authStore.register(registerForm.value)
     
-    notifySuccess('Conta criada com sucesso!')
+    notifySuccess('SUCCESS.REGISTER')
     
     // Redirecionar para dashboard
     router.push('/dashboard')
     
   } catch (error) {
     console.error('❌ [LOGIN PAGE] Erro no registro:', error)
-    registerError.value = error.message || 'Erro ao criar conta. Tente novamente.'
-    notifyError(registerError.value)
+    notifyError(error)
   } finally {
     isLoading.value = false
   }
@@ -539,16 +573,21 @@ const handleRegister = async () => {
 
 const handleForgotPassword = () => {
   if (forgotPasswordEmail.value) {
-    notifySuccess('E-mail de recuperação enviado!')
+    notifySuccess('SUCCESS.PASSWORD_RESET')
     showForgotPassword.value = false
     forgotPasswordEmail.value = ''
   } else {
-    notifyError('Digite um e-mail válido')
+    notifyError('ERROR.INVALID_EMAIL')
   }
 }
 </script>
 
 <style lang="scss" scoped>
+// Esconde as mensagens de validação do Quasar
+:deep(.q-field__bottom) {
+  display: none !important;
+}
+
 // ==========================================================================
 // LOGIN PAGE - SAGE ACCOUNTANT THEME
 // ==========================================================================
