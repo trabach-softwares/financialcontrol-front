@@ -46,7 +46,7 @@ const routes = [
       {
         path: '/dashboard',
         name: 'dashboard',
-        component: () => import('pages/DashboardPage.vue'),
+        component: () => import('pages/auth/dashboard/DashboardPage.vue'),
         meta: {
           title: 'Dashboard',
           requiresAuth: true,
@@ -59,7 +59,7 @@ const routes = [
       {
         path: '/transactions',
         name: 'transactions',
-        component: () => import('pages/TransactionsPage.vue'),
+        component: () => import('pages/auth/transactions/TransactionsPage.vue'),
         meta: {
           title: 'Transações',
           requiresAuth: true,
@@ -72,7 +72,7 @@ const routes = [
       {
         path: '/reports',
         name: 'reports',
-        component: () => import('pages/ReportsPage.vue'),
+        component: () => import('pages/auth/reports/ReportsPage.vue'),
         meta: {
           title: 'Relatórios',
           requiresAuth: true,
@@ -85,7 +85,7 @@ const routes = [
       {
         path: '/profile',
         name: 'profile',
-        component: () => import('pages/ProfilePage.vue'),
+        component: () => import('pages/auth/profile/ProfilePage.vue'),
         meta: {
           title: 'Perfil',
           requiresAuth: true,
@@ -98,7 +98,7 @@ const routes = [
       {
         path: '/plans',
         name: 'plans',
-        component: () => import('pages/PlansPage.vue'),
+        component: () => import('pages/auth/plans/PlansPage.vue'),
         meta: {
           title: 'Planos',
           requiresAuth: true,
@@ -111,7 +111,7 @@ const routes = [
       {
         path: '/settings',
         name: 'settings',
-        component: () => import('pages/SettingsPage.vue'),
+        component: () => import('pages/auth/settings/SettingsPage.vue'),
         meta: {
           title: 'Configurações',
           requiresAuth: true,

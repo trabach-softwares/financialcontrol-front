@@ -1,11 +1,3 @@
-<!-- ==========================================================================
-TRANSACTIONS PAGE - PÁGINA DE GESTÃO DE TRANSAÇÕES
-==========================================================================
-Propósito: CRUD completo de transações financeiras
-Origem: Dashboard, navegação principal
-Destino: Formulários de transação, relatórios
-Efeitos: Gerenciamento completo das movimentações financeiras -->
-
 <template>
   <q-page class="transactions-page">
     <div class="q-pa-md">
