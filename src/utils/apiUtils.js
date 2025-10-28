@@ -14,44 +14,59 @@
  * @returns {Error} - Erro processado
  */
 export function handleApiError(error, options = {}) {
-  const { uiMessageOverride, suppressUiError = false } = options
+  const { uiMessageOverride, suppressUiError = false } = options;
 
   // Estrutura padronizada do erro
   const errorData = {
-    message: error.message || 'Erro desconhecido',
+    message: error.message || "Erro desconhecido",
     status: error.response?.status,
     data: error.response?.data,
-    originalError: error
-  }
+    originalError: error,
+  };
 
   // Se tem resposta da API com estrutura padrão
   if (error.response?.data?.message) {
-    errorData.message = error.response.data.message
+    errorData.message = error.response.data.message;
   } else if (error.response?.data) {
-    errorData.message = `Erro na API: ${error.response.status}`
+    errorData.message = `Erro na API: ${error.response.status}`;
   }
 
   // Aplicar mensagem customizada se fornecida
   if (uiMessageOverride) {
-    errorData.message = uiMessageOverride
+    errorData.message = uiMessageOverride;
   }
 
   // Log detalhado do erro
-  console.error('❌ [API Error]', {
+  console.error("❌ [API Error]", {
     status: errorData.status,
     message: errorData.message,
     url: error.config?.url,
     method: error.config?.method,
-    data: errorData.data
-  })
+    data: errorData.data,
+  });
 
   // Criar erro com informações estruturadas
-  const processedError = new Error(errorData.message)
-  processedError.status = errorData.status
-  processedError.data = errorData.data
-  processedError.suppressUiError = suppressUiError
+  const processedError = new Error(errorData.message);
+  processedError.status = errorData.status;
+  processedError.data = errorData.data;
+  processedError.suppressUiError = suppressUiError;
 
-  return processedError
+  return processedError;
+}
+
+/**
+ * Helper para obter a authStore com segurança
+ * @returns {import('src/stores/auth').useAuthStore | null}
+ */
+export function getAuthStoreSafe() {
+  try {
+    // Import tardio para evitar dependência circular durante boot
+    const { useAuthStore } = require("src/stores/auth");
+    return useAuthStore();
+  } catch (error) {
+    console.error("[API] Erro ao acessar authStore com segurança:", error);
+    return null;
+  }
 }
 
 /**
@@ -62,11 +77,11 @@ export function handleApiError(error, options = {}) {
 export function installInterceptors(axiosInstance, options = {}) {
   // Request interceptor já está configurado em boot/axios.js
   // Response interceptor já está configurado em boot/axios.js
-  
+
   // Esta função pode ser usada para interceptors adicionais específicos
   // de cada API se necessário
-  
-  console.log('🔧 Interceptors instalados na instância da API')
+
+  console.log("🔧 Interceptors instalados na instância da API");
 }
 
 /**
@@ -76,24 +91,24 @@ export function installInterceptors(axiosInstance, options = {}) {
  */
 export function normalizeApiResponse(response) {
   // Verificar estrutura padrão { success, data, message }
-  if (response.data && typeof response.data === 'object') {
+  if (response.data && typeof response.data === "object") {
     if (response.data.success !== undefined) {
       return {
         success: response.data.success,
         data: response.data.data,
         message: response.data.message,
-        status: response.status
-      }
+        status: response.status,
+      };
     }
   }
-  
+
   // Fallback para resposta direta
   return {
     success: true,
     data: response.data,
     message: null,
-    status: response.status
-  }
+    status: response.status,
+  };
 }
 
 /**
@@ -102,16 +117,16 @@ export function normalizeApiResponse(response) {
  * @returns {string} - Query string formatada
  */
 export function buildQueryString(params = {}) {
-  const searchParams = new URLSearchParams()
-  
+  const searchParams = new URLSearchParams();
+
   Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
-      searchParams.append(key, String(value))
+    if (value !== undefined && value !== null && value !== "") {
+      searchParams.append(key, String(value));
     }
-  })
-  
-  const queryString = searchParams.toString()
-  return queryString ? `?${queryString}` : ''
+  });
+
+  const queryString = searchParams.toString();
+  return queryString ? `?${queryString}` : "";
 }
 
 /**
@@ -120,14 +135,14 @@ export function buildQueryString(params = {}) {
  * @param {string} context - Contexto da validação
  * @throws {Error} - Se estrutura for inválida
  */
-export function validateApiResponse(response, context = 'API') {
-  if (!response || typeof response !== 'object') {
-    throw new Error(`[${context}] Resposta inválida da API`)
+export function validateApiResponse(response, context = "API") {
+  if (!response || typeof response !== "object") {
+    throw new Error(`[${context}] Resposta inválida da API`);
   }
-  
+
   if (response.success === false) {
-    throw new Error(response.message || `[${context}] Operação falhou`)
+    throw new Error(response.message || `[${context}] Operação falhou`);
   }
-  
-  return true
+
+  return true;
 }

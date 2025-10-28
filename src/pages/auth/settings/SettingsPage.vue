@@ -16,7 +16,6 @@
     <div class="row q-col-gutter-lg">
       <!-- Main Settings -->
       <div class="col-12 col-md-8">
-        
         <!-- General Settings -->
         <q-card class="shadow-2 q-mb-lg">
           <q-card-section class="bg-primary text-white">
@@ -155,50 +154,6 @@
                   <ThemeSwitcher />
                 </div>
               </div>
-
-              <q-separator />
-
-              <!-- Sidebar -->
-              <div class="row items-center">
-                <div class="col-12 col-sm-4">
-                  <div class="text-subtitle2 text-weight-medium">
-                    <q-icon name="menu_open" class="q-mr-sm" />
-                    Menu Lateral
-                  </div>
-                  <div class="text-caption text-grey-6">
-                    Estado padrão do menu
-                  </div>
-                </div>
-                <div class="col-12 col-sm-8">
-                  <q-toggle
-                    v-model="settings.sidebarOpen"
-                    label="Manter menu aberto"
-                    @update:model-value="saveSettings"
-                  />
-                </div>
-              </div>
-
-              <q-separator />
-
-              <!-- Compact Mode -->
-              <div class="row items-center">
-                <div class="col-12 col-sm-4">
-                  <div class="text-subtitle2 text-weight-medium">
-                    <q-icon name="view_compact" class="q-mr-sm" />
-                    Modo Compacto
-                  </div>
-                  <div class="text-caption text-grey-6">
-                    Interface mais condensada
-                  </div>
-                </div>
-                <div class="col-12 col-sm-8">
-                  <q-toggle
-                    v-model="settings.compactMode"
-                    label="Ativar modo compacto"
-                    @update:model-value="saveSettings"
-                  />
-                </div>
-              </div>
             </div>
           </q-card-section>
         </q-card>
@@ -284,7 +239,6 @@
 
       <!-- Side Panel -->
       <div class="col-12 col-md-4">
-        
         <!-- Quick Actions -->
         <q-card class="shadow-2 q-mb-lg">
           <q-card-section class="bg-positive text-white">
@@ -303,7 +257,7 @@
                 class="full-width"
                 @click="backupData"
               />
-              
+
               <q-btn
                 color="secondary"
                 icon="restore"
@@ -311,7 +265,7 @@
                 class="full-width"
                 @click="restoreData"
               />
-              
+
               <q-btn
                 color="warning"
                 icon="refresh"
@@ -336,23 +290,31 @@
             <div class="q-gutter-sm">
               <div class="row items-center">
                 <div class="col text-body2">Transações:</div>
-                <div class="col-auto text-weight-bold">{{ storageInfo.transactions }}</div>
+                <div class="col-auto text-weight-bold">
+                  {{ storageInfo.transactions }}
+                </div>
               </div>
-              
+
               <div class="row items-center">
                 <div class="col text-body2">Categorias:</div>
-                <div class="col-auto text-weight-bold">{{ storageInfo.categories }}</div>
+                <div class="col-auto text-weight-bold">
+                  {{ storageInfo.categories }}
+                </div>
               </div>
-              
+
               <div class="row items-center">
                 <div class="col text-body2">Anexos:</div>
-                <div class="col-auto text-weight-bold">{{ storageInfo.attachments }}</div>
+                <div class="col-auto text-weight-bold">
+                  {{ storageInfo.attachments }}
+                </div>
               </div>
 
               <q-separator class="q-my-sm" />
 
               <div class="row items-center">
-                <div class="col text-body2 text-weight-medium">Total usado:</div>
+                <div class="col text-body2 text-weight-medium">
+                  Total usado:
+                </div>
                 <div class="col-auto text-h6 text-weight-bold text-primary">
                   {{ storageInfo.totalSize }}
                 </div>
@@ -365,7 +327,7 @@
                 rounded
                 class="q-mt-sm"
               />
-              
+
               <div class="text-caption text-grey-6 text-center q-mt-xs">
                 {{ storageInfo.usagePercentage }}% do plano utilizado
               </div>
@@ -392,7 +354,7 @@
                 flat
                 @click="openHelp"
               />
-              
+
               <q-btn
                 color="secondary"
                 icon="email"
@@ -401,7 +363,7 @@
                 flat
                 @click="contactSupport"
               />
-              
+
               <q-btn
                 color="positive"
                 icon="feedback"
@@ -419,183 +381,188 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { userService } from '@/services/userService'
-import { useNotifications } from '@/composables/useNotifications'
-import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
+import { ref, onMounted } from "vue";
+import { userService } from "@/services/userService";
+import { useNotifications } from "@/composables/useNotifications";
+import ThemeSwitcher from "@/components/ThemeSwitcher.vue";
 
 // Composables
-const { showSuccess, showError, showConfirm } = useNotifications()
+const { showSuccess, showError, showConfirm } = useNotifications();
 
 // Refs
-const loading = ref(false)
+const loading = ref(false);
 
 // Settings
 const settings = ref({
-  language: 'pt-BR',
-  currency: 'BRL',
-  dateFormat: 'DD/MM/YYYY',
-  numberFormat: 'pt-BR',
-  theme: 'light',
+  language: "pt-BR",
+  currency: "BRL",
+  dateFormat: "DD/MM/YYYY",
+  numberFormat: "pt-BR",
+  theme: "light",
   sidebarOpen: true,
   compactMode: false,
   notifications: {
     email: true,
     push: false,
-    reports: true
-  }
-})
+    reports: true,
+  },
+});
 
 // Storage info
 const storageInfo = ref({
   transactions: 0,
   categories: 0,
   attachments: 0,
-  totalSize: '0 MB',
-  usagePercentage: 0
-})
+  totalSize: "0 MB",
+  usagePercentage: 0,
+});
 
 // Options
 const languageOptions = [
-  { label: 'Português (Brasil)', value: 'pt-BR' },
-  { label: 'English (US)', value: 'en-US' },
-  { label: 'Español (ES)', value: 'es-ES' }
-]
+  { label: "Português (Brasil)", value: "pt-BR" },
+  { label: "English (US)", value: "en-US" },
+  { label: "Español (ES)", value: "es-ES" },
+];
 
 const currencyOptions = [
-  { label: 'Real Brasileiro (BRL)', value: 'BRL' },
-  { label: 'Dólar Americano (USD)', value: 'USD' },
-  { label: 'Euro (EUR)', value: 'EUR' }
-]
+  { label: "Real Brasileiro (BRL)", value: "BRL" },
+  { label: "Dólar Americano (USD)", value: "USD" },
+  { label: "Euro (EUR)", value: "EUR" },
+];
 
 const dateFormatOptions = [
-  { label: 'DD/MM/YYYY', value: 'DD/MM/YYYY' },
-  { label: 'MM/DD/YYYY', value: 'MM/DD/YYYY' },
-  { label: 'YYYY-MM-DD', value: 'YYYY-MM-DD' }
-]
+  { label: "DD/MM/YYYY", value: "DD/MM/YYYY" },
+  { label: "MM/DD/YYYY", value: "MM/DD/YYYY" },
+  { label: "YYYY-MM-DD", value: "YYYY-MM-DD" },
+];
 
 const numberFormatOptions = [
-  { label: 'Brasileiro (1.234,56)', value: 'pt-BR' },
-  { label: 'Americano (1,234.56)', value: 'en-US' },
-  { label: 'Europeu (1 234,56)', value: 'fr-FR' }
-]
+  { label: "Brasileiro (1.234,56)", value: "pt-BR" },
+  { label: "Americano (1,234.56)", value: "en-US" },
+  { label: "Europeu (1 234,56)", value: "fr-FR" },
+];
 
 const themeOptions = [
-  { label: 'Claro', value: 'light', icon: 'light_mode' },
-  { label: 'Escuro', value: 'dark', icon: 'dark_mode' },
-  { label: 'Auto', value: 'auto', icon: 'brightness_auto' }
-]
+  { label: "Claro", value: "light", icon: "light_mode" },
+  { label: "Escuro", value: "dark", icon: "dark_mode" },
+  { label: "Auto", value: "auto", icon: "brightness_auto" },
+];
 
 // Methods
 const loadSettings = async () => {
   try {
-    loading.value = true
-    const userSettings = await userService.getUserSettings()
-    
+    loading.value = true;
+    const userSettings = await userService.getUserSettings();
+
     // Update settings with user data
     settings.value = {
       ...settings.value,
-      ...userSettings
-    }
+      ...userSettings,
+    };
 
     // Load storage info
-    const stats = await userService.getUserStats()
+    const stats = await userService.getUserStats();
     storageInfo.value = {
       transactions: stats.transactionsCount || 0,
       categories: stats.categoriesCount || 0,
       attachments: stats.attachmentsCount || 0,
-      totalSize: stats.storageUsed || '0 MB',
-      usagePercentage: stats.storagePercentage || 0
-    }
-
+      totalSize: stats.storageUsed || "0 MB",
+      usagePercentage: stats.storagePercentage || 0,
+    };
   } catch (error) {
-    console.error('Erro ao carregar configurações:', error)
-    showError('Erro ao carregar configurações')
+    console.error("Erro ao carregar configurações:", error);
+    showError("Erro ao carregar configurações");
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const saveSettings = async () => {
   try {
-    await userService.updateUserSettings(settings.value)
-    showSuccess('Configurações salvas com sucesso!')
+    await userService.updateUserSettings(settings.value);
+    showSuccess("Configurações salvas com sucesso!");
   } catch (error) {
-    console.error('Erro ao salvar configurações:', error)
-    showError('Erro ao salvar configurações')
+    console.error("Erro ao salvar configurações:", error);
+    showError("Erro ao salvar configurações");
   }
-}
+};
 
 const backupData = async () => {
   try {
-    showSuccess('Iniciando backup dos dados...')
+    showSuccess("Iniciando backup dos dados...");
     // In a real app, this would generate and download a backup file
-    console.log('Backing up user data')
+    console.log("Backing up user data");
   } catch (error) {
-    showError('Erro ao fazer backup dos dados')
+    showError("Erro ao fazer backup dos dados");
   }
-}
+};
 
 const restoreData = async () => {
   const confirmed = await showConfirm(
-    'Confirmar Restauração',
-    'Tem certeza que deseja restaurar dados? Esta ação pode sobrescrever dados existentes.',
-    'Restaurar',
-    'Cancelar'
-  )
-  
+    "Confirmar Restauração",
+    "Tem certeza que deseja restaurar dados? Esta ação pode sobrescrever dados existentes.",
+    "Restaurar",
+    "Cancelar"
+  );
+
   if (confirmed) {
     try {
-      showSuccess('Iniciando restauração de dados...')
+      showSuccess("Iniciando restauração de dados...");
       // In a real app, this would open file picker and restore data
-      console.log('Restoring user data')
+      console.log("Restoring user data");
     } catch (error) {
-      showError('Erro ao restaurar dados')
+      showError("Erro ao restaurar dados");
     }
   }
-}
+};
 
 const clearCache = async () => {
   const confirmed = await showConfirm(
-    'Limpar Cache',
-    'Tem certeza que deseja limpar o cache? Isso pode melhorar a performance mas alguns dados precisarão ser recarregados.',
-    'Limpar',
-    'Cancelar'
-  )
-  
+    "Limpar Cache",
+    "Tem certeza que deseja limpar o cache? Isso pode melhorar a performance mas alguns dados precisarão ser recarregados.",
+    "Limpar",
+    "Cancelar"
+  );
+
   if (confirmed) {
     try {
       // Clear browser cache
-      localStorage.removeItem('cache')
-      sessionStorage.clear()
-      
-      showSuccess('Cache limpo com sucesso!')
+      localStorage.removeItem("cache");
+      sessionStorage.clear();
+
+      showSuccess("Cache limpo com sucesso!");
     } catch (error) {
-      showError('Erro ao limpar cache')
+      showError("Erro ao limpar cache");
     }
   }
-}
+};
 
 const openHelp = () => {
-  window.open('https://help.financialcontrol.com', '_blank')
-}
+  window.open("https://help.financialcontrol.com", "_blank");
+};
 
 const contactSupport = () => {
-  window.open('mailto:suporte@financialcontrol.com?subject=Suporte - Configurações', '_blank')
-}
+  window.open(
+    "mailto:suporte@financialcontrol.com?subject=Suporte - Configurações",
+    "_blank"
+  );
+};
 
 const sendFeedback = () => {
-  window.open('https://forms.financialcontrol.com/feedback', '_blank')
-}
+  window.open("https://forms.financialcontrol.com/feedback", "_blank");
+};
 
 // Lifecycle
 onMounted(() => {
-  loadSettings()
-})
+  loadSettings();
+});
 </script>
 
 <style scoped>
 .shadow-2 {
-  box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
+  box-shadow:
+    0 1px 5px rgba(0, 0, 0, 0.2),
+    0 2px 2px rgba(0, 0, 0, 0.14),
+    0 3px 1px -2px rgba(0, 0, 0, 0.12);
 }
 </style>
