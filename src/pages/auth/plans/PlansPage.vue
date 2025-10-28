@@ -6,10 +6,10 @@
         <q-icon name="upgrade" class="q-mr-sm" color="primary" />
         Planos e Assinaturas
       </h3>
-      <p class="text-h6 text-grey-6 q-mt-sm q-mb-none">
+      <p class="text-h6 q-mt-sm q-mb-none">
         Escolha o plano ideal para suas necessidades financeiras
       </p>
-      <p class="text-body1 text-grey-7 q-mt-xs">
+      <p class="text-body1-7 q-mt-xs">
         Desbloquear recursos avançados e potencializar seu Financial Control
       </p>
     </div>
@@ -105,15 +105,15 @@
                 <q-icon name="check_circle" color="positive" class="q-mr-sm" />
                 <span>Suporte por email</span>
               </div>
-              <div class="feature-item text-grey-5">
+              <div class="feature-item-5">
                 <q-icon name="cancel" color="grey-5" class="q-mr-sm" />
                 <span>Sem gráficos avançados</span>
               </div>
-              <div class="feature-item text-grey-5">
+              <div class="feature-item-5">
                 <q-icon name="cancel" color="grey-5" class="q-mr-sm" />
                 <span>Sem exportação</span>
               </div>
-              <div class="feature-item text-grey-5">
+              <div class="feature-item-5">
                 <q-icon name="cancel" color="grey-5" class="q-mr-sm" />
                 <span>Sem integração bancária</span>
               </div>
@@ -214,7 +214,7 @@
                 <q-icon name="check_circle" color="positive" class="q-mr-sm" />
                 <span>Suporte prioritário</span>
               </div>
-              <div class="feature-item text-grey-5">
+              <div class="feature-item-5">
                 <q-icon name="cancel" color="grey-5" class="q-mr-sm" />
                 <span>Sem integração bancária</span>
               </div>
@@ -383,7 +383,7 @@
             <div class="text-h6 q-mt-md">
               {{ getPaymentTitle() }}
             </div>
-            <div class="text-body1 text-grey-7 q-mt-sm">
+            <div class="text-body1-7 q-mt-sm">
               {{ getPaymentDescription() }}
             </div>
           </div>
@@ -413,19 +413,19 @@
           <q-separator class="q-my-md" />
           <div class="text-body2">
             <div class="row items-center q-mb-sm">
-              <div class="col text-grey-7">Ciclo de cobrança:</div>
+              <div class="col-7">Ciclo de cobrança:</div>
               <div class="col-auto text-weight-bold">
                 {{ billingCycle === 'monthly' ? 'Mensal' : 'Anual' }}
               </div>
             </div>
             <div class="row items-center q-mb-sm">
-              <div class="col text-grey-7">Valor:</div>
+              <div class="col-7">Valor:</div>
               <div class="col-auto text-weight-bold text-h6">
                 {{ getPaymentAmount() }}
               </div>
             </div>
             <div class="row items-center">
-              <div class="col text-grey-7">Próxima cobrança:</div>
+              <div class="col-7">Próxima cobrança:</div>
               <div class="col-auto text-weight-bold">
                 {{ getNextBillingDate() }}
               </div>

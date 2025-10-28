@@ -8,10 +8,10 @@
       <div class="page-header q-mb-lg">
         <div class="row q-col-gutter-md items-center">
           <div class="col-12 col-md-6">
-            <h1 class="text-h4 text-grey-8 q-mb-xs">
+            <h1 class="text-h4 q-mb-xs">
               Transações
             </h1>
-            <p class="text-subtitle1 text-grey-6 q-ma-none">
+            <p class="text-subtitle1 q-ma-none">
               Gerencie suas movimentações financeiras
             </p>
           </div>
@@ -170,7 +170,7 @@
               <div class="stat-value text-h5 text-green-7">
                 {{ formatCurrency(transactionStore.stats.totalIncome) }}
               </div>
-              <div class="stat-label text-caption text-grey-6">
+              <div class="stat-label text-caption">
                 Total de Receitas
               </div>
             </q-card-section>
@@ -183,7 +183,7 @@
               <div class="stat-value text-h5 text-red-7">
                 {{ formatCurrency(transactionStore.stats.totalExpense) }}
               </div>
-              <div class="stat-label text-caption text-grey-6">
+              <div class="stat-label text-caption">
                 Total de Despesas
               </div>
             </q-card-section>
@@ -196,7 +196,7 @@
               <div class="stat-value text-h5" :class="balanceColor">
                 {{ formatCurrency(transactionStore.stats.balance) }}
               </div>
-              <div class="stat-label text-caption text-grey-6">
+              <div class="stat-label text-caption">
                 Saldo Atual
               </div>
             </q-card-section>
@@ -212,7 +212,7 @@
         <!-- Loading State -->
         <div v-if="transactionStore.isLoading" class="text-center q-py-xl">
           <q-spinner color="primary" size="3rem" />
-          <p class="text-h6 text-grey-6 q-mt-md">
+          <p class="text-h6 q-mt-md">
             Carregando transações...
           </p>
         </div>
@@ -220,10 +220,10 @@
         <!-- Empty State -->
         <div v-else-if="transactionStore.transactions.length === 0" class="text-center q-py-xl">
           <q-icon name="receipt_long" size="4rem" color="grey-4" />
-          <h6 class="text-h6 text-grey-6 q-mt-md">
+          <h6 class="text-h6 q-mt-md">
             {{ hasActiveFilters ? 'Nenhuma transação encontrada' : 'Nenhuma transação cadastrada' }}
           </h6>
-          <p class="text-caption text-grey-6 q-mb-lg">
+          <p class="text-caption q-mb-lg">
             {{ hasActiveFilters ? 'Tente alterar os filtros de busca' : 'Comece adicionando sua primeira transação' }}
           </p>
           <q-btn
@@ -270,7 +270,7 @@
 
               <!-- Informações principais -->
               <q-item-section>
-                <q-item-label class="text-grey-8 text-weight-medium">
+                <q-item-label class="text-weight-medium">
                   {{ transaction.description }}
                 </q-item-label>
                 <q-item-label caption class="row items-center q-gutter-xs">
@@ -281,7 +281,7 @@
                     text-color="blue-9"
                     dense
                   />
-                  <span class="text-grey-6">
+                  <span class="">
                     • {{ formatDate(transaction.date, 'medium') }}
                   </span>
                 </q-item-label>
@@ -296,7 +296,7 @@
                   >
                     {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
                   </div>
-                  <div class="text-caption text-grey-6">
+                  <div class="text-caption">
                     {{ getTypeLabel(transaction.type) }}
                   </div>
                 </div>
@@ -349,7 +349,7 @@
           <q-card-section v-if="transactionStore.pagination.totalPages > 1">
             <div class="row items-center justify-between">
               <div class="col-auto">
-                <p class="text-caption text-grey-6">
+                <p class="text-caption">
                   {{ getPaginationLabel() }}
                 </p>
               </div>
@@ -401,10 +401,10 @@
 
         <q-card-section class="q-pt-none">
           <p>Tem certeza que deseja excluir esta transação?</p>
-          <p class="text-weight-medium text-grey-8">
+          <p class="text-weight-medium">
             {{ transactionToDelete?.description }}
           </p>
-          <p class="text-caption text-grey-6">
+          <p class="text-caption">
             Esta ação não pode ser desfeita.
           </p>
         </q-card-section>

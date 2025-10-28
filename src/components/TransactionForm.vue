@@ -73,17 +73,17 @@ Efeitos: CRUD de transações com validação -->
               
               <!-- Descrição -->
               <div class="field-view">
-                <div class="field-label text-grey-6 text-caption">
+                <div class="field-label text-caption">
                   Descrição
                 </div>
-                <div class="field-value text-h6 text-grey-8">
+                <div class="field-value text-h6">
                   {{ form.description }}
                 </div>
               </div>
 
               <!-- Categoria -->
               <div class="field-view">
-                <div class="field-label text-grey-6 text-caption">
+                <div class="field-label text-caption">
                   Categoria
                 </div>
                 <div class="field-value">
@@ -98,10 +98,10 @@ Efeitos: CRUD de transações com validação -->
 
               <!-- Data -->
               <div class="field-view">
-                <div class="field-label text-grey-6 text-caption">
+                <div class="field-label text-caption">
                   Data
                 </div>
-                <div class="field-value text-body1 text-grey-8">
+                <div class="field-value text-body1">
                   {{ formatDate(form.date, 'full') }}
                 </div>
               </div>

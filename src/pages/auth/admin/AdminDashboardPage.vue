@@ -10,11 +10,11 @@
           <div class="admin-welcome-section">
             <div class="row items-center justify-between">
               <div class="col">
-                <h1 class="text-h4 text-grey-8 q-mb-xs">
+                <h1 class="text-h4 q-mb-xs">
                   <q-icon name="admin_panel_settings" class="q-mr-sm text-primary" />
                   Dashboard Administrativo
                 </h1>
-                <p class="text-subtitle1 text-grey-6">
+                <p class="text-subtitle1">
                   Visão geral do sistema e controle de plataforma
                 </p>
               </div>
@@ -53,7 +53,7 @@
           <q-card class="admin-metric-card users-card" flat bordered>
             <q-card-section class="flex items-center justify-between">
               <div>
-                <div class="metric-label text-grey-6 text-caption">
+                <div class="metric-label text-caption">
                   Total de Usuários
                 </div>
                 <div class="metric-value text-h5 text-blue-7 q-mb-xs">
@@ -79,7 +79,7 @@
           <q-card class="admin-metric-card revenue-card" flat bordered>
             <q-card-section class="flex items-center justify-between">
               <div>
-                <div class="metric-label text-grey-6 text-caption">
+                <div class="metric-label text-caption">
                   Receita Total
                 </div>
                 <div class="metric-value text-h5 text-green-7 q-mb-xs">
@@ -105,7 +105,7 @@
           <q-card class="admin-metric-card subscriptions-card" flat bordered>
             <q-card-section class="flex items-center justify-between">
               <div>
-                <div class="metric-label text-grey-6 text-caption">
+                <div class="metric-label text-caption">
                   Assinaturas Ativas
                 </div>
                 <div class="metric-value text-h5 text-orange-7 q-mb-xs">
@@ -131,13 +131,13 @@
           <q-card class="admin-metric-card issues-card" flat bordered>
             <q-card-section class="flex items-center justify-between">
               <div>
-                <div class="metric-label text-grey-6 text-caption">
+                <div class="metric-label text-caption">
                   Problemas do Sistema
                 </div>
                 <div class="metric-value text-h5 q-mb-xs" :class="metrics.systemIssues > 0 ? 'text-red-7' : 'text-grey-5'">
                   {{ metrics.systemIssues }}
                 </div>
-                <div class="metric-trend text-grey-6 text-caption">
+                <div class="metric-trend text-caption">
                   <q-icon name="schedule" size="xs" />
                   Últimas 24h
                 </div>
@@ -162,15 +162,15 @@
         <div class="col-12 col-lg-8">
           <q-card class="admin-chart-card full-height" flat bordered>
             <q-card-section>
-              <div class="text-h6 q-mb-md text-grey-8">
+              <div class="text-h6 q-mb-md">
                 <q-icon name="trending_up" class="q-mr-sm text-blue-6" />
                 Crescimento de Usuários
               </div>
               <div class="chart-container">
                 <div class="chart-placeholder text-center">
                   <q-icon name="show_chart" size="80px" color="grey-4" />
-                  <div class="text-h6 q-mt-md text-grey-6">Gráfico de Crescimento</div>
-                  <div class="text-body2 text-grey-5">Dados dos últimos 30 dias</div>
+                  <div class="text-h6 q-mt-md">Gráfico de Crescimento</div>
+                  <div class="text-body2-5">Dados dos últimos 30 dias</div>
                 </div>
               </div>
             </q-card-section>
@@ -181,7 +181,7 @@
         <div class="col-12 col-lg-4">
           <q-card class="admin-chart-card full-height" flat bordered>
             <q-card-section>
-              <div class="text-h6 q-mb-md text-grey-8">
+              <div class="text-h6 q-mb-md">
                 <q-icon name="pie_chart" class="q-mr-sm text-orange-6" />
                 Distribuição de Planos
               </div>
@@ -190,7 +190,7 @@
                 <div class="plan-item">
                   <div class="row items-center q-mb-sm">
                     <div class="col">
-                      <div class="text-weight-medium text-grey-7">Gratuito</div>
+                      <div class="text-weight-medium-7">Gratuito</div>
                     </div>
                     <div class="col-auto">
                       <div class="text-h6 text-weight-bold text-blue-7">65%</div>
@@ -202,7 +202,7 @@
                 <div class="plan-item">
                   <div class="row items-center q-mb-sm">
                     <div class="col">
-                      <div class="text-weight-medium text-grey-7">Pro</div>
+                      <div class="text-weight-medium-7">Pro</div>
                     </div>
                     <div class="col-auto">
                       <div class="text-h6 text-weight-bold text-orange-7">25%</div>
@@ -214,7 +214,7 @@
                 <div class="plan-item">
                   <div class="row items-center q-mb-sm">
                     <div class="col">
-                      <div class="text-weight-medium text-grey-7">Enterprise</div>
+                      <div class="text-weight-medium-7">Enterprise</div>
                     </div>
                     <div class="col-auto">
                       <div class="text-h6 text-weight-bold text-green-7">10%</div>
@@ -237,7 +237,7 @@
         <div class="col-12 col-lg-6">
           <q-card class="admin-activity-card" flat bordered>
             <q-card-section>
-              <div class="text-h6 q-mb-md text-grey-8">
+              <div class="text-h6 q-mb-md">
                 <q-icon name="person_add" class="q-mr-sm text-blue-6" />
                 Usuários Recentes
               </div>
@@ -256,7 +256,7 @@
                   </q-item-section>
                   
                   <q-item-section>
-                    <q-item-label class="text-weight-medium text-grey-8">{{ user.name }}</q-item-label>
+                    <q-item-label class="text-weight-medium">{{ user.name }}</q-item-label>
                     <q-item-label caption class="text-grey-6">{{ user.email }}</q-item-label>
                   </q-item-section>
                   
@@ -270,7 +270,7 @@
                       >
                         {{ getPlanName(user.plan) }}
                       </q-chip>
-                      <div class="text-caption text-grey-5 q-mt-xs">
+                      <div class="text-caption-5 q-mt-xs">
                         {{ formatDate(user.createdAt) }}
                       </div>
                     </div>
@@ -295,7 +295,7 @@
         <div class="col-12 col-lg-6">
           <q-card class="admin-activity-card" flat bordered>
             <q-card-section>
-              <div class="text-h6 q-mb-md text-grey-8">
+              <div class="text-h6 q-mb-md">
                 <q-icon name="health_and_safety" class="q-mr-sm text-green-6" />
                 Status do Sistema
               </div>
@@ -305,7 +305,7 @@
                 <div class="service-status">
                   <div class="row items-center q-mb-sm">
                     <div class="col">
-                      <div class="text-weight-medium text-grey-7">
+                      <div class="text-weight-medium-7">
                         <q-icon name="dns" class="q-mr-sm text-blue-6" />
                         Servidor Principal
                       </div>
@@ -319,7 +319,7 @@
 
                   <div class="row items-center q-mb-sm">
                     <div class="col">
-                      <div class="text-weight-medium text-grey-7">
+                      <div class="text-weight-medium-7">
                         <q-icon name="storage" class="q-mr-sm text-blue-6" />
                         Banco de Dados
                       </div>
@@ -333,7 +333,7 @@
 
                   <div class="row items-center q-mb-sm">
                     <div class="col">
-                      <div class="text-weight-medium text-grey-7">
+                      <div class="text-weight-medium-7">
                         <q-icon name="api" class="q-mr-sm text-blue-6" />
                         API REST
                       </div>
@@ -347,7 +347,7 @@
 
                   <div class="row items-center q-mb-md">
                     <div class="col">
-                      <div class="text-weight-medium text-grey-7">
+                      <div class="text-weight-medium-7">
                         <q-icon name="backup" class="q-mr-sm text-blue-6" />
                         Último Backup
                       </div>
@@ -363,11 +363,11 @@
                 <!-- Performance do Sistema -->
                 <q-separator />
                 <div class="performance-section q-mt-md">
-                  <div class="text-weight-medium q-mb-md text-grey-7">Métricas de Performance</div>
+                  <div class="text-weight-medium q-mb-md-7">Métricas de Performance</div>
                   
                   <div class="performance-item q-mb-sm">
                     <div class="row items-center q-mb-xs">
-                      <div class="col-3 text-body2 text-grey-6">CPU:</div>
+                      <div class="col-3 text-body2">CPU:</div>
                       <div class="col">
                         <q-linear-progress :value="0.35" color="green-6" size="10px" rounded />
                       </div>
@@ -377,7 +377,7 @@
                   
                   <div class="performance-item q-mb-sm">
                     <div class="row items-center q-mb-xs">
-                      <div class="col-3 text-body2 text-grey-6">RAM:</div>
+                      <div class="col-3 text-body2">RAM:</div>
                       <div class="col">
                         <q-linear-progress :value="0.60" color="orange-6" size="10px" rounded />
                       </div>
@@ -387,7 +387,7 @@
                   
                   <div class="performance-item">
                     <div class="row items-center">
-                      <div class="col-3 text-body2 text-grey-6">Disco:</div>
+                      <div class="col-3 text-body2">Disco:</div>
                       <div class="col">
                         <q-linear-progress :value="0.20" color="green-6" size="10px" rounded />
                       </div>
@@ -551,6 +551,15 @@ onMounted(() => {
 
 .admin-welcome-section {
   padding: 1rem 0;
+}
+
+// Reconhecimento de tema dark no cabeçalho
+:global(.body--dark) .admin-welcome-section :deep(.text-h4) {
+  color: #fff !important;
+}
+
+:global(.body--dark) .admin-welcome-section :deep(.text-subtitle1) {
+  color: #cfcfcf !important;
 }
 
 // Botões de ações administrativas

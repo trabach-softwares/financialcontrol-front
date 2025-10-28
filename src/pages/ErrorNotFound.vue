@@ -12,22 +12,22 @@
       </div>
 
       <!-- Error Code -->
-      <div class="text-h1 text-weight-bold text-grey-6 q-mb-md">
+      <div class="text-h1 text-weight-bold q-mb-md">
         404
       </div>
 
       <!-- Error Message -->
-      <div class="text-h4 text-weight-medium text-grey-7 q-mb-sm">
+      <div class="text-h4 text-weight-medium-7 q-mb-sm">
         Página Não Encontrada
       </div>
 
-      <div class="text-body1 text-grey-6 q-mb-xl" style="max-width: 400px;">
+      <div class="text-body1 q-mb-xl" style="max-width: 400px;">
         Oops! A página que você está procurando não existe ou foi movida para outro local.
       </div>
 
       <!-- Suggestions -->
       <div class="q-mb-xl">
-        <div class="text-h6 text-grey-7 q-mb-md">O que você pode fazer:</div>
+        <div class="text-h6-7 q-mb-md">O que você pode fazer:</div>
         
         <div class="row justify-center q-col-gutter-md">
           <div class="col-12 col-sm-auto">
@@ -35,7 +35,7 @@
               <q-card-section class="text-center q-pa-md">
                 <q-icon name="home" size="md" color="primary" class="q-mb-sm" />
                 <div class="text-subtitle2 text-weight-medium">Ir para o Dashboard</div>
-                <div class="text-caption text-grey-6">Voltar à página inicial</div>
+                <div class="text-caption">Voltar à página inicial</div>
               </q-card-section>
             </q-card>
           </div>
@@ -45,7 +45,7 @@
               <q-card-section class="text-center q-pa-md">
                 <q-icon name="arrow_back" size="md" color="secondary" class="q-mb-sm" />
                 <div class="text-subtitle2 text-weight-medium">Página Anterior</div>
-                <div class="text-caption text-grey-6">Voltar aonde estava</div>
+                <div class="text-caption">Voltar aonde estava</div>
               </q-card-section>
             </q-card>
           </div>
@@ -55,7 +55,7 @@
               <q-card-section class="text-center q-pa-md">
                 <q-icon name="receipt_long" size="md" color="positive" class="q-mb-sm" />
                 <div class="text-subtitle2 text-weight-medium">Transações</div>
-                <div class="text-caption text-grey-6">Ver suas transações</div>
+                <div class="text-caption">Ver suas transações</div>
               </q-card-section>
             </q-card>
           </div>
@@ -86,7 +86,7 @@
 
       <!-- Popular Links -->
       <div class="text-center">
-        <div class="text-subtitle2 text-grey-7 q-mb-md">Páginas Populares:</div>
+        <div class="text-subtitle2-7 q-mb-md">Páginas Populares:</div>
         <div class="q-gutter-sm">
           <q-btn 
             color="primary" 
@@ -125,7 +125,7 @@
 
       <!-- Contact Support -->
       <div class="q-mt-xl">
-        <div class="text-body2 text-grey-6">
+        <div class="text-body2">
           Ainda precisa de ajuda? 
           <a 
             href="mailto:suporte@financialcontrol.com" 

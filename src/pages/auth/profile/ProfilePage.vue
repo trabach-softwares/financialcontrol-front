@@ -237,7 +237,7 @@
           <q-card-section>
             <div class="q-gutter-sm">
               <div class="row items-center">
-                <div class="col text-body2 text-grey-7">Plano Atual:</div>
+                <div class="col text-body2-7">Plano Atual:</div>
                 <div class="col-auto">
                   <q-chip 
                     :color="authStore.userPlan === 'PREMIUM' ? 'positive' : authStore.userPlan === 'PRO' ? 'warning' : 'info'"
@@ -248,21 +248,21 @@
               </div>
 
               <div class="row items-center">
-                <div class="col text-body2 text-grey-7">Membro desde:</div>
+                <div class="col text-body2-7">Membro desde:</div>
                 <div class="col-auto text-body2">
                   {{ formatDate(userCreatedAt) }}
                 </div>
               </div>
 
               <div class="row items-center">
-                <div class="col text-body2 text-grey-7">Último login:</div>
+                <div class="col text-body2-7">Último login:</div>
                 <div class="col-auto text-body2">
                   {{ formatDate(userLastLogin) }}
                 </div>
               </div>
 
               <div class="row items-center">
-                <div class="col text-body2 text-grey-7">Status:</div>
+                <div class="col text-body2-7">Status:</div>
                 <div class="col-auto">
                   <q-chip 
                     color="positive" 

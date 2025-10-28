@@ -25,10 +25,10 @@ Efeitos: Navegação completa e interface responsiva -->
         <q-avatar size="80px" square class="q-mb-md">
           <img src="/ControleFinanceiro.png" alt="Financial Control" class="logo"/>
         </q-avatar>
-        <div class="text-h6 text-grey-8 text-weight-bold">
+        <div class="text-h6 text-weight-bold">
           Financial Control
         </div>
-        <div class="text-caption text-grey-6">
+        <div class="text-caption">
           {{ authStore.userPlan }}
         </div>
       </div>
@@ -37,7 +37,7 @@ Efeitos: Navegação completa e interface responsiva -->
 
       <!-- Navegação principal -->
       <q-list class="sidebar-menu">
-        <q-item-label header class="text-grey-6 text-weight-medium q-px-lg">
+        <q-item-label header class="text-weight-medium q-px-lg">
           MENU PRINCIPAL
         </q-item-label>
 
@@ -64,7 +64,7 @@ Efeitos: Navegação completa e interface responsiva -->
         <template v-if="authStore.isAdmin">
           <q-separator class="q-my-md" />
           
-          <q-item-label header class="text-grey-6 text-weight-medium q-px-lg">
+          <q-item-label header class="text-weight-medium q-px-lg">
             ADMINISTRAÇÃO
           </q-item-label>
 

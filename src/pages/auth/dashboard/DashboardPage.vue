@@ -8,10 +8,10 @@
       <div class="row q-col-gutter-md q-mb-lg">
         <div class="col-12">
           <div class="welcome-section">
-            <h1 class="text-h4 text-grey-8 q-mb-xs">
+            <h1 class="text-h4 q-mb-xs">
               Olá, {{ authStore.userDisplayName }}!
             </h1>
-            <p class="text-subtitle1 text-grey-6">
+            <p class="text-subtitle1">
               Aqui está um resumo das suas finanças
             </p>
           </div>
@@ -28,7 +28,7 @@
           <q-card class="metric-card income-card" flat bordered>
             <q-card-section class="flex items-center justify-between">
               <div v-if="!isLoadingStats">
-                <div class="metric-label text-grey-6 text-caption">
+                <div class="metric-label text-caption">
                   Receitas
                 </div>
                 <div class="metric-value text-h5 text-green-7 q-mb-xs">
@@ -59,7 +59,7 @@
           <q-card class="metric-card expense-card" flat bordered>
             <q-card-section class="flex items-center justify-between">
               <div v-if="!isLoadingStats">
-                <div class="metric-label text-grey-6 text-caption">
+                <div class="metric-label text-caption">
                   Despesas
                 </div>
                 <div class="metric-value text-h5 text-red-7 q-mb-xs">
@@ -90,13 +90,13 @@
           <q-card class="metric-card balance-card" flat bordered>
             <q-card-section class="flex items-center justify-between">
               <div v-if="!isLoadingStats">
-                <div class="metric-label text-grey-6 text-caption">
+                <div class="metric-label text-caption">
                   Saldo
                 </div>
                 <div class="metric-value text-h5 q-mb-xs" :class="balanceColor">
                   {{ formatCurrency(transactionStats.balance) }}
                 </div>
-                <div class="metric-trend text-grey-6 text-caption">
+                <div class="metric-trend text-caption">
                   <q-icon name="account_balance_wallet" size="xs" />
                   Posição atual
                 </div>
@@ -121,7 +121,7 @@
           <q-card class="metric-card transactions-card" flat bordered>
             <q-card-section class="flex items-center justify-between">
               <div v-if="!isLoadingStats">
-                <div class="metric-label text-grey-6 text-caption">
+                <div class="metric-label text-caption">
                   Transações
                 </div>
                 <div class="metric-value text-h5 text-purple-7 q-mb-xs">
@@ -158,10 +158,10 @@
           <q-card class="chart-card" flat bordered>
             <q-card-section class="flex items-center justify-between">
               <div>
-                <h6 class="text-h6 q-ma-none text-grey-8">
+                <h6 class="text-h6 q-ma-none">
                   Evolução Financeira
                 </h6>
-                <p class="text-caption text-grey-6 q-ma-none">
+                <p class="text-caption q-ma-none">
                   Receitas vs Despesas nos últimos meses
                 </p>
               </div>
@@ -200,10 +200,10 @@
         <div class="col-12 col-md-4">
           <q-card class="chart-card" flat bordered>
             <q-card-section>
-              <h6 class="text-h6 q-ma-none text-grey-8">
+              <h6 class="text-h6 q-ma-none">
                 Por Categoria
               </h6>
-              <p class="text-caption text-grey-6 q-ma-none">
+              <p class="text-caption q-ma-none">
                 Distribuição das despesas
               </p>
             </q-card-section>
@@ -233,10 +233,10 @@
           <q-card class="recent-transactions-card" flat bordered>
             <q-card-section class="flex items-center justify-between">
               <div>
-                <h6 class="text-h6 q-ma-none text-grey-8">
+                <h6 class="text-h6 q-ma-none">
                   Transações Recentes
                 </h6>
-                <p class="text-caption text-grey-6 q-ma-none">
+                <p class="text-caption q-ma-none">
                   Últimas movimentações financeiras
                 </p>
               </div>
@@ -254,14 +254,14 @@
             <q-card-section class="q-pt-none">
               <div v-if="dashboardStore.isLoadingRecent" class="text-center q-py-lg">
                 <q-spinner color="primary" size="2rem" />
-                <p class="text-caption text-grey-6 q-mt-md">
+                <p class="text-caption q-mt-md">
                   Carregando transações...
                 </p>
               </div>
 
               <div v-else-if="recentTransactions.length === 0" class="text-center q-py-lg">
                 <q-icon name="receipt_long" size="3rem" color="grey-4" />
-                <p class="text-subtitle2 text-grey-6 q-mt-md">
+                <p class="text-subtitle2 q-mt-md">
                   Nenhuma transação encontrada
                 </p>
                 <q-btn
@@ -292,10 +292,10 @@
                     </q-item-section>
 
                     <q-item-section>
-                      <q-item-label class="text-grey-8 text-weight-medium">
+                      <q-item-label class="text-weight-medium">
                         {{ transaction.description }}
                       </q-item-label>
-                      <q-item-label caption class="text-grey-6">
+                      <q-item-label caption>
                         {{ transaction.category }} • {{ formatDate(transaction.date) }}
                       </q-item-label>
                     </q-item-section>
@@ -319,10 +319,10 @@
         <div class="col-12 col-md-4">
           <q-card class="quick-actions-card" flat bordered>
             <q-card-section>
-              <h6 class="text-h6 q-ma-none text-grey-8">
+              <h6 class="text-h6 q-ma-none">
                 Ações Rápidas
               </h6>
-              <p class="text-caption text-grey-6 q-ma-none">
+              <p class="text-caption q-ma-none">
                 Adicionar movimentações
               </p>
             </q-card-section>
@@ -415,10 +415,10 @@
           <!-- Formulário será implementado no próximo componente -->
           <div class="text-center q-py-xl">
             <q-icon name="construction" size="4rem" color="grey-4" />
-            <p class="text-h6 text-grey-6 q-mt-md">
+            <p class="text-h6 q-mt-md">
               Formulário de transação
             </p>
-            <p class="text-caption text-grey-6">
+            <p class="text-caption">
               Será implementado na página de transações
             </p>
           </div>
@@ -677,6 +677,15 @@ onMounted(async () => {
     color: var(--sage-primary);
     text-shadow: 0 2px 4px rgba(44, 95, 45, 0.1);
   }
+}
+
+// Reconhecimento de tema dark no cabeçalho
+:global(.body--dark) .welcome-section :deep(h1) {
+  color: #fff !important;
+}
+
+:global(.body--dark) .welcome-section :deep(.text-subtitle1) {
+  color: #cfcfcf !important;
 }
 
 // Cards de métricas com gradientes Sage

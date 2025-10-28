@@ -17,11 +17,11 @@
       </div>
 
       <!-- Error Message -->
-      <div class="text-h4 text-weight-medium text-grey-7 q-mb-sm">
+      <div class="text-h4 text-weight-medium-7 q-mb-sm">
         Acesso Negado
       </div>
 
-      <div class="text-body1 text-grey-6 q-mb-xl" style="max-width: 500px;">
+      <div class="text-body1 q-mb-xl" style="max-width: 500px;">
         Você não tem permissão para acessar esta página. Verifique se está logado com a conta correta ou entre em contato com o administrador.
       </div>
 
@@ -35,7 +35,7 @@
             </q-avatar>
             
             <div class="text-h6 text-weight-medium">{{ user.name }}</div>
-            <div class="text-body2 text-grey-6">{{ user.email }}</div>
+            <div class="text-body2">{{ user.email }}</div>
             
             <q-chip 
               :color="getPlanColor(authStore.userPlan)" 
@@ -49,7 +49,7 @@
 
       <!-- Reasons -->
       <div class="q-mb-xl">
-        <div class="text-h6 text-grey-7 q-mb-md">Possíveis motivos:</div>
+        <div class="text-h6-7 q-mb-md">Possíveis motivos:</div>
         
         <div class="row justify-center q-col-gutter-md">
           <div class="col-12 col-sm-4">
@@ -57,7 +57,7 @@
               <q-card-section class="text-center q-pa-md">
                 <q-icon name="admin_panel_settings" size="md" color="warning" class="q-mb-sm" />
                 <div class="text-subtitle2 text-weight-medium">Área Administrativa</div>
-                <div class="text-caption text-grey-6">Esta página é exclusiva para administradores</div>
+                <div class="text-caption">Esta página é exclusiva para administradores</div>
               </q-card-section>
             </q-card>
           </div>
@@ -67,7 +67,7 @@
               <q-card-section class="text-center q-pa-md">
                 <q-icon name="upgrade" size="md" color="primary" class="q-mb-sm" />
                 <div class="text-subtitle2 text-weight-medium">Plano Insuficiente</div>
-                <div class="text-caption text-grey-6">Recurso disponível apenas para planos premium</div>
+                <div class="text-caption">Recurso disponível apenas para planos premium</div>
               </q-card-section>
             </q-card>
           </div>
@@ -77,7 +77,7 @@
               <q-card-section class="text-center q-pa-md">
                 <q-icon name="login" size="md" color="secondary" class="q-mb-sm" />
                 <div class="text-subtitle2 text-weight-medium">Sessão Expirada</div>
-                <div class="text-caption text-grey-6">Sua sessão pode ter expirado</div>
+                <div class="text-caption">Sua sessão pode ter expirado</div>
               </q-card-section>
             </q-card>
           </div>
@@ -113,7 +113,7 @@
 
       <!-- Login/Logout Options -->
       <div class="q-mb-lg">
-        <div class="text-subtitle2 text-grey-7 q-mb-md">Opções de conta:</div>
+        <div class="text-subtitle2-7 q-mb-md">Opções de conta:</div>
         <div class="q-gutter-sm">
           <q-btn 
             v-if="user"
@@ -146,7 +146,7 @@
 
       <!-- Help -->
       <div class="text-center">
-        <div class="text-body2 text-grey-6 q-mb-md">
+        <div class="text-body2 q-mb-md">
           Ainda com problemas para acessar?
         </div>
         <div class="q-gutter-sm">

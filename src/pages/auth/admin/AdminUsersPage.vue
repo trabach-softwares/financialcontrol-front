@@ -7,7 +7,7 @@
           <q-icon name="people" class="q-mr-sm" />
           Gerenciamento de Usuários
         </h4>
-        <p class="text-subtitle1 text-grey-6 q-ma-none q-mt-xs">
+        <p class="text-subtitle1 q-ma-none q-mt-xs">
           Visualize e gerencie todos os usuários do sistema
         </p>
       </div>

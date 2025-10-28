@@ -7,7 +7,7 @@
           <q-icon name="settings" class="q-mr-sm" color="primary" />
           Configurações
         </h4>
-        <p class="text-subtitle1 text-grey-6 q-ma-none q-mt-xs">
+        <p class="text-subtitle1 q-ma-none q-mt-xs">
           Personalize sua experiência e configure suas preferências
         </p>
       </div>
@@ -34,7 +34,7 @@
                     <q-icon name="language" class="q-mr-sm" />
                     Idioma
                   </div>
-                  <div class="text-caption text-grey-6">
+                  <div class="text-caption">
                     Escolha o idioma da interface
                   </div>
                 </div>
@@ -59,7 +59,7 @@
                     <q-icon name="attach_money" class="q-mr-sm" />
                     Moeda
                   </div>
-                  <div class="text-caption text-grey-6">
+                  <div class="text-caption">
                     Moeda padrão para exibição
                   </div>
                 </div>
@@ -84,7 +84,7 @@
                     <q-icon name="event" class="q-mr-sm" />
                     Formato de Data
                   </div>
-                  <div class="text-caption text-grey-6">
+                  <div class="text-caption">
                     Como as datas são exibidas
                   </div>
                 </div>
@@ -109,7 +109,7 @@
                     <q-icon name="format_list_numbered" class="q-mr-sm" />
                     Formato de Números
                   </div>
-                  <div class="text-caption text-grey-6">
+                  <div class="text-caption">
                     Separadores decimais e milhares
                   </div>
                 </div>
@@ -146,7 +146,7 @@
                     <q-icon name="dark_mode" class="q-mr-sm" />
                     Tema
                   </div>
-                  <div class="text-caption text-grey-6">
+                  <div class="text-caption">
                     Aparência da interface
                   </div>
                 </div>
@@ -176,7 +176,7 @@
                     <q-icon name="email" class="q-mr-sm" />
                     Email
                   </div>
-                  <div class="text-caption text-grey-6">
+                  <div class="text-caption">
                     Notificações por email
                   </div>
                 </div>
@@ -198,7 +198,7 @@
                     <q-icon name="push_pin" class="q-mr-sm" />
                     Push
                   </div>
-                  <div class="text-caption text-grey-6">
+                  <div class="text-caption">
                     Notificações no navegador
                   </div>
                 </div>
@@ -220,7 +220,7 @@
                     <q-icon name="assessment" class="q-mr-sm" />
                     Relatórios
                   </div>
-                  <div class="text-caption text-grey-6">
+                  <div class="text-caption">
                     Relatórios automáticos
                   </div>
                 </div>
@@ -328,7 +328,7 @@
                 class="q-mt-sm"
               />
 
-              <div class="text-caption text-grey-6 text-center q-mt-xs">
+              <div class="text-caption text-center q-mt-xs">
                 {{ storageInfo.usagePercentage }}% do plano utilizado
               </div>
             </div>

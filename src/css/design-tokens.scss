@@ -48,6 +48,24 @@
 }
 
 // ==========================================================================
+// THEME OVERRIDES (Quasar dark mode)
+// Quasar adiciona .body--dark no <body> quando o tema escuro está ativo
+// Aqui sobrescrevemos os tokens para o modo escuro
+// ==========================================================================
+.body--dark {
+  // Backgrounds no dark
+  --bg-primary: #121212;
+  --bg-secondary: #1E1E1E;
+  --bg-tertiary: #242424;
+
+  // Texto no dark
+  --text-primary: #FFFFFF;
+  --text-secondary: var(--color-grey-300);
+  --text-disabled: var(--color-grey-600);
+  --text-on-primary: #FFFFFF;
+}
+
+// ==========================================================================
 // SPACING - SISTEMA 4PX
 // ==========================================================================
 // Padrão de espaçamento baseado em múltiplos de 4px

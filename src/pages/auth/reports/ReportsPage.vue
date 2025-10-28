@@ -7,7 +7,7 @@
           <q-icon name="assessment" class="q-mr-sm" color="primary" />
           Relatórios e Análises
         </h4>
-        <p class="text-subtitle1 text-grey-6 q-ma-none q-mt-xs">
+        <p class="text-subtitle1 q-ma-none q-mt-xs">
           Visualize insights detalhados das suas finanças e acompanhe tendências
         </p>
       </div>
@@ -301,7 +301,7 @@
               >
                 <div class="col">
                   <div class="text-weight-medium">{{ category.name }}</div>
-                  <div class="text-caption text-grey-6">
+                  <div class="text-caption">
                     {{ category.count }} transações
                   </div>
                 </div>

@@ -201,7 +201,7 @@ Efeitos: Interface limpa e focada na autenticação -->
             
             <q-separator class="q-my-md" />
             
-            <p class="text-caption text-grey-6">
+            <p class="text-caption">
               Horário de atendimento: Segunda a Sexta, 8h às 18h
             </p>
           </div>
