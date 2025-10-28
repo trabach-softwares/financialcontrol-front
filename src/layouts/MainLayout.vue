@@ -23,10 +23,10 @@ Efeitos: Navegação completa e interface responsiva -->
       <!-- Logo e título -->
       <div class="sidebar-header q-pa-lg text-center">
         <q-avatar size="80px" class="q-mb-md">
-          <img src="/ControleFinanceiro.png" alt="Controle Financeiro" style="width: 100%; height: 100%;" />
+          <img src="/ControleFinanceiro.png" alt="Financial Control" style="width: 100%; height: 100%;" />
         </q-avatar>
         <div class="text-h6 text-grey-8 text-weight-bold">
-          Controle Financeiro
+          Financial Control
         </div>
         <div class="text-caption text-grey-6">
           {{ authStore.userPlan.toUpperCase() }}

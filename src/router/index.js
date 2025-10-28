@@ -94,8 +94,8 @@ export default route(function (/* { store, ssrContext } */) {
     
     // Atualizar título da página
     document.title = to.meta.title ? 
-      `${to.meta.title} - Controle Financeiro` : 
-      'Controle Financeiro'
+      `${to.meta.title} - Financial Control` : 
+      'Financial Control'
     
     // Analytics ou tracking (implementar se necessário)
     if (process.env.NODE_ENV === 'production') {

@@ -10,7 +10,7 @@
         Escolha o plano ideal para suas necessidades financeiras
       </p>
       <p class="text-body1 text-grey-7 q-mt-xs">
-        Desbloquear recursos avançados e potencializar seu controle financeiro
+        Desbloquear recursos avançados e potencializar seu Financial Control
       </p>
     </div>
 

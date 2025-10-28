@@ -1,6 +1,6 @@
 # 📚 ÍNDICE COMPLETO - ANÁLISE ESTRATÉGICA FINANCIAL CONTROL
 
-**Projeto:** Financial Control - Sistema de Controle Financeiro B2B  
+**Projeto:** Financial Control - Sistema de Financial Control B2B  
 **Stack:** Vue 3 + Quasar Framework v2 + Pinia + Node.js API  
 **Data:** 25 de Outubro de 2025  
 **Analista:** Consultor Sênior UX/Produto/Branding

@@ -305,7 +305,7 @@
       <q-toolbar>
         <div class="full-width row items-center justify-between">
           <div class="text-caption">
-            © {{ currentYear }} Controle Financeiro - Painel Administrativo
+            © {{ currentYear }} Financial Control - Painel Administrativo
           </div>
           <div class="text-caption">
             Versão {{ appVersion }} | Ambiente: {{ environment }}

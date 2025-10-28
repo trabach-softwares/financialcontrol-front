@@ -14,8 +14,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Controle Financeiro Pro",
-  "description": "Sistema completo de controle financeiro...",
+  "name": "Financial Control Pro",
+  "description": "Sistema completo de Financial Control...",
   "applicationCategory": "FinanceApplication"
 }
 ```
@@ -137,7 +137,7 @@
 <noscript>
   <div style="...">
     <h1>⚠️ JavaScript Desabilitado</h1>
-    <p>Para utilizar o Controle Financeiro Pro...</p>
+    <p>Para utilizar o Financial Control Pro...</p>
   </div>
 </noscript>
 ```

@@ -1,7 +1,7 @@
-# 🚀 Controle Financeiro - Sistema SaaS Completo
+# 🚀 Financial Control - Sistema SaaS Completo
 
 ## 📋 Visão Geral
-Sistema completo de controle financeiro desenvolvido em **Vue.js 3 + Quasar Framework** com **JavaScript**, projetado especificamente para pequenas e médias empresas que precisam de um controle financeiro profissional e intuitivo.
+Sistema completo de Financial Control desenvolvido em **Vue.js 3 + Quasar Framework** com **JavaScript**, projetado especificamente para pequenas e médias empresas que precisam de um Financial Control profissional e intuitivo.
 
 ## ✅ Funcionalidades Implementadas
 
@@ -257,6 +257,6 @@ npm run lint         # Análise de código
 
 **🎉 Sistema Completo e Pronto para Uso!**
 
-Este é um sistema de controle financeiro completo, moderno e profissional, desenvolvido com as melhores práticas de desenvolvimento frontend. A aplicação está pronta para ser usada em produção e pode ser facilmente expandida com novas funcionalidades conforme necessário.
+Este é um sistema de Financial Control completo, moderno e profissional, desenvolvido com as melhores práticas de desenvolvimento frontend. A aplicação está pronta para ser usada em produção e pode ser facilmente expandida com novas funcionalidades conforme necessário.
 
 **Tecnologias:** Vue.js 3 + Quasar Framework + JavaScript + Pinia + Chart.js + Material Design

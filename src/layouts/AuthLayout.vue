@@ -61,7 +61,7 @@ Efeitos: Interface limpa e focada na autenticação -->
         
         <q-card-section class="q-pa-lg">
           <div class="text-body1">
-            <h6>Política de Privacidade - Controle Financeiro</h6>
+            <h6>Política de Privacidade - Financial Control</h6>
             
             <p><strong>Última atualização:</strong> {{ currentDate }}</p>
             
@@ -109,15 +109,15 @@ Efeitos: Interface limpa e focada na autenticação -->
         
         <q-card-section class="q-pa-lg">
           <div class="text-body1">
-            <h6>Termos de Uso - Controle Financeiro</h6>
+            <h6>Termos de Uso - Financial Control</h6>
             
             <p><strong>Última atualização:</strong> {{ currentDate }}</p>
             
             <h6>1. Aceitação dos Termos</h6>
-            <p>Ao acessar e usar o Controle Financeiro, você aceita e concorda em cumprir estes Termos de Uso.</p>
+            <p>Ao acessar e usar o Financial Control, você aceita e concorda em cumprir estes Termos de Uso.</p>
             
             <h6>2. Descrição do Serviço</h6>
-            <p>O Controle Financeiro é uma plataforma SaaS para gestão financeira de pequenas e médias empresas.</p>
+            <p>O Financial Control é uma plataforma SaaS para gestão financeira de pequenas e médias empresas.</p>
             
             <h6>3. Responsabilidades do Usuário</h6>
             <ul>
@@ -249,7 +249,7 @@ const openDocumentation = () => {
 const openEmailSupport = () => {
   console.log('📧 [AUTH LAYOUT] Abrindo suporte por email')
   
-  const subject = encodeURIComponent('Suporte - Controle Financeiro')
+  const subject = encodeURIComponent('Suporte - Financial Control')
   const body = encodeURIComponent(`
 Olá equipe de suporte!
 

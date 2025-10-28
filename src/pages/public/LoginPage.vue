@@ -13,17 +13,17 @@ Responsividade: Mobile-first design
       
       <!-- Header com Logo e Título -->
       <header class="login-header text-center q-mb-md">
-        <div class="logo-container q-mb-md" role="img" aria-label="Logo Controle Financeiro">
+        <div class="logo-container q-mb-md" role="img" aria-label="Logo Financial Control">
           <img 
             src="/ControleFinanceiro.svg" 
-            alt="Logo Controle Financeiro"
+            alt="Logo Financial Control"
             class="logo-img"
             style="width: 80px; height: auto;"
           />
         </div>
         
         <h1 class="text-h3 text-weight-bold q-mb-sm login-title">
-          Controle Financeiro
+          Financial Control
         </h1>
         <p class="text-subtitle1 login-subtitle">
           Gerencie suas finanças com profissionalismo
