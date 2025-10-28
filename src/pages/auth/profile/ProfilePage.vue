@@ -3,11 +3,11 @@
     <!-- Header -->
     <div class="row items-center q-mb-lg">
       <div class="col">
-        <h4 class="text-h4 q-ma-none text-weight-bold">
+        <h4 :class="['text-h4','q-ma-none','text-weight-bold', headingTextClass]">
           <q-icon name="person" class="q-mr-sm" color="primary" />
           Meu Perfil
         </h4>
-        <p class="text-subtitle1 text-grey-6 q-ma-none q-mt-xs">
+        <p :class="['text-subtitle1','q-ma-none','q-mt-xs', subtitleTextClass]">
           Gerencie suas informações pessoais e configurações da conta
         </p>
       </div>
@@ -398,6 +398,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
+import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { userProfileGet, userProfileUpdate, userProfilePasswordChange, userProfileAvatarUpload, userProfileAvatarRemove } from 'src/apis/api-financial.js'
@@ -409,6 +410,10 @@ const router = useRouter()
 const authStore = useAuthStore()
 const { notifySuccess, notifyError } = useNotifications()
 const { formatDate } = useDate()
+
+const $q = useQuasar()
+const headingTextClass = computed(() => ($q.dark.isActive ? 'text-white' : 'text-dark'))
+const subtitleTextClass = computed(() => ($q.dark.isActive ? 'text-grey-4' : 'text-grey-6'))
 
 // Refs
 const fileInput = ref(null)
@@ -711,5 +716,16 @@ onMounted(async () => {
 
 .opacity-80 {
   opacity: 0.8;
+}
+
+/* Oculta as mensagens/hints inline dos inputs nesta página (atinge estrutura interna do Quasar) */
+:deep(.q-field__bottom) {
+  display: none !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+:deep(.q-field__messages) {
+  display: none !important;
 }
 </style>

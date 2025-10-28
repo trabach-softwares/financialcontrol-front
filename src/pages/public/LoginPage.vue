@@ -64,6 +64,7 @@ Responsividade: Mobile-first design
             role="tab"
             :aria-selected="activeTab === 'register'"
             tabindex="0"
+            class="text-primary"
           />
         </q-tabs>
 
@@ -106,20 +107,16 @@ Responsividade: Mobile-first design
                   outlined
                   dense
                   @update:model-value="clearErrors"
+                  @blur="validateLoginEmail"
                   class="full-width focus-ring"
                   aria-required="true"
                   autocomplete="email"
                   placeholder="seu@email.com"
+                  lazy-rules
                   hide-bottom-space
                   :rules="[val => {
-                    if (!val) {
-                      notifyError('ERROR.REQUIRED_FIELDS')
-                      return false
-                    }
-                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
-                      notifyError('ERROR.INVALID_EMAIL')
-                      return false
-                    }
+                    if (!val) return false
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return false
                     return true
                   }]"
                 >
@@ -293,14 +290,18 @@ Responsividade: Mobile-first design
                   type="email"
                   outlined
                   dense
-                  :error="!!registerError"
-                  :error-message="registerError"
                   @update:model-value="clearErrors"
+                  @blur="validateRegisterEmail"
                   class="full-width focus-ring"
                   aria-required="true"
-                  aria-invalid="!!registerError"
                   autocomplete="email"
                   placeholder="seu@email.com"
+                  lazy-rules
+                  :rules="[val => {
+                    if (!val) return false
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return false
+                    return true
+                  }]"
                 >
                   <template v-slot:prepend>
                     <q-icon name="email" color="grey-6" aria-hidden="true" />
@@ -499,6 +500,32 @@ const isRegisterFormValid = computed(() => {
 // ==========================================================================
 // MÉTODOS
 // ==========================================================================
+const lastInvalidLoginEmail = ref('')
+const lastInvalidRegisterEmail = ref('')
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const validateLoginEmail = () => {
+  const val = loginForm.value.email?.trim()
+  if (!val) return
+  if (!emailRegex.test(val)) {
+    if (lastInvalidLoginEmail.value !== val) {
+      lastInvalidLoginEmail.value = val
+      notifyError('ERROR.INVALID_EMAIL')
+    }
+  }
+}
+
+const validateRegisterEmail = () => {
+  const val = registerForm.value.email?.trim()
+  if (!val) return
+  if (!emailRegex.test(val)) {
+    if (lastInvalidRegisterEmail.value !== val) {
+      lastInvalidRegisterEmail.value = val
+      notifyError('ERROR.INVALID_EMAIL')
+    }
+  }
+}
 const clearErrors = () => {
   loginError.value = ''
   registerError.value = ''
@@ -510,6 +537,11 @@ const handleLogin = async () => {
   // Validação do formulário
   if (!loginForm.value.email || !loginForm.value.password) {
     notifyError('ERROR.REQUIRED_FIELDS')
+    return
+  }
+  // Validação de formato de e-mail no submit (uma única notificação)
+  if (!emailRegex.test(loginForm.value.email.trim())) {
+    notifyError('ERROR.INVALID_EMAIL')
     return
   }
   
@@ -535,6 +567,11 @@ const handleRegister = async () => {
   // Validação do formulário
   if (!registerForm.value.name || !registerForm.value.email || !registerForm.value.password) {
     notifyError('ERROR.REQUIRED_FIELDS')
+    return
+  }
+  // Validação de formato de e-mail no submit (uma única notificação)
+  if (!emailRegex.test(registerForm.value.email.trim())) {
+    notifyError('ERROR.INVALID_EMAIL')
     return
   }
   

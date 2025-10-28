@@ -9,6 +9,9 @@ import { useQuasar } from 'quasar'
 import { getErrorMessage } from 'src/constants/messages'
 import MESSAGES from 'src/constants/messages'
 
+const isDev = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV === true
+const shouldLog = isDev && String(import.meta.env?.VITE_LOG_NOTIFICATIONS) === 'true'
+
 /**
  * Composable para gerenciar notificações de forma consistente
  * Abstrai a API do Quasar Notify com configurações padronizadas
@@ -45,7 +48,7 @@ export function useNotifications() {
       ...options
     })
     
-    console.log(' [NOTIFICATION] Sucesso:', messageText)
+    if (shouldLog) console.log(' [NOTIFICATION] Sucesso:', messageText)
   }
 
   /**
@@ -84,7 +87,7 @@ export function useNotifications() {
       ...options
     })
     
-    console.error(' [NOTIFICATION] Erro:', message)
+    if (shouldLog) console.error(' [NOTIFICATION] Erro:', message)
   }
 
   /**
@@ -113,7 +116,7 @@ export function useNotifications() {
       ...options
     })
     
-    console.log('⚠️ [NOTIFICATION] Aviso:', message)
+    if (shouldLog) console.log('⚠️ [NOTIFICATION] Aviso:', message)
   }
 
   /**
@@ -138,7 +141,7 @@ export function useNotifications() {
       ...options
     })
     
-    console.log('ℹ️ [NOTIFICATION] Info:', message)
+    if (shouldLog) console.log('ℹ️ [NOTIFICATION] Info:', message)
   }
 
   /**

@@ -7,7 +7,7 @@ Destino: Formulários de login, registro, recuperação de senha
 Efeitos: Interface limpa e focada na autenticação -->
 
 <template>
-  <q-layout view="hHh lpR fFf" class="auth-layout">
+  <q-layout view="hHh lpR fFf" class="auth-layout q-light">
     
     <!-- Background 3D Animado com Ícones do Quasar -->
     <div class="auth-background">
@@ -212,7 +212,8 @@ Efeitos: Interface limpa e focada na autenticação -->
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useQuasar } from 'quasar'
 
 const showPrivacyPolicy = ref(false)
 const showTermsOfService = ref(false)
@@ -223,6 +224,18 @@ const currentYear = computed(() => {
 
 const currentDate = computed(() => {
   return new Date().toLocaleDateString('pt-BR')
+})
+
+const $q = useQuasar()
+const prevDark = ref(false)
+
+onMounted(() => {
+  prevDark.value = $q.dark.isActive
+  $q.dark.set(false)
+})
+
+onBeforeUnmount(() => {
+  $q.dark.set(prevDark.value)
 })
 
 /**
