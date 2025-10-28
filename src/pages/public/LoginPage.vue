@@ -12,13 +12,13 @@ Responsividade: Mobile-first design
     <div class="login-container">
       
       <!-- Header com Logo e Título -->
-      <header class="login-header text-center q-mb-xl">
-        <div class="logo-container q-mb-lg" role="img" aria-label="Logo Controle Financeiro">
-          <q-icon 
-            name="account_balance_wallet" 
-            size="5rem" 
-            color="primary" 
-            class="logo-icon"
+      <header class="login-header text-center q-mb-md">
+        <div class="logo-container q-mb-md" role="img" aria-label="Logo Controle Financeiro">
+          <img 
+            src="/ControleFinanceiro.svg" 
+            alt="Logo Controle Financeiro"
+            class="logo-img"
+            style="width: 80px; height: auto;"
           />
         </div>
         
@@ -44,7 +44,7 @@ Responsividade: Mobile-first design
         <q-tabs
           v-model="activeTab"
           dense
-          class="auth-tabs q-mb-lg"
+          class="auth-tabs q-mb-md"
           active-color="primary"
           indicator-color="primary"
           align="justify"
@@ -67,7 +67,7 @@ Responsividade: Mobile-first design
           />
         </q-tabs>
 
-        <q-separator class="q-mb-lg" />
+        <q-separator class="q-mb-md" />
 
         <q-tab-panels v-model="activeTab" animated>
           
@@ -83,7 +83,7 @@ Responsividade: Mobile-first design
             <h2 id="auth-title" class="text-h5 text-weight-semibold q-mb-md panel-title">
               Bem-vindo de volta
             </h2>
-            <p class="text-body2 q-mb-lg panel-subtitle">
+            <p class="text-body2 q-mb-md panel-subtitle">
               Entre com suas credenciais para acessar o sistema
             </p>
 
@@ -120,14 +120,6 @@ Responsividade: Mobile-first design
                     <q-icon name="email" color="grey-6" aria-hidden="true" />
                   </template>
                 </q-input>
-                <div 
-                  v-if="loginError" 
-                  id="login-email-error" 
-                  class="form-error" 
-                  role="alert"
-                >
-                  {{ loginError }}
-                </div>
               </div>
 
               <!-- Campo Senha -->
@@ -181,7 +173,7 @@ Responsividade: Mobile-first design
                 label="Entrar"
                 color="primary"
                 size="lg"
-                class="q-mt-lg btn-primary-sage "
+                class="q-mt-md btn-primary-sage "
                 :loading="isLoading"
                 :disable="!isLoginFormValid"
                 no-caps
@@ -209,7 +201,8 @@ Responsividade: Mobile-first design
             </q-form>
 
             <!-- Link para registro -->
-            <div class="text-center q-mt-lg q-pt-lg" style="border-top: 1px solid var(--color-grey-300);">
+            <div class="text-center q-mt-md q-pt-md" 
+            style="border-top: 1px solid var(--color-grey-300);">
               <p class="text-body2" style="color: var(--text-secondary);">
                 Não tem uma conta?
                 <q-btn
@@ -238,7 +231,7 @@ Responsividade: Mobile-first design
             <h2 id="auth-title-register" class="text-h5 text-weight-semibold q-mb-md panel-title">
               Criar sua conta
             </h2>
-            <p class="text-body2 q-mb-lg panel-subtitle">
+            <p class="text-body2 q-mb-md panel-subtitle">
               Preencha os dados abaixo para começar
             </p>
 
@@ -359,7 +352,7 @@ Responsividade: Mobile-first design
             </q-form>
 
             <!-- Link para login -->
-            <div class="text-center q-mt-lg q-pt-lg" style="border-top: 1px solid var(--color-grey-300);">
+            <div class="text-center q-mt-md q-pt-md" style="border-top: 1px solid var(--color-grey-300);">
               <p class="text-body2" style="color: var(--text-secondary);">
                 Já tem uma conta?
                 <q-btn
@@ -379,15 +372,15 @@ Responsividade: Mobile-first design
       </q-card>
 
       <!-- Rodapé -->
-      <footer class="login-footer text-center q-mt-xl" role="contentinfo">
+      <footer class="login-footer text-center q-mt-sm" role="contentinfo">
         <p class="text-caption text-secondary">
-          © 2025 Controle Financeiro. Todos os direitos reservados.
+          © 2024 Trabach Softwares. Todos os direitos reservados.
         </p>
       </footer>
     </div>
 
     <!-- Dialog de Recuperação de Senha -->
-    <q-dialog v-model="showForgotPassword" position="standard">
+    <q-dialog v-model="showForgotPassword" position="standard" style="backdrop-filter: blur(2px);">
       <q-card class="forgot-password-card q-pa-md">
         <q-card-section>
           <h3 class="text-h6 q-mb-sm dialog-title">Recuperar senha</h3>
@@ -600,6 +593,16 @@ const handleForgotPassword = () => {
   margin: 0 auto;
   position: relative;
   z-index: 1;
+}
+
+.logo-container {
+  width: 135px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+  flex-wrap: nowrap;
+  flex-direction: row;
 }
 
 // Header com Logo - Glassmorphism
