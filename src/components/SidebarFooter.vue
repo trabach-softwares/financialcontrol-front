@@ -1,26 +1,6 @@
 <template>
   <div class="sidebar-footer-content" id="sidebar-footer" data-testid="sidebar-footer" data-alias="sidebar-footer">
     <div class="row items-center justify-between no-wrap" id="sidebar-footer-actions" data-testid="sidebar-footer-actions">
-      <!-- Notificações -->
-      <q-btn
-        id="btn-notifications"
-        name="btn-notifications"
-        data-testid="btn-notifications"
-        data-alias="notifications-button"
-        flat
-        round
-        dense
-        icon="notifications"
-        class="q-mr-sm"
-        @click="$emit('open-notifications')"
-        aria-label="Notificações"
-        title="Abrir notificações"
-      >
-        <q-badge v-if="notificationCount > 0" color="red" floating id="badge-notifications" data-testid="badge-notifications">
-          {{ notificationCount }}
-        </q-badge>
-        <q-tooltip id="tooltip-notifications">Notificações</q-tooltip>
-      </q-btn>
 
       <!-- Menu do usuário -->
       <q-btn-dropdown
