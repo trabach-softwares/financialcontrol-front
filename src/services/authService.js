@@ -26,7 +26,7 @@ export const authService = {
    * Efeitos: Token é armazenado automaticamente pelo interceptor
    */
   async login(credentials) {
-    console.log('🔐 Tentativa de login para:', credentials.email)
+    console.log(' Tentativa de login para:', credentials.email)
     
     const response = await api.post('/auth/login', {
       email: credentials.email,
@@ -36,7 +36,7 @@ export const authService = {
     const apiData = handleApiResponse(response, 'login')
     
     if (apiData && apiData.user && apiData.user.email) {
-      console.log('✅ Login bem-sucedido:', apiData.user.email)
+      console.log(' Login bem-sucedido:', apiData.user.email)
     } else {
       throw new Error('Estrutura de resposta inválida: user não encontrado')
     }
@@ -55,7 +55,7 @@ export const authService = {
    * Efeitos: Usuário criado e logado automaticamente
    */
   async register(userData) {
-    console.log('📝 Registrando novo usuário:', userData.email)
+    console.log(' Registrando novo usuário:', userData.email)
     
     const response = await api.post('/auth/register', {
       name: userData.name,
@@ -65,7 +65,7 @@ export const authService = {
     
     const apiData = handleApiResponse(response, 'register')
     
-    console.log('✅ Registro bem-sucedido:', apiData.user.email)
+    console.log(' Registro bem-sucedido:', apiData.user.email)
     return apiData
   },
 
@@ -95,14 +95,31 @@ export const authService = {
   },
 
   // ==========================================================================
-  // LOGOUT - LIMPEZA LOCAL
+  // REFRESH - POST /auth/refresh
   // ==========================================================================
   /**
-   * Realiza logout removendo dados locais
-   * Propósito: Limpar token e dados do usuário do localStorage
-   * Origem: Action do store ou componente
-   * Efeitos: Remove token, dados do usuário e redireciona
+   * Renova o token JWT na API e retorna { token, user }
    */
-  logout() {
+  async refresh() {
+    const response = await api.post('/auth/refresh')
+    const apiData = handleApiResponse(response, 'refresh')
+    if (!apiData?.token) {
+      throw new Error('Falha ao renovar sessão: token ausente')
+    }
+    return apiData
+  },
+
+  // ==========================================================================
+  // LOGOUT - POST /auth/logout
+  // ==========================================================================
+  /**
+   * Efetua logout na API (stateless) para fins de auditoria/telemetria
+   */
+  async logout() {
+    try {
+      await api.post('/auth/logout')
+    } catch (_) {
+      // Ignora erros de logout
+    }
   }
 }

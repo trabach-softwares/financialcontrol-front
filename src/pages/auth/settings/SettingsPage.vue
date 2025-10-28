@@ -308,29 +308,6 @@
                   {{ storageInfo.attachments }}
                 </div>
               </div>
-
-              <q-separator class="q-my-sm" />
-
-              <div class="row items-center">
-                <div class="col text-body2 text-weight-medium">
-                  Total usado:
-                </div>
-                <div class="col-auto text-h6 text-weight-bold text-primary">
-                  {{ storageInfo.totalSize }}
-                </div>
-              </div>
-
-              <q-linear-progress
-                :value="storageInfo.usagePercentage / 100"
-                color="primary"
-                size="8px"
-                rounded
-                class="q-mt-sm"
-              />
-
-              <div class="text-caption text-center q-mt-xs">
-                {{ storageInfo.usagePercentage }}% do plano utilizado
-              </div>
             </div>
           </q-card-section>
         </q-card>

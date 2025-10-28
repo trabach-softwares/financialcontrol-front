@@ -404,6 +404,7 @@ import { useAuthStore } from '@/stores/auth'
 import { userProfileGet, userProfileUpdate, userProfilePasswordChange, userProfileAvatarUpload, userProfileAvatarRemove } from 'src/apis/api-financial.js'
 import { useNotifications } from '@/composables/useNotifications'
 import { useDate } from '@/composables/useDate'
+import { authService } from '@/services/authService'
 
 // Composables
 const router = useRouter()
@@ -686,21 +687,12 @@ watch(user, loadUserData, { immediate: true })
 onMounted(async () => {
   loadUserData()
   try {
-    const sessionRaw = sessionStorage.getItem('auth_user')
-    const sessionUser = sessionRaw ? JSON.parse(sessionRaw) : null
-    console.groupCollapsed('🔎 [PROFILE] Diagnóstico de dados do usuário')
-    console.log('AuthStore.user:', authStore.user)
-    console.log('SessionStorage auth_user:', sessionUser)
-    try {
-      const apiResp = await userProfileGet()
-      const apiUser = apiResp?.data || apiResp
-      console.log('API /users/profile:', apiUser)
-    } catch (e) {
-      console.warn('⚠️ Falha ao consultar API /users/profile:', e?.message || e)
-    }
-    console.groupEnd()
+    const userData = await authService.getMe()
+    const current = authStore.user || {}
+    const merged = { ...current, ...userData }
+    authStore.updateUser(merged)
+    loadUserData()
   } catch (e) {
-    // ignore
   }
 })
 </script>

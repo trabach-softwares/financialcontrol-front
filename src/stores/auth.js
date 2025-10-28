@@ -128,6 +128,11 @@ export const useAuthStore = defineStore('auth', {
         this.user = userData
         sessionStorage.setItem('auth_user', JSON.stringify(this.user))
         
+        // Enriquecer com informações de plano (plan_name/plan_type) e persistir
+        try {
+          await this.enrichUserPlan()
+        } catch (_) {}
+        
         
         // Retorna sucesso para a página de login
         return { success: true, user: this.user }

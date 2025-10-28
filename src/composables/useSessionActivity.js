@@ -21,7 +21,7 @@ const INTERVAL_MS = 1000 // 1 segundo
 
 // ===== CONFIGURAÇÕES =====
 const ACTIVITY_TIMEOUT_SECONDS = 40 * 60 // 40 minutos de atividade
-const TOKEN_EXPIRY_SECONDS = 40 * 60 // 40 minutos de token
+const TOKEN_EXPIRY_SECONDS = 30 * 60 // 30 minutos de sessão (token)
 
 // Para testes rápidos (descomentar):
 // const ACTIVITY_TIMEOUT_SECONDS = 60 // 1 minuto
@@ -106,8 +106,25 @@ function startTokenCountdown() {
     clearInterval(tokenTick)
   }
   
-  // Define quando o token vai expirar
-  tokenExpiresAtMs = Date.now() + (TOKEN_EXPIRY_SECONDS * 1000)
+  // Define quando o token vai expirar: prioriza exp do JWT se existir
+  try {
+    const key = 'auth_token'
+    const token = (typeof window !== 'undefined' && window.sessionStorage) ? window.sessionStorage.getItem(key) : null
+    if (token && token.split('.').length === 3) {
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+      const payloadJson = atob(base64)
+      const payload = JSON.parse(payloadJson)
+      if (payload && payload.exp) {
+        tokenExpiresAtMs = payload.exp * 1000
+      } else {
+        tokenExpiresAtMs = Date.now() + (TOKEN_EXPIRY_SECONDS * 1000)
+      }
+    } else {
+      tokenExpiresAtMs = Date.now() + (TOKEN_EXPIRY_SECONDS * 1000)
+    }
+  } catch (_) {
+    tokenExpiresAtMs = Date.now() + (TOKEN_EXPIRY_SECONDS * 1000)
+  }
   
   
   if (isBrowser) {

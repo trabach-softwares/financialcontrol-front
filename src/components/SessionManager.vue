@@ -6,6 +6,7 @@
 import { onMounted, onBeforeUnmount, watch } from 'vue'
 import { Dialog, Notify } from 'quasar'
 import { useAuthStore } from 'src/stores/auth'
+import { authService } from 'src/services/authService'
 import { useSessionActivity } from 'src/composables/useSessionActivity'
 import { useRouter } from 'vue-router'
 import { authGetMe } from 'src/apis/api-financial.js'
@@ -14,14 +15,14 @@ import { authGetMe } from 'src/apis/api-financial.js'
 // CONFIGURAÇÕES
 // ==========================================================================
 
-const LOGOUT_MARGIN_SECONDS = 10  // Logout quando restar 10s
-const DIALOG_COUNTDOWN_SECONDS = 255  // Dialog fica aberto por 4min 15s
-const WARNING_MARGIN_SECONDS = 300  // Avisar quando restar 5 min
+// const LOGOUT_MARGIN_SECONDS = 10  // Logout quando restar 10s
+// const DIALOG_COUNTDOWN_SECONDS = 120  // Dialog ~2min
+// const WARNING_MARGIN_SECONDS = 60  // Avisar quando restar 1 min
 
 // Para testes (descomentar):
-// const LOGOUT_MARGIN_SECONDS = 5
-// const DIALOG_COUNTDOWN_SECONDS = 10
-// const WARNING_MARGIN_SECONDS = 15
+const LOGOUT_MARGIN_SECONDS = 5
+const DIALOG_COUNTDOWN_SECONDS = 10
+const WARNING_MARGIN_SECONDS = 15
 
 // ==========================================================================
 // COMPOSABLES E STORES
@@ -131,30 +132,37 @@ function performLogout() {
  */
 async function refreshToken() {
   try {
-    
-    // Chama API para verificar se o token ainda é válido
-    // Se for válido, o backend já renovou automaticamente
-    const userData = await authGetMe()
-    
-    if (userData) {
+    // Chama a rota dedicada de refresh
+    const data = await authService.refresh()
+
+    if (data && data.token) {
+      // Persistir novo token e (opcional) usuário
+      sessionStorage.setItem('auth_token', data.token)
+      if (data.user) {
+        sessionStorage.setItem('auth_user', JSON.stringify(data.user))
+      }
+
+      // Atualizar store reativo
+      authStore.token = data.token
+      if (data.user) authStore.user = data.user
+
       // Resetar contadores
       resetToken()
       resetActivity()
-      
-      
+
       Notify.create({
         type: 'positive',
         message: 'Sessão estendida com sucesso!',
         position: 'bottom',
         timeout: 2000
       })
-      
+
       return true
     }
-    
+
     return false
   } catch (error) {
-    
+    // Falha ao renovar
     return false
   }
 }
@@ -298,7 +306,7 @@ function handleTokenChange() {
     performLogout()
   }, msLogout)
   
-  // Disparar aviso
+  // Disparar aviso/ação em 1 minuto
   if (secondsLeft <= WARNING_MARGIN_SECONDS && secondsLeft > 0 && !warningTriggered) {
     warningTriggered = true
     handleWarning()
