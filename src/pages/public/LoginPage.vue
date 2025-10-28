@@ -105,7 +105,6 @@ Responsividade: Mobile-first design
                   type="email"
                   outlined
                   dense
-                  :loading="isLoading"
                   @update:model-value="clearErrors"
                   class="full-width focus-ring"
                   aria-required="true"
@@ -142,7 +141,6 @@ Responsividade: Mobile-first design
                   :type="showPassword ? 'text' : 'password'"
                   outlined
                   dense
-                  :loading="isLoading"
                   class="full-width focus-ring"
                   aria-required="true"
                   autocomplete="current-password"
@@ -194,7 +192,6 @@ Responsividade: Mobile-first design
                 color="primary"
                 size="lg"
                 class="q-mt-md btn-primary-sage "
-                :loading="isLoading"
                 :disable="!isLoginFormValid"
                 no-caps
                 unelevated
@@ -273,7 +270,6 @@ Responsividade: Mobile-first design
                   type="text"
                   outlined
                   dense
-                  :loading="isLoading"
                   class="full-width focus-ring"
                   aria-required="true"
                   autocomplete="name"
@@ -297,7 +293,6 @@ Responsividade: Mobile-first design
                   type="email"
                   outlined
                   dense
-                  :loading="isLoading"
                   :error="!!registerError"
                   :error-message="registerError"
                   @update:model-value="clearErrors"
@@ -325,7 +320,6 @@ Responsividade: Mobile-first design
                   :type="showPasswordRegister ? 'text' : 'password'"
                   outlined
                   dense
-                  :loading="isLoading"
                   class="full-width focus-ring"
                   aria-required="true"
                   autocomplete="new-password"
@@ -359,7 +353,6 @@ Responsividade: Mobile-first design
                 color="primary"
                 size="lg"
                 class="q-mt-lg btn-primary-sage"
-                :loading="isLoading"
                 :disable="!isRegisterFormValid"
                 no-caps
                 unelevated
@@ -512,7 +505,7 @@ const clearErrors = () => {
 }
 
 const handleLogin = async () => {
-  console.log('🔐 [LOGIN PAGE] Processando login')
+  console.log(' [LOGIN PAGE] Processando login')
   
   // Validação do formulário
   if (!loginForm.value.email || !loginForm.value.password) {
@@ -521,8 +514,6 @@ const handleLogin = async () => {
   }
   
   try {
-    isLoading.value = true
-    
     await authStore.login(loginForm.value)
     
     notifySuccess('SUCCESS.LOGIN')
@@ -532,15 +523,14 @@ const handleLogin = async () => {
     router.push(redirect)
     
   } catch (error) {
-    console.error('❌ [LOGIN PAGE] Erro no login:', error)
-    notifyError(error)
-  } finally {
-    isLoading.value = false
+    console.error(' [LOGIN PAGE] Erro:', error.message)
+    loginError.value = error.message || 'Erro ao fazer login'
+    notifyError(error.message || 'ERROR.LOGIN_FAILED')
   }
 }
 
 const handleRegister = async () => {
-  console.log('📝 [LOGIN PAGE] Processando registro')
+  console.log(' [LOGIN PAGE] Processando registro')
   
   // Validação do formulário
   if (!registerForm.value.name || !registerForm.value.email || !registerForm.value.password) {
@@ -554,8 +544,6 @@ const handleRegister = async () => {
   }
   
   try {
-    isLoading.value = true
-    
     await authStore.register(registerForm.value)
     
     notifySuccess('SUCCESS.REGISTER')
@@ -564,10 +552,9 @@ const handleRegister = async () => {
     router.push('/dashboard')
     
   } catch (error) {
-    console.error('❌ [LOGIN PAGE] Erro no registro:', error)
-    notifyError(error)
-  } finally {
-    isLoading.value = false
+    console.error(' [LOGIN PAGE] Erro no registro:', error.message)
+    registerError.value = error.message || 'Erro ao criar conta'
+    notifyError(error.message || 'ERROR.REGISTER_FAILED')
   }
 }
 

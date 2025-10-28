@@ -14,8 +14,8 @@ export const useAuthStore = defineStore('auth', {
   // ==========================================================================
   state: () => ({
     // Dados do usuário logado
-    user: null,                    // Objeto com dados completos do usuário
-    token: localStorage.getItem('auth_token') || null, // JWT token
+    user: JSON.parse(sessionStorage.getItem('auth_user') || 'null'),  // Objeto com dados completos do usuário (persistido na sessão)
+    token: sessionStorage.getItem('auth_token') || null, // JWT token
     
     // Estados de loading
     isLoading: false,              // Loading geral de auth
@@ -102,8 +102,6 @@ export const useAuthStore = defineStore('auth', {
      * Efeitos: Define token, carrega dados do usuário, redireciona
      */
     async login(credentials) {
-      console.log('🔐 [AUTH STORE] Iniciando login para:', credentials.email)
-      
       this.isLoggingIn = true
       this.loginError = null
 
@@ -111,13 +109,8 @@ export const useAuthStore = defineStore('auth', {
         // Chama o serviço de autenticação
         const response = await authService.login(credentials)
         
-        console.log('🔍 [AUTH STORE] Resposta do authService:', response)
-        
         // authService já retorna a estrutura correta (data.user + data.token)
         const { token, user: userData } = response
-        
-        console.log('🔍 [AUTH STORE] Token extraído:', token)
-        console.log('🔍 [AUTH STORE] User data extraído:', userData)
         
         if (!token) {
           throw new Error('Token não encontrado na resposta da API')
@@ -129,19 +122,18 @@ export const useAuthStore = defineStore('auth', {
         
         // Armazena o token
         this.token = token
-        localStorage.setItem('auth_token', token)
+        sessionStorage.setItem('auth_token', token)
         
-        // Usar dados do usuário da resposta do login
+        // Persistir usuário retornado pelo login na sessão e no estado
         this.user = userData
-        console.log('✅ [AUTH STORE] Dados do usuário obtidos do login:', userData.email)
+        sessionStorage.setItem('auth_user', JSON.stringify(this.user))
         
-        console.log('✅ [AUTH STORE] Login realizado com sucesso')
         
         // Retorna sucesso para a página de login
         return { success: true, user: this.user }
         
       } catch (error) {
-        console.error('❌ [AUTH STORE] Erro no login:', error.message)
+        
         
         // Armazena erro para exibição
         this.loginError = error.response?.data?.message || 'Erro ao fazer login'
@@ -162,8 +154,6 @@ export const useAuthStore = defineStore('auth', {
      * Efeitos: Cria conta e faz login automático
      */
     async register(userData) {
-      console.log('📝 [AUTH STORE] Iniciando registro para:', userData.email)
-      
       this.isRegistering = true
       this.registerError = null
 
@@ -173,17 +163,17 @@ export const useAuthStore = defineStore('auth', {
         
         // Armazena o token (login automático após registro)
         this.token = response.token
-        localStorage.setItem('auth_token', response.token)
+        sessionStorage.setItem('auth_token', response.token)
         
         // Carrega dados do usuário
         await this.fetchUser()
         
-        console.log('✅ [AUTH STORE] Registro e login automático realizados')
+        
         
         return { success: true, user: this.user }
         
       } catch (error) {
-        console.error('❌ [AUTH STORE] Erro no registro:', error.message)
+        
         
         // Armazena erro para exibição
         this.registerError = error.response?.data?.message || 'Erro ao criar conta'
@@ -201,49 +191,15 @@ export const useAuthStore = defineStore('auth', {
      * Efeitos: Atualiza dados do usuário no estado
      */
     async fetchUser() {
-      if (!this.token) {
-        console.log('⚠️ [AUTH STORE] Sem token para buscar usuário')
-        return
-      }
-
-      console.log('👤 [AUTH STORE] Carregando dados do usuário')
-      
+      if (!this.token) return
+      // Recarrega usuário a partir da sessão (fonte única de leitura)
       try {
-        const userData = await authService.getMe()
-        
-        console.log('🔍 [AUTH STORE] Resposta getMe:', userData)
-        
-        // authService já retorna os dados corretos do usuário
-        this.user = userData
-        
-        console.log('✅ [AUTH STORE] Dados do usuário carregados:', {
-          id: userData.id,
-          name: userData.name,
-          email: userData.email,
-          role: userData.role,
-          plan_id: userData.plan_id
-        })
-
-        // Busca detalhes do plano se o usuário tiver um plan_id
+        const raw = sessionStorage.getItem('auth_user')
+        this.user = raw ? JSON.parse(raw) : null
+        // Opcional: enriquecer plano se necessário
         await this.enrichUserPlan()
-        
-      } catch (error) {
-        console.error('❌ [AUTH STORE] Erro ao carregar usuário:', error.message)
-        
-        // Tratamento específico para recursão infinita
-        if (error.message && error.message.includes('infinite recursion')) {
-          console.error('🔥 [AUTH STORE] Erro de recursão infinita no fetchUser')
-          this.clearAuth()
-          throw new Error('Erro de configuração no servidor - RLS com recursão infinita')
-        }
-        
-        // Se o token é inválido, limpa a autenticação
-        if (error.response?.status === 401) {
-          console.log('🔄 [AUTH STORE] Token inválido, fazendo logout')
-          this.logout()
-        }
-        
-        throw error
+      } catch (_) {
+        this.user = null
       }
     },
 
@@ -253,7 +209,6 @@ export const useAuthStore = defineStore('auth', {
      */
     async enrichUserPlan() {
       if (!this.user?.plan_id) {
-        console.log('ℹ️ [AUTH STORE] Usuário sem plan_id, assumindo plano FREE')
         return
       }
 
@@ -279,17 +234,15 @@ export const useAuthStore = defineStore('auth', {
             plan_price: userPlan.price,
             plan_features: userPlan.features
           }
+          // Persistir dados atualizados
+          sessionStorage.setItem('auth_user', JSON.stringify(this.user))
           
-          console.log('✅ [AUTH STORE] Plano do usuário enriquecido:', {
-            plan_name: userPlan.name,
-            plan_type: userPlan.type
-          })
         } else {
-          console.warn('⚠️ [AUTH STORE] Plano não encontrado para plan_id:', this.user.plan_id)
+          
         }
         
       } catch (error) {
-        console.error('❌ [AUTH STORE] Erro ao buscar plano do usuário:', error.message)
+        
         // Não falha se não conseguir buscar o plano
       }
     },
@@ -300,19 +253,17 @@ export const useAuthStore = defineStore('auth', {
      * Efeitos: Limpa estado e localStorage, redireciona para login
      */
     async logout() {
-      console.log('🚪 [AUTH STORE] Realizando logout')
-      
       try {
         // Chama o serviço de logout se há token
         if (this.token) {
           await authService.logout()
         }
       } catch (error) {
-        console.warn('⚠️ [AUTH STORE] Erro no logout (continuando):', error.message)
+        
       } finally {
         // Sempre limpa o estado local
         this.clearAuth()
-        console.log('✅ [AUTH STORE] Logout concluído')
+        
       }
     },
 
@@ -322,17 +273,15 @@ export const useAuthStore = defineStore('auth', {
      * Efeitos: Estado limpo, localStorage limpo
      */
     clearAuth() {
-      console.log('🧹 [AUTH STORE] Limpando dados de autenticação')
-      
       this.user = null
       this.token = null
       this.loginError = null
       this.registerError = null
       
-      // Remove do localStorage
-      localStorage.removeItem('auth_token')
+      // Remove da sessionStorage
+      sessionStorage.removeItem('auth_token')
+      sessionStorage.removeItem('auth_user')
       
-      console.log('✅ [AUTH STORE] Dados limpos')
     },
 
     /**
@@ -342,28 +291,23 @@ export const useAuthStore = defineStore('auth', {
      */
     async initialize() {
       if (this.isInitialized) {
-        console.log('⚠️ [AUTH STORE] Já foi inicializado')
         return
       }
 
-      console.log('🚀 [AUTH STORE] Inicializando autenticação')
       this.isLoading = true
 
       try {
-        // Se há token no localStorage, tenta restaurar sessão
+        // Se há token na sessionStorage, tenta restaurar sessão
         if (this.token) {
-          console.log('🔍 [AUTH STORE] Token encontrado, verificando validade')
           await this.fetchUser()
         } else {
-          console.log('ℹ️ [AUTH STORE] Nenhum token encontrado')
+          
         }
         
       } catch (error) {
-        console.warn('⚠️ [AUTH STORE] Erro na inicialização:', error.message)
         
         // Se for erro de recursão infinita, não tentar novamente
         if (error.message && error.message.includes('infinite recursion')) {
-          console.error('🔥 [AUTH STORE] Erro de recursão infinita detectado - limpando auth')
           this.clearAuth()
           
           // Notificar usuário sobre problema no servidor
@@ -382,7 +326,7 @@ export const useAuthStore = defineStore('auth', {
       } finally {
         this.isInitialized = true
         this.isLoading = false
-        console.log('✅ [AUTH STORE] Inicialização concluída')
+        
       }
     },
 
@@ -392,12 +336,12 @@ export const useAuthStore = defineStore('auth', {
      * Efeitos: Estado sincronizado com dados atualizados
      */
     updateUser(userData) {
-      console.log('🔄 [AUTH STORE] Atualizando dados do usuário no estado')
-      
       if (this.user) {
         // Mescla dados novos com existentes
         this.user = { ...this.user, ...userData }
-        console.log('✅ [AUTH STORE] Dados do usuário atualizados')
+        // Persistir dados atualizados na sessão
+        sessionStorage.setItem('auth_user', JSON.stringify(this.user))
+        
       }
     },
 

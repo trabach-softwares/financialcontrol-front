@@ -327,15 +327,6 @@
         </q-card>
       </div>
     </div>
-
-    <!-- Loading -->
-    <div v-if="loading" class="fixed-center">
-      <q-circular-progress
-        indeterminate
-        size="50px"
-        color="primary"
-      />
-    </div>
   </q-page>
 </template>
 
@@ -356,7 +347,6 @@ const { formatDate } = useDate()
 const { showSuccess, showError } = useNotifications()
 
 // Refs
-const loading = ref(false)
 const timelineChart = ref(null)
 const categoryChart = ref(null)
 const timelineChartInstance = ref(null)
@@ -445,8 +435,6 @@ const loadReports = async () => {
   }
 
   try {
-    loading.value = true
-
     // Get reports data
     const reportsData = await transactionService.getReports({
       startDate: filters.value.startDate,
@@ -469,7 +457,6 @@ const loadReports = async () => {
     console.error('Erro ao carregar relatórios:', error)
     showError('Erro ao carregar relatórios. Tente novamente.')
   } finally {
-    loading.value = false
   }
 }
 

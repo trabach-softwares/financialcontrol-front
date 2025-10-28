@@ -1,785 +1,694 @@
-// ==========================================================================
-// API FINANCIAL - CENTRALIZAÇÃO DE ROTAS E HELPERS
-// ==========================================================================
-// Propósito: Centralizar TODAS as rotas da API em um único arquivo
-// Padrão: ROUTES_MAP + helpers assíncronos para cada endpoint
-// Arquitetura: Elimina chamadas HTTP soltas nos componentes
-// Uso: import { login, getTransactions, ... } from '@/apis/api-financial.js'
+/**
+ * ========================================
+ * API FINANCIAL CONTROL - Módulo Centralizado
+ * ========================================
+ * 
+ * Stack: Vue 3 + Quasar + Pinia + Axios
+ * 
+ * Objetivo: Centralizar TODAS as chamadas de API em um único arquivo
+ * - Elimina chamadas HTTP soltas em componentes
+ * - ROUTES_MAP: todas as rotas centralizadas
+ * - Helpers assíncronos para cada endpoint
+ * - Tratamento uniforme de erros
+ * - JSDoc completo para cada função
+ */
 
 import { api } from 'boot/axios'
-import { 
-  handleApiError, 
-  buildQueryString, 
-  normalizeApiResponse 
-} from '@/utils/apiUtils'
+
+// ==========================================================================
+// TRATAMENTO DE ERROS
+// ==========================================================================
+
+/**
+ * Trata erros de API de forma uniforme
+ * @param {Error} error - Erro capturado
+ * @returns {Error} Erro tratado com mensagem amigável
+ */
+function handleApiError(error) {
+  const message = error.response?.data?.message || error.message || 'Erro desconhecido'
+  const status = error.response?.status || 500
+  
+  const enhancedError = new Error(message)
+  enhancedError.status = status
+  enhancedError.originalError = error
+  
+  return enhancedError
+}
 
 // ==========================================================================
 // 1) MAPA CENTRALIZADO DE ROTAS
 // ==========================================================================
 
 /**
- * Mapa centralizado com TODAS as rotas da API
- * Organizado por domínio/recurso para fácil manutenção
+ * Mapa centralizado com TODAS as rotas da API Financial Control
+ * Organizado por domínio/recurso semanticamente
  */
-export const API_ROUTES = {
+export const FINANCIAL_ROUTES = {
   // ========== AUTENTICAÇÃO ==========
-  auth: {
-    login: '/auth/login',
-    register: '/auth/register',
-    me: '/auth/me',
-    logout: '/auth/logout',
-  },
+  authLogin: '/auth/login',
+  authRegister: '/auth/register',
+  authMe: '/auth/me',
+  authLogout: '/auth/logout',
+  authRefreshToken: '/auth/refresh',
+
+  // ========== USUÁRIO - Perfil ==========
+  userProfileGet: '/users/profile',
+  userProfileUpdate: '/users/profile',
+  userProfilePasswordChange: '/users/profile/password',
+  userProfileAvatarUpload: '/users/profile/avatar',
+  userProfileAvatarRemove: '/users/profile/avatar',
+  userSettingsGet: '/users/settings',
+  userSettingsUpdate: '/users/settings',
+  userAccountDelete: '/users/account',
 
   // ========== TRANSAÇÕES ==========
-  transactions: {
-    list: '/transactions',
-    create: '/transactions',
-    update: (id) => `/transactions/${id}`,
-    delete: (id) => `/transactions/${id}`,
-    getById: (id) => `/transactions/${id}`,
-    stats: '/transactions/stats',
-    reports: '/transactions/reports',
-  },
-
-  // ========== USUÁRIO ==========
-  users: {
-    profile: '/users/profile',
-    password: '/users/password',
-    settings: '/users/settings',
-    avatar: '/users/avatar',
-    plan: '/users/plan',
-    stats: '/users/stats',
-    account: '/users/account',
-  },
-
-  // ========== ADMIN ==========
-  admin: {
-    users: '/admin/users',
-    stats: '/admin/stats',
-    userById: (id) => `/admin/users/${id}`,
-  },
-
-  // ========== DASHBOARD ==========
-  dashboard: {
-    stats: '/dashboard/stats',
-    summary: '/dashboard/summary',
-    charts: '/dashboard/charts',
-  },
+  transactionsList: '/transactions',
+  transactionsCreate: '/transactions',
+  transactionsGetById: '/transactions', // + /:id
+  transactionsUpdate: '/transactions', // + /:id
+  transactionsDelete: '/transactions', // + /:id
+  transactionsStats: '/transactions/stats',
+  transactionsTimeline: '/transactions/timeline',
 
   // ========== PLANOS ==========
-  plans: {
-    list: '/plans',
-    getById: (id) => `/plans/${id}`,
-  }
+  plansList: '/plans',
+  plansGetById: '/plans', // + /:id
+  plansCreate: '/plans',
+  plansUpdate: '/plans', // + /:id
+  plansDelete: '/plans', // + /:id
+
+  // ========== DASHBOARD ==========
+  dashboardStats: '/dashboard/stats',
+  dashboardCharts: '/dashboard/charts',
+  dashboardRecentTransactions: '/dashboard/recent',
+
+  // ========== ADMIN ==========
+  adminUsersList: '/admin/users',
+  adminUsersGetById: '/admin/users', // + /:id
+  adminUsersUpdate: '/admin/users', // + /:id
+  adminUsersDelete: '/admin/users', // + /:id
+  adminStatistics: '/admin/statistics',
 }
 
 // ==========================================================================
-// 2) HELPERS DE AUTENTICAÇÃO
+// 2) HELPERS - AUTENTICAÇÃO
 // ==========================================================================
 
 /**
  * Realiza login do usuário
- * @param {Object} credentials - { email, password }
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - { token, user }
+ * @param {Object} payload - Credenciais de login
+ * @param {string} payload.email - Email do usuário
+ * @param {string} payload.password - Senha do usuário
+ * @param {Object} [config] - Configurações adicionais do axios
+ * @returns {Promise<Object>} Dados do usuário e token
  */
-export async function login(credentials, options = {}) {
+export async function authLogin(payload, config = {}) {
   try {
-    console.log('🔐 [API] Login:', credentials.email)
-
-    const response = await api.post(API_ROUTES.auth.login, {
-      email: credentials.email,
-      password: credentials.password
-    }, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Login bem-sucedido')
-    return normalized.data
+    const { data } = await api.post(FINANCIAL_ROUTES.authLogin, payload, config)
+    return data
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
   }
 }
 
 /**
  * Registra novo usuário
- * @param {Object} userData - { name, email, password }
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - { token, user }
+ * @param {Object} payload - Dados do novo usuário
+ * @param {string} payload.name - Nome completo
+ * @param {string} payload.email - Email
+ * @param {string} payload.password - Senha
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Dados do usuário criado
  */
-export async function register(userData, options = {}) {
+export async function authRegister(payload, config = {}) {
   try {
-    console.log('📝 [API] Registro:', userData.email)
-
-    const response = await api.post(API_ROUTES.auth.register, {
-      name: userData.name,
-      email: userData.email,
-      password: userData.password
-    }, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Registro bem-sucedido')
-    return normalized.data
+    const { data } = await api.post(FINANCIAL_ROUTES.authRegister, payload, config)
+    return data
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
   }
 }
 
 /**
  * Busca dados do usuário autenticado
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Dados do usuário
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Dados do usuário
  */
-export async function getMe(options = {}) {
+export async function authGetMe(config = {}) {
   try {
-    console.log('👤 [API] Buscando usuário atual')
-
-    const response = await api.get(API_ROUTES.auth.me, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Usuário obtido')
-    return normalized.data
+    const { data } = await api.get(FINANCIAL_ROUTES.authMe, config)
+    return data
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
+  }
+}
+
+/**
+ * Realiza logout do usuário
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Confirmação de logout
+ */
+export async function authLogout(config = {}) {
+  try {
+    const { data } = await api.post(FINANCIAL_ROUTES.authLogout, {}, config)
+    return data
+  } catch (error) {
+    return Promise.reject(handleApiError(error))
   }
 }
 
 // ==========================================================================
-// 3) HELPERS DE TRANSAÇÕES
+// 3) HELPERS - PERFIL DO USUÁRIO
 // ==========================================================================
 
 /**
- * Lista transações com filtros e paginação
- * @param {Object} filters - { type, category, startDate, endDate, page, limit }
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Array>} - Lista de transações
+ * Busca perfil completo do usuário autenticado
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Dados completos do perfil
  */
-export async function getTransactions(filters = {}, options = {}) {
+export async function userProfileGet(config = {}) {
   try {
-    console.log('💰 [API] Listando transações:', filters)
-
-    const queryString = buildQueryString(filters)
-    const url = `${API_ROUTES.transactions.list}${queryString}`
-
-    const response = await api.get(url, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Transações obtidas:', normalized.data?.length || 0)
-    return normalized.data
+    const { data } = await api.get(FINANCIAL_ROUTES.userProfileGet, config)
+    return data
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
-  }
-}
-
-/**
- * Cria nova transação
- * @param {Object} transactionData - Dados da transação
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Transação criada
- */
-export async function createTransaction(transactionData, options = {}) {
-  try {
-    console.log('➕ [API] Criando transação:', transactionData.type)
-
-    const response = await api.post(API_ROUTES.transactions.create, {
-      type: transactionData.type,
-      amount: Number(transactionData.amount),
-      description: transactionData.description,
-      category: transactionData.category,
-      date: transactionData.date
-    }, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Transação criada')
-    return normalized.data
-  } catch (error) {
-    return Promise.reject(handleApiError(error, options))
-  }
-}
-
-/**
- * Atualiza transação existente
- * @param {string|number} id - ID da transação
- * @param {Object} transactionData - Dados atualizados
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Transação atualizada
- */
-export async function updateTransaction(id, transactionData, options = {}) {
-  try {
-    console.log('✏️ [API] Atualizando transação:', id)
-
-    const response = await api.put(API_ROUTES.transactions.update(id), {
-      type: transactionData.type,
-      amount: Number(transactionData.amount),
-      description: transactionData.description,
-      category: transactionData.category,
-      date: transactionData.date
-    }, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Transação atualizada')
-    return normalized.data
-  } catch (error) {
-    return Promise.reject(handleApiError(error, options))
-  }
-}
-
-/**
- * Deleta transação
- * @param {string|number} id - ID da transação
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Confirmação
- */
-export async function deleteTransaction(id, options = {}) {
-  try {
-    console.log('🗑️ [API] Deletando transação:', id)
-
-    const response = await api.delete(API_ROUTES.transactions.delete(id), options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Transação deletada')
-    return normalized.data
-  } catch (error) {
-    return Promise.reject(handleApiError(error, options))
-  }
-}
-
-/**
- * Busca transação por ID
- * @param {string|number} id - ID da transação
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Dados da transação
- */
-export async function getTransactionById(id, options = {}) {
-  try {
-    console.log('🔍 [API] Buscando transação:', id)
-
-    const response = await api.get(API_ROUTES.transactions.getById(id), options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Transação encontrada')
-    return normalized.data
-  } catch (error) {
-    return Promise.reject(handleApiError(error, options))
-  }
-}
-
-/**
- * Busca estatísticas financeiras
- * @param {Object} dateRange - { startDate, endDate }
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Estatísticas
- */
-export async function getTransactionStats(dateRange = {}, options = {}) {
-  try {
-    console.log('📊 [API] Buscando estatísticas:', dateRange)
-
-    const queryString = buildQueryString(dateRange)
-    const url = `${API_ROUTES.transactions.stats}${queryString}`
-
-    const response = await api.get(url, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Estatísticas obtidas')
-    return normalized.data
-  } catch (error) {
-    return Promise.reject(handleApiError(error, options))
-  }
-}
-
-/**
- * Busca relatórios financeiros
- * @param {Object} filters - { startDate, endDate }
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Dados de relatórios
- */
-export async function getTransactionReports(filters = {}, options = {}) {
-  try {
-    console.log('📊 [API] Buscando relatórios:', filters)
-
-    const queryString = buildQueryString(filters)
-    const url = `${API_ROUTES.transactions.reports}${queryString}`
-
-    const response = await api.get(url, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Relatórios obtidos')
-    return normalized.data
-  } catch (error) {
-    return Promise.reject(handleApiError(error, options))
-  }
-}
-
-// ==========================================================================
-// 4) HELPERS DE USUÁRIO
-// ==========================================================================
-
-/**
- * Busca perfil atual do usuário
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Dados do perfil
- */
-export async function getUserProfile(options = {}) {
-  try {
-    console.log('📋 [API] Buscando perfil')
-
-    const response = await api.get(API_ROUTES.users.profile, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Perfil obtido')
-    return normalized.data
-  } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
   }
 }
 
 /**
  * Atualiza perfil do usuário
- * @param {Object} profileData - { name, email, company, phone }
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Perfil atualizado
+ * @param {Object} payload - Dados atualizados
+ * @param {string} [payload.name] - Nome
+ * @param {string} [payload.phone] - Telefone
+ * @param {string} [payload.birth_date] - Data de nascimento
+ * @param {string} [payload.cpf] - CPF
+ * @param {string} [payload.company] - Empresa
+ * @param {string} [payload.position] - Cargo
+ * @param {string} [payload.bio] - Biografia
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Perfil atualizado
  */
-export async function updateUserProfile(profileData, options = {}) {
+export async function userProfileUpdate(payload, config = {}) {
   try {
-    console.log('👤 [API] Atualizando perfil')
-
-    const response = await api.put(API_ROUTES.users.profile, {
-      name: profileData.name,
-      email: profileData.email,
-      company: profileData.company || null,
-      phone: profileData.phone || null
-    }, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Perfil atualizado')
-    return normalized.data
+    const { data } = await api.put(FINANCIAL_ROUTES.userProfileUpdate, payload, config)
+    return data
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
   }
 }
 
 /**
  * Altera senha do usuário
- * @param {Object} passwordData - { currentPassword, newPassword }
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Confirmação
+ * @param {Object} payload - Dados da senha
+ * @param {string} payload.currentPassword - Senha atual
+ * @param {string} payload.newPassword - Nova senha
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Confirmação da alteração
  */
-export async function changePassword(passwordData, options = {}) {
+export async function userProfilePasswordChange(payload, config = {}) {
   try {
-    console.log('🔒 [API] Alterando senha')
-
-    const response = await api.put(API_ROUTES.users.password, {
-      currentPassword: passwordData.currentPassword,
-      newPassword: passwordData.newPassword
-    }, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Senha alterada')
-    return normalized.data
+    const { data } = await api.put(FINANCIAL_ROUTES.userProfilePasswordChange, payload, config)
+    return data
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
   }
 }
 
 /**
- * Upload de avatar do usuário
- * @param {File} file - Arquivo de imagem
- * @param {Object} options - Opções adicionais
- * @returns {Promise<string>} - URL do avatar
+ * Faz upload de avatar do usuário
+ * @param {FormData} formData - FormData com o arquivo de imagem
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} URL do avatar
  */
-export async function uploadAvatar(file, options = {}) {
+export async function userProfileAvatarUpload(formData, config = {}) {
   try {
-    console.log('📷 [API] Upload de avatar:', file.name)
-
-    const formData = new FormData()
-    formData.append('avatar', file)
-
-    const response = await api.post(API_ROUTES.users.avatar, formData, {
-      ...options,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        ...options.headers
+    const { data } = await api.post(
+      FINANCIAL_ROUTES.userProfileAvatarUpload,
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        ...config
       }
-    })
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Avatar atualizado')
-    return normalized.data.avatarUrl || normalized.data
+    )
+    return data
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
   }
 }
 
 /**
  * Remove avatar do usuário
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Confirmação
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Confirmação da remoção
  */
-export async function removeAvatar(options = {}) {
+export async function userProfileAvatarRemove(config = {}) {
   try {
-    console.log('🗑️ [API] Removendo avatar')
-
-    const response = await api.delete(API_ROUTES.users.avatar, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Avatar removido')
-    return normalized.data
+    const { data } = await api.delete(FINANCIAL_ROUTES.userProfileAvatarRemove, config)
+    return data
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
   }
 }
 
 /**
  * Busca configurações do usuário
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Configurações
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Configurações do usuário
  */
-export async function getUserSettings(options = {}) {
+export async function userSettingsGet(config = {}) {
   try {
-    console.log('⚙️ [API] Buscando configurações')
-
-    const response = await api.get(API_ROUTES.users.settings, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Configurações obtidas')
-    return normalized.data
+    const { data} = await api.get(FINANCIAL_ROUTES.userSettingsGet, config)
+    return data
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
   }
 }
 
 /**
  * Atualiza configurações do usuário
- * @param {Object} settings - Configurações a atualizar
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Configurações atualizadas
+ * @param {Object} payload - Configurações atualizadas
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Configurações atualizadas
  */
-export async function updateUserSettings(settings, options = {}) {
+export async function userSettingsUpdate(payload, config = {}) {
   try {
-    console.log('⚙️ [API] Atualizando configurações')
-
-    const response = await api.put(API_ROUTES.users.settings, settings, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Configurações atualizadas')
-    return normalized.data
+    const { data } = await api.put(FINANCIAL_ROUTES.userSettingsUpdate, payload, config)
+    return data
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
   }
 }
 
 /**
- * Altera plano do usuário
- * @param {string|number} planId - ID do novo plano
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Dados do novo plano
+ * Deleta conta do usuário (soft delete)
+ * @param {Object} payload - Confirmação
+ * @param {string} payload.confirmation - Deve ser 'DELETE'
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Confirmação da exclusão
  */
-export async function changeUserPlan(planId, options = {}) {
+export async function userAccountDelete(payload, config = {}) {
   try {
-    console.log('💳 [API] Alterando plano:', planId)
-
-    const response = await api.put(API_ROUTES.users.plan, { planId }, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Plano alterado')
-    return normalized.data
+    const { data } = await api.delete(FINANCIAL_ROUTES.userAccountDelete, { data: payload, ...config })
+    return data
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
-  }
-}
-
-/**
- * Busca estatísticas do usuário
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Estatísticas
- */
-export async function getUserStats(options = {}) {
-  try {
-    console.log('📈 [API] Buscando estatísticas do usuário')
-
-    const response = await api.get(API_ROUTES.users.stats, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Estatísticas obtidas')
-    return normalized.data
-  } catch (error) {
-    return Promise.reject(handleApiError(error, options))
-  }
-}
-
-/**
- * Deleta conta do usuário
- * @param {string} confirmation - Texto de confirmação
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Confirmação
- */
-export async function deleteUserAccount(confirmation, options = {}) {
-  try {
-    console.log('⚠️ [API] Deletando conta - IRREVERSÍVEL')
-
-    const response = await api.delete(API_ROUTES.users.account, {
-      ...options,
-      data: { confirmation }
-    })
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Conta deletada')
-    return normalized.data
-  } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
   }
 }
 
 // ==========================================================================
-// 5) HELPERS DE ADMIN
+// 4) HELPERS - TRANSAÇÕES
 // ==========================================================================
 
 /**
- * Lista usuários (admin)
- * @param {Object} filters - Filtros de busca
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Array>} - Lista de usuários
+ * Lista transações do usuário
+ * @param {Object} [params] - Parâmetros de filtro
+ * @param {string} [params.type] - Tipo (income|expense)
+ * @param {string} [params.category] - Categoria
+ * @param {string} [params.startDate] - Data inicial
+ * @param {string} [params.endDate] - Data final
+ * @param {number} [params.limit] - Limite de resultados
+ * @param {string} [params.sort] - Ordenação (ex: 'date:desc')
+ * @param {number} [params.page] - Página
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Array>} Lista de transações
  */
-export async function getAdminUsers(filters = {}, options = {}) {
+export async function transactionsList(params = {}, config = {}) {
   try {
-    console.log('👥 [API] Listando usuários (admin)')
-
-    const queryString = buildQueryString(filters)
-    const url = `${API_ROUTES.admin.users}${queryString}`
-
-    const response = await api.get(url, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Usuários obtidos')
-    return normalized.data
+    const finalConfig = { params, ...config }
+    const { data } = await api.get(FINANCIAL_ROUTES.transactionsList, finalConfig)
+    return data?.data || data || []
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
   }
 }
 
 /**
- * Busca estatísticas do sistema (admin)
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Estatísticas do sistema
+ * Cria nova transação
+ * @param {Object} payload - Dados da transação
+ * @param {string} payload.type - Tipo (income|expense)
+ * @param {number} payload.amount - Valor
+ * @param {string} payload.description - Descrição
+ * @param {string} [payload.category] - Categoria
+ * @param {string} [payload.date] - Data
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Transação criada
  */
-export async function getAdminStats(options = {}) {
+export async function transactionsCreate(payload, config = {}) {
   try {
-    console.log('📊 [API] Buscando estatísticas do sistema (admin)')
-
-    const response = await api.get(API_ROUTES.admin.stats, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Estatísticas do sistema obtidas')
-    return normalized.data
+    const { data } = await api.post(FINANCIAL_ROUTES.transactionsCreate, payload, config)
+    return data
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
   }
 }
 
 /**
- * Atualiza usuário (admin)
- * @param {string|number} userId - ID do usuário
- * @param {Object} userData - Dados a atualizar
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Usuário atualizado
+ * Busca transação por ID
+ * @param {string} id - ID da transação
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Dados da transação
  */
-export async function updateAdminUser(userId, userData, options = {}) {
+export async function transactionsGetById(id, config = {}) {
   try {
-    console.log('✏️ [API] Atualizando usuário (admin):', userId)
-
-    const response = await api.put(API_ROUTES.admin.userById(userId), userData, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Usuário atualizado')
-    return normalized.data
+    const { data } = await api.get(`${FINANCIAL_ROUTES.transactionsGetById}/${id}`, config)
+    return data
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
-  }
-}
-
-// ==========================================================================
-// 6) HELPERS DE DASHBOARD
-// ==========================================================================
-
-/**
- * Busca estatísticas do dashboard
- * @param {Object} filters - Filtros de data
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Dados do dashboard
- */
-export async function getDashboardStats(filters = {}, options = {}) {
-  try {
-    console.log('📊 [API] Buscando estatísticas do dashboard')
-
-    const queryString = buildQueryString(filters)
-    const url = `${API_ROUTES.dashboard.stats}${queryString}`
-
-    const response = await api.get(url, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Estatísticas do dashboard obtidas')
-    return normalized.data
-  } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
   }
 }
 
 /**
- * Busca resumo do dashboard
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Resumo do dashboard
+ * Atualiza transação existente
+ * @param {string} id - ID da transação
+ * @param {Object} payload - Dados atualizados
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Transação atualizada
  */
-export async function getDashboardSummary(options = {}) {
+export async function transactionsUpdate(id, payload, config = {}) {
   try {
-    console.log('📋 [API] Buscando resumo do dashboard')
-
-    const response = await api.get(API_ROUTES.dashboard.summary, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Resumo do dashboard obtido')
-    return normalized.data
+    const { data } = await api.put(`${FINANCIAL_ROUTES.transactionsUpdate}/${id}`, payload, config)
+    return data
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
   }
 }
 
 /**
- * Busca dados para gráficos do dashboard
- * @param {Object} filters - Filtros de data
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Dados dos gráficos
+ * Deleta transação
+ * @param {string} id - ID da transação
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object|true>} Confirmação da exclusão
  */
-export async function getDashboardCharts(filters = {}, options = {}) {
+export async function transactionsDelete(id, config = {}) {
   try {
-    console.log('📈 [API] Buscando dados de gráficos')
-
-    const queryString = buildQueryString(filters)
-    const url = `${API_ROUTES.dashboard.charts}${queryString}`
-
-    const response = await api.get(url, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Dados de gráficos obtidos')
-    return normalized.data
+    const { data } = await api.delete(`${FINANCIAL_ROUTES.transactionsDelete}/${id}`, config)
+    return typeof data === 'undefined' ? true : data
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
+  }
+}
+
+/**
+ * Busca estatísticas das transações
+ * @param {Object} [params] - Parâmetros de filtro
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Estatísticas (income, expense, balance)
+ */
+export async function transactionsStats(params = {}, config = {}) {
+  try {
+    const finalConfig = { params, ...config }
+    const { data } = await api.get(FINANCIAL_ROUTES.transactionsStats, finalConfig)
+    return data?.data || data
+  } catch (error) {
+    return Promise.reject(handleApiError(error))
+  }
+}
+
+/**
+ * Busca evolução temporal das transações
+ * @param {Object} [params] - Parâmetros
+ * @param {string} [params.period] - Período (1month, 3months, 6months, 1year)
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Array>} Timeline por mês
+ */
+export async function transactionsTimeline(params = {}, config = {}) {
+  try {
+    const finalConfig = { params, ...config }
+    const { data } = await api.get(FINANCIAL_ROUTES.transactionsTimeline, finalConfig)
+    return data?.data || data || []
+  } catch (error) {
+    return Promise.reject(handleApiError(error))
   }
 }
 
 // ==========================================================================
-// 7) HELPERS DE PLANOS
+// 5) HELPERS - PLANOS
 // ==========================================================================
 
 /**
- * Lista planos disponíveis
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Array>} - Lista de planos
+ * Lista todos os planos disponíveis
+ * @param {Object} [params] - Parâmetros de filtro
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Array>} Lista de planos
  */
-export async function getPlans(options = {}) {
+export async function plansList(params = {}, config = {}) {
   try {
-    console.log('💳 [API] Listando planos')
-
-    const response = await api.get(API_ROUTES.plans.list, options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Planos obtidos')
-    return normalized.data
+    const finalConfig = { params, ...config }
+    const { data } = await api.get(FINANCIAL_ROUTES.plansList, finalConfig)
+    return data?.data || data || []
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
   }
 }
 
 /**
  * Busca plano por ID
- * @param {string|number} planId - ID do plano
- * @param {Object} options - Opções adicionais
- * @returns {Promise<Object>} - Dados do plano
+ * @param {string} id - ID do plano
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Dados do plano
  */
-export async function getPlanById(planId, options = {}) {
+export async function plansGetById(id, config = {}) {
   try {
-    console.log('🔍 [API] Buscando plano:', planId)
-
-    const response = await api.get(API_ROUTES.plans.getById(planId), options)
-
-    const normalized = normalizeApiResponse(response)
-
-    console.log('✅ [API] Plano encontrado')
-    return normalized.data
+    const { data } = await api.get(`${FINANCIAL_ROUTES.plansGetById}/${id}`, config)
+    return data
   } catch (error) {
-    return Promise.reject(handleApiError(error, options))
+    return Promise.reject(handleApiError(error))
+  }
+}
+
+/**
+ * Cria novo plano (admin)
+ * @param {Object} payload - Dados do plano
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Plano criado
+ */
+export async function plansCreate(payload, config = {}) {
+  try {
+    const { data } = await api.post(FINANCIAL_ROUTES.plansCreate, payload, config)
+    return data
+  } catch (error) {
+    return Promise.reject(handleApiError(error))
+  }
+}
+
+/**
+ * Atualiza plano existente (admin)
+ * @param {string} id - ID do plano
+ * @param {Object} payload - Dados atualizados
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Plano atualizado
+ */
+export async function plansUpdate(id, payload, config = {}) {
+  try {
+    const { data } = await api.put(`${FINANCIAL_ROUTES.plansUpdate}/${id}`, payload, config)
+    return data
+  } catch (error) {
+    return Promise.reject(handleApiError(error))
+  }
+}
+
+/**
+ * Deleta plano (admin)
+ * @param {string} id - ID do plano
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object|true>} Confirmação da exclusão
+ */
+export async function plansDelete(id, config = {}) {
+  try {
+    const { data } = await api.delete(`${FINANCIAL_ROUTES.plansDelete}/${id}`, config)
+    return typeof data === 'undefined' ? true : data
+  } catch (error) {
+    return Promise.reject(handleApiError(error))
   }
 }
 
 // ==========================================================================
-// 8) CONSTANTES E HELPERS UTILITÁRIOS
+// 6) HELPERS - DASHBOARD
 // ==========================================================================
 
 /**
- * Categorias padrão do sistema
+ * Busca estatísticas do dashboard
+ * @param {Object} [params] - Parâmetros de filtro
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Estatísticas do dashboard
  */
-export const DEFAULT_CATEGORIES = {
-  income: [
-    'Vendas',
-    'Serviços',
-    'Produtos',
-    'Consultoria',
-    'Comissões',
-    'Investimentos',
-    'Outras Receitas'
-  ],
-  expense: [
-    'Fornecedores',
-    'Salários',
-    'Aluguel',
-    'Marketing',
-    'Escritório',
-    'Impostos',
-    'Manutenção',
-    'Combustível',
-    'Telefone/Internet',
-    'Outras Despesas'
-  ]
+export async function dashboardStats(params = {}, config = {}) {
+  try {
+    const finalConfig = { params, ...config }
+    const { data } = await api.get(FINANCIAL_ROUTES.dashboardStats, finalConfig)
+    return data?.data || data
+  } catch (error) {
+    return Promise.reject(handleApiError(error))
+  }
 }
 
 /**
- * Retorna todas as categorias (receitas + despesas)
- * @returns {Array<string>} - Lista de categorias
+ * Busca dados dos gráficos do dashboard
+ * @param {Object} [params] - Parâmetros
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Dados dos gráficos
  */
-export function getAllCategories() {
-  return [...DEFAULT_CATEGORIES.income, ...DEFAULT_CATEGORIES.expense]
+export async function dashboardCharts(params = {}, config = {}) {
+  try {
+    const finalConfig = { params, ...config }
+    const { data } = await api.get(FINANCIAL_ROUTES.dashboardCharts, finalConfig)
+    return data?.data || data
+  } catch (error) {
+    return Promise.reject(handleApiError(error))
+  }
 }
 
 /**
- * Retorna categorias por tipo
- * @param {string} type - 'income' ou 'expense'
- * @returns {Array<string>} - Lista de categorias do tipo
+ * Busca transações recentes do dashboard
+ * @param {Object} [params] - Parâmetros
+ * @param {number} [params.limit] - Limite de resultados
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Array>} Transações recentes
  */
-export function getCategoriesByType(type) {
-  return DEFAULT_CATEGORIES[type] || []
+export async function dashboardRecentTransactions(params = {}, config = {}) {
+  try {
+    const finalConfig = { params, ...config }
+    const { data } = await api.get(FINANCIAL_ROUTES.dashboardRecentTransactions, finalConfig)
+    return data?.data || data || []
+  } catch (error) {
+    return Promise.reject(handleApiError(error))
+  }
+}
+
+// ==========================================================================
+// 7) HELPERS - ADMIN
+// ==========================================================================
+
+/**
+ * Lista todos os usuários (admin)
+ * @param {Object} [params] - Parâmetros de filtro
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Array>} Lista de usuários
+ */
+export async function adminUsersList(params = {}, config = {}) {
+  try {
+    const finalConfig = { params, ...config }
+    const { data } = await api.get(FINANCIAL_ROUTES.adminUsersList, finalConfig)
+    return data?.data || data || []
+  } catch (error) {
+    return Promise.reject(handleApiError(error))
+  }
+}
+
+/**
+ * Busca usuário por ID (admin)
+ * @param {string} id - ID do usuário
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Dados do usuário
+ */
+export async function adminUsersGetById(id, config = {}) {
+  try {
+    const { data } = await api.get(`${FINANCIAL_ROUTES.adminUsersGetById}/${id}`, config)
+    return data
+  } catch (error) {
+    return Promise.reject(handleApiError(error))
+  }
+}
+
+/**
+ * Atualiza usuário (admin)
+ * @param {string} id - ID do usuário
+ * @param {Object} payload - Dados atualizados
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Usuário atualizado
+ */
+export async function adminUsersUpdate(id, payload, config = {}) {
+  try {
+    const { data } = await api.put(`${FINANCIAL_ROUTES.adminUsersUpdate}/${id}`, payload, config)
+    return data
+  } catch (error) {
+    return Promise.reject(handleApiError(error))
+  }
+}
+
+/**
+ * Deleta usuário (admin)
+ * @param {string} id - ID do usuário
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object|true>} Confirmação da exclusão
+ */
+export async function adminUsersDelete(id, config = {}) {
+  try {
+    const { data } = await api.delete(`${FINANCIAL_ROUTES.adminUsersDelete}/${id}`, config)
+    return typeof data === 'undefined' ? true : data
+  } catch (error) {
+    return Promise.reject(handleApiError(error))
+  }
+}
+
+/**
+ * Busca estatísticas gerais do sistema (admin)
+ * @param {Object} [params] - Parâmetros
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Estatísticas do sistema
+ */
+export async function adminStatistics(params = {}, config = {}) {
+  try {
+    const finalConfig = { params, ...config }
+    const { data } = await api.get(FINANCIAL_ROUTES.adminStatistics, finalConfig)
+    return data?.data || data
+  } catch (error) {
+    return Promise.reject(handleApiError(error))
+  }
+}
+
+// ==========================================================================
+// EXPORTAÇÕES ADICIONAIS
+// ==========================================================================
+
+/**
+ * Exporta todas as funções para fácil importação
+ */
+export default {
+  // Auth
+  authLogin,
+  authRegister,
+  authGetMe,
+  authLogout,
+  
+  // User Profile
+  userProfileGet,
+  userProfileUpdate,
+  userProfilePasswordChange,
+  userProfileAvatarUpload,
+  userProfileAvatarRemove,
+  userSettingsGet,
+  userSettingsUpdate,
+  userAccountDelete,
+  
+  // Transactions
+  transactionsList,
+  transactionsCreate,
+  transactionsGetById,
+  transactionsUpdate,
+  transactionsDelete,
+  transactionsStats,
+  transactionsTimeline,
+  
+  // Plans
+  plansList,
+  plansGetById,
+  plansCreate,
+  plansUpdate,
+  plansDelete,
+  
+  // Dashboard
+  dashboardStats,
+  dashboardCharts,
+  dashboardRecentTransactions,
+  
+  // Admin
+  adminUsersList,
+  adminUsersGetById,
+  adminUsersUpdate,
+  adminUsersDelete,
+  adminStatistics,
+  
+  // Routes Map
+  FINANCIAL_ROUTES,
 }

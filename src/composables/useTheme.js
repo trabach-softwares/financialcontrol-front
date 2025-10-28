@@ -74,8 +74,6 @@ export function useTheme() {
     
     // Aplica no HTML para variáveis CSS globais
     document.documentElement.setAttribute('data-theme', theme)
-    
-    console.log(`🎨 [THEME] Aplicado tema: ${theme} (${isDarkMode ? 'Dark' : 'Light'})`)
   }
 
   /**
@@ -83,7 +81,6 @@ export function useTheme() {
    */
   const setTheme = (theme) => {
     if (!['light', 'dark', 'auto'].includes(theme)) {
-      console.error('❌ [THEME] Tema inválido:', theme)
       return
     }
     
@@ -95,7 +92,6 @@ export function useTheme() {
     // Aplica o tema efetivo
     applyTheme(effectiveTheme.value)
     
-    console.log(`💾 [THEME] Preferência salva: ${theme}`)
   }
 
   /**
@@ -106,10 +102,8 @@ export function useTheme() {
     
     if (savedTheme && ['light', 'dark', 'auto'].includes(savedTheme)) {
       currentTheme.value = savedTheme
-      console.log(`📂 [THEME] Tema carregado: ${savedTheme}`)
     } else {
       currentTheme.value = 'light' // Default
-      console.log('🎨 [THEME] Usando tema padrão: light')
     }
   }
 

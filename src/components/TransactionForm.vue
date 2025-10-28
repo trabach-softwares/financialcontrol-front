@@ -297,7 +297,6 @@ Efeitos: CRUD de transações com validação -->
                 class="full-width"
                 no-caps
                 @click="handleCancel"
-                :disable="isProcessing"
               />
             </div>
             <div class="col-6">
@@ -307,13 +306,8 @@ Efeitos: CRUD de transações com validação -->
                 :color="form.type === 'income' ? 'green-6' : (form.type === 'expense' ? 'red-6' : 'primary')"
                 class="full-width"
                 no-caps
-                :loading="isProcessing"
                 :disable="!isFormValid"
-              >
-                <template v-slot:loading>
-                  <q-spinner-dots />
-                </template>
-              </q-btn>
+              />
             </div>
           </div>
         </q-form>
@@ -366,7 +360,6 @@ const form = ref({
   notes: ''
 })
 
-const isProcessing = ref(false)
 const filteredCategories = ref([])
 const availableCategories = ref([])
 
@@ -395,7 +388,6 @@ const isFormValid = computed(() => {
  */
 const initializeForm = () => {
   if (props.transaction) {
-    console.log('📝 [TRANSACTION FORM] Inicializando com transação:', props.transaction.id)
     
     form.value = {
       type: props.transaction.type || 'income',
@@ -406,7 +398,6 @@ const initializeForm = () => {
       notes: props.transaction.notes || ''
     }
   } else {
-    console.log('📝 [TRANSACTION FORM] Inicializando formulário vazio')
     
     form.value = {
       type: 'income',
@@ -430,7 +421,7 @@ const loadCategories = () => {
   availableCategories.value = [...transactionStore.categories]
   filteredCategories.value = [...availableCategories.value]
   
-  console.log('📋 [TRANSACTION FORM] Categorias carregadas:', availableCategories.value.length)
+  
 }
 
 /**
@@ -453,9 +444,6 @@ const filterCategories = (val, update) => {
  * Processa o envio do formulário
  */
 const handleSubmit = async () => {
-  console.log('💾 [TRANSACTION FORM] Processando envio:', props.mode)
-  
-  isProcessing.value = true
   
   try {
     const transactionData = {
@@ -481,10 +469,7 @@ const handleSubmit = async () => {
     emit('saved')
     
   } catch (error) {
-    console.error('❌ [TRANSACTION FORM] Erro ao salvar:', error.message)
     notifyError(`Erro ao ${props.mode === 'edit' ? 'atualizar' : 'criar'} transação`)
-  } finally {
-    isProcessing.value = false
   }
 }
 
@@ -492,7 +477,6 @@ const handleSubmit = async () => {
  * Cancela a operação
  */
 const handleCancel = () => {
-  console.log('❌ [TRANSACTION FORM] Cancelando operação')
   emit('cancelled')
 }
 
@@ -500,7 +484,6 @@ const handleCancel = () => {
  * Muda para modo de edição (apenas do modo view)
  */
 const switchToEditMode = () => {
-  console.log('✏️ [TRANSACTION FORM] Mudando para modo de edição')
   emit('cancelled') // Fecha e reabre em modo edit
   // O componente pai deve lidar com a mudança de modo
 }
@@ -547,20 +530,17 @@ watch(
  */
 watch(
   () => form.value.type,
-  () => {
-    console.log('🔄 [TRANSACTION FORM] Tipo alterado para:', form.value.type)
-  }
+  () => {}
 )
 
 // ==========================================================================
 // LIFECYCLE
 // ==========================================================================
 onMounted(() => {
-  console.log('🚀 [TRANSACTION FORM] Componente montado em modo:', props.mode)
-  
   loadCategories()
   initializeForm()
 })
+
 </script>
 
 <style lang="scss" scoped>

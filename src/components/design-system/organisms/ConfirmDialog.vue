@@ -78,8 +78,6 @@ Acessibilidade: WCAG 2.1 AA, ARIA roles, focus trap
           :label="confirmLabel"
           :color="confirmColor"
           @click="handleConfirm"
-          :loading="loading"
-          :disabled="loading"
           no-caps
           :aria-label="confirmAriaLabel || confirmLabel"
           class="confirm-dialog__confirm-btn"

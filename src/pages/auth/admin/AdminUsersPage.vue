@@ -62,7 +62,6 @@
         :rows="users"
         :columns="columns"
         row-key="id"
-        :loading="loading"
         :pagination="{ rowsPerPage: 10 }"
         class="full-width"
       >
@@ -175,7 +174,6 @@ const { showSuccess, showError, showConfirm } = useNotifications()
 
 
 // Refs
-const loading = ref(false)
 const showAddUser = ref(false)
 
 // Data

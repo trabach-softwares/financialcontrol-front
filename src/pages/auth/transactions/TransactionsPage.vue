@@ -413,14 +413,14 @@
           <q-btn
             flat
             label="Cancelar"
-            color="grey-7"
-            @click="showDeleteDialog = false"
+            color="grey-6"
+            v-close-popup
           />
           <q-btn
+            color="negative"
             label="Excluir"
-            color="red-6"
+            icon="delete"
             @click="deleteTransaction"
-            :loading="transactionStore.isDeleting"
           />
         </q-card-actions>
       </q-card>
@@ -500,7 +500,6 @@ const balanceColor = computed(() => {
  * Carrega dados iniciais
  */
 const loadInitialData = async () => {
-  console.log('📊 [TRANSACTIONS] Carregando dados iniciais')
   
   try {
     // Carrega categorias
@@ -514,7 +513,6 @@ const loadInitialData = async () => {
     await transactionStore.fetchStats()
     
   } catch (error) {
-    console.error('❌ [TRANSACTIONS] Erro ao carregar dados:', error.message)
     notifyError('Erro ao carregar transações')
   }
 }
@@ -523,7 +521,6 @@ const loadInitialData = async () => {
  * Aplica filtros
  */
 const applyFilters = async () => {
-  console.log('🔍 [TRANSACTIONS] Aplicando filtros:', filters.value)
   
   try {
     await transactionStore.applyFilters({
@@ -541,7 +538,6 @@ const applyFilters = async () => {
     })
     
   } catch (error) {
-    console.error('❌ [TRANSACTIONS] Erro ao aplicar filtros:', error.message)
     notifyError('Erro ao filtrar transações')
   }
 }
@@ -550,7 +546,6 @@ const applyFilters = async () => {
  * Limpa todos os filtros
  */
 const clearAllFilters = async () => {
-  console.log('🧹 [TRANSACTIONS] Limpando filtros')
   
   filters.value = {
     search: '',
@@ -568,7 +563,6 @@ const clearAllFilters = async () => {
  * Abre formulário de transação
  */
 const openTransactionForm = (transaction = null) => {
-  console.log('📝 [TRANSACTIONS] Abrindo formulário:', transaction?.id || 'nova transação')
   
   selectedTransaction.value = transaction
   dialogMode.value = transaction ? 'edit' : 'create'
@@ -579,7 +573,6 @@ const openTransactionForm = (transaction = null) => {
  * Visualiza transação
  */
 const viewTransaction = (transaction) => {
-  console.log('👁️ [TRANSACTIONS] Visualizando transação:', transaction.id)
   
   selectedTransaction.value = transaction
   dialogMode.value = 'view'
@@ -590,7 +583,6 @@ const viewTransaction = (transaction) => {
  * Edita transação
  */
 const editTransaction = (transaction) => {
-  console.log('✏️ [TRANSACTIONS] Editando transação:', transaction.id)
   
   selectedTransaction.value = transaction
   dialogMode.value = 'edit'
@@ -601,7 +593,6 @@ const editTransaction = (transaction) => {
  * Duplica transação
  */
 const duplicateTransaction = (transaction) => {
-  console.log('📋 [TRANSACTIONS] Duplicando transação:', transaction.id)
   
   // Cria cópia sem ID para nova transação
   const duplicated = { ...transaction }
@@ -617,7 +608,6 @@ const duplicateTransaction = (transaction) => {
  * Confirma exclusão de transação
  */
 const confirmDeleteTransaction = (transaction) => {
-  console.log('⚠️ [TRANSACTIONS] Confirmando exclusão:', transaction.id)
   
   transactionToDelete.value = transaction
   showDeleteDialog.value = true
@@ -628,8 +618,6 @@ const confirmDeleteTransaction = (transaction) => {
  */
 const deleteTransaction = async () => {
   if (!transactionToDelete.value) return
-  
-  console.log('🗑️ [TRANSACTIONS] Deletando transação:', transactionToDelete.value.id)
   
   try {
     await transactionStore.deleteTransaction(transactionToDelete.value.id)
@@ -642,7 +630,6 @@ const deleteTransaction = async () => {
     await transactionStore.fetchStats()
     
   } catch (error) {
-    console.error('❌ [TRANSACTIONS] Erro ao deletar:', error.message)
     notifyError('Erro ao excluir transação')
   }
 }
@@ -660,7 +647,6 @@ const closeTransactionDialog = () => {
  * Manipula transação salva
  */
 const handleTransactionSaved = async () => {
-  console.log('✅ [TRANSACTIONS] Transação salva')
   
   closeTransactionDialog()
   
@@ -673,7 +659,6 @@ const handleTransactionSaved = async () => {
  * Muda página
  */
 const changePage = async (page) => {
-  console.log('📄 [TRANSACTIONS] Mudando para página:', page)
   
   currentPage.value = page
   
@@ -730,7 +715,6 @@ watch(
 // LIFECYCLE
 // ==========================================================================
 onMounted(() => {
-  console.log('🚀 [TRANSACTIONS] Página de transações montada')
   loadInitialData()
 })
 </script>

@@ -16,8 +16,5 @@ import { createPinia } from 'pinia'
  */
 export default boot(({ app }) => {
   const pinia = createPinia()
-  
   app.use(pinia)
-  
-  console.log('🏪 Pinia configurado e pronto para uso')
 })

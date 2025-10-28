@@ -24,30 +24,22 @@ export const dashboardService = {
    * Retorna: { income, expense, balance, totalTransactions }
    */
   async getStats(dateRange = {}) {
-    console.log('📊 [DASHBOARD SERVICE] Buscando estatísticas gerais:', dateRange)
-    
+
     const params = new URLSearchParams()
     if (dateRange.startDate) params.append('startDate', dateRange.startDate)
     if (dateRange.endDate) params.append('endDate', dateRange.endDate)
-    
+
     const queryString = params.toString()
     const url = `/transactions/stats${queryString ? `?${queryString}` : ''}`
-    
+
     const response = await api.get(url)
-    
+
     if (!response.data.success) {
       throw new Error(response.data.message || 'Failed to get statistics')
     }
-    
+
     const stats = response.data.data
-    
-    console.log('✅ [DASHBOARD SERVICE] Estatísticas obtidas:', {
-      receitas: stats.income,
-      despesas: stats.expense,
-      saldo: stats.balance,
-      transacoes: stats.totalTransactions
-    })
-    
+
     return {
       totalIncome: stats.income || 0,
       totalExpense: stats.expense || 0,
@@ -66,33 +58,26 @@ export const dashboardService = {
    * Retorna: { labels: [], income: [], expense: [] }
    */
   async getMonthlyEvolution(period = '6months') {
-    console.log('📈 [DASHBOARD SERVICE] Buscando evolução mensal:', period)
-    
+
     const response = await api.get(`/transactions/timeline?period=${period}`)
-    
+
     if (!response.data.success) {
       throw new Error(response.data.message || 'Failed to get monthly evolution')
     }
-    
+
     const timeline = response.data.data
-    
+
     // Transformar dados da API para formato do Chart.js
     const labels = []
     const incomeData = []
     const expenseData = []
-    
+
     timeline.forEach(item => {
       labels.push(item.month)
       incomeData.push(item.income || 0)
       expenseData.push(item.expense || 0)
     })
-    
-    console.log('✅ [DASHBOARD SERVICE] Evolução mensal obtida:', {
-      periodos: labels.length,
-      ultimaReceita: incomeData[incomeData.length - 1],
-      ultimaDespesa: expenseData[expenseData.length - 1]
-    })
-    
+
     return {
       labels,
       datasets: [
@@ -126,24 +111,23 @@ export const dashboardService = {
    * Retorna: { categories: [], values: [], colors: [] }
    */
   async getCategoryAnalysis(filters = {}) {
-    console.log('🎯 [DASHBOARD SERVICE] Buscando análise por categorias:', filters)
-    
+
     const params = new URLSearchParams()
     params.append('type', 'expense') // Foco em despesas para o gráfico
     if (filters.startDate) params.append('startDate', filters.startDate)
     if (filters.endDate) params.append('endDate', filters.endDate)
-    
+
     const queryString = params.toString()
     const url = `/transactions/categories?${queryString}`
-    
+
     const response = await api.get(url)
-    
+
     if (!response.data.success) {
       throw new Error(response.data.message || 'Failed to get category analysis')
     }
-    
+
     const categories = response.data.data
-    
+
     // Cores predefinidas para as categorias
     const colors = [
       '#FF6384',  // Rosa
@@ -157,25 +141,19 @@ export const dashboardService = {
       '#FFCE56CC', // Amarelo transparente
       '#4BC0C0CC'  // Turquesa transparente
     ]
-    
+
     const labels = []
     const data = []
     const backgroundColors = []
     const hoverBackgroundColors = []
-    
+
     categories.forEach((category, index) => {
       labels.push(category.name || 'Sem categoria')
       data.push(category.total || 0)
       backgroundColors.push(colors[index % colors.length])
       hoverBackgroundColors.push(colors[index % colors.length] + 'CC') // Adiciona transparência
     })
-    
-    console.log('✅ [DASHBOARD SERVICE] Análise por categorias obtida:', {
-      totalCategorias: labels.length,
-      maiorValor: Math.max(...data),
-      totalGasto: data.reduce((sum, val) => sum + val, 0)
-    })
-    
+
     return {
       labels,
       datasets: [{
@@ -196,21 +174,16 @@ export const dashboardService = {
    * Retorna: Array de transações ordenadas por data
    */
   async getRecentTransactions(limit = 5) {
-    console.log('🕒 [DASHBOARD SERVICE] Buscando transações recentes:', limit)
-    
+
     const response = await api.get(`/transactions?limit=${limit}&sort=date:desc`)
-    
+
     if (!response.data.success) {
       throw new Error(response.data.message || 'Failed to get recent transactions')
     }
-    
+
     const transactions = response.data.data || []
-    
-    console.log('✅ [DASHBOARD SERVICE] Transações recentes obtidas:', {
-      quantidade: transactions.length,
-      maisRecente: transactions[0]?.date || 'Nenhuma'
-    })
-    
+
+
     return transactions
   },
 
@@ -224,19 +197,16 @@ export const dashboardService = {
    * Retorna: { incomeGrowth, expenseGrowth, balanceGrowth }
    */
   async getGrowthMetrics() {
-    console.log('📊 [DASHBOARD SERVICE] Buscando métricas de crescimento')
-    
+
     try {
       const response = await api.get('/transactions/growth')
-      
+
       if (!response.data.success) {
         throw new Error(response.data.message || 'Failed to get growth metrics')
       }
-      
+
       const growth = response.data.data
-      
-      console.log('✅ [DASHBOARD SERVICE] Métricas de crescimento obtidas:', growth)
-      
+
       return {
         incomeGrowth: growth.incomeGrowth || 0,
         expenseGrowth: growth.expenseGrowth || 0,
@@ -244,7 +214,6 @@ export const dashboardService = {
       }
     } catch (error) {
       // Se o endpoint não existir, retorna valores padrão
-      console.warn('⚠️ [DASHBOARD SERVICE] Endpoint de crescimento não disponível, usando valores padrão')
       return {
         incomeGrowth: 0,
         expenseGrowth: 0,

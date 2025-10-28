@@ -8,7 +8,11 @@
 
 import { boot } from 'quasar/wrappers'
 import axios from 'axios'
-import { Notify, LocalStorage } from 'quasar'
+import { Notify, SessionStorage } from 'quasar'
+import { useGlobalLoading } from 'src/composables/useGlobalLoading'
+
+// Instanciar loading global
+const { startLoading, stopLoading } = useGlobalLoading()
 
 // ==========================================================================
 // CONFIGURAÇÃO DA INSTÂNCIA AXIOS
@@ -18,45 +22,35 @@ import { Notify, LocalStorage } from 'quasar'
  * Instância principal do Axios para comunicação com a API
  * Base URL: http://localhost:3000/api (configurada via env)
  */
-// Debug: Verificar variáveis de ambiente
-console.log('🔧 VITE_API_BASE_URL:', process.env.VITE_API_BASE_URL)
-console.log('🌍 NODE_ENV:', process.env.NODE_ENV)
 
 // Configuração de URL base com fallbacks
 const getBaseURL = () => {
   // Sempre usar a VITE_API_BASE_URL se estiver definida
   if (process.env.VITE_API_BASE_URL) {
-    console.log('🔧 Usando URL da variável de ambiente:', process.env.VITE_API_BASE_URL)
     return process.env.VITE_API_BASE_URL
   }
   
   // Fallback para desenvolvimento (caso não tenha VITE_API_BASE_URL)
   if (process.env.NODE_ENV === 'development') {
-    console.log('🔧 Modo desenvolvimento: usando proxy /api')
     return '/api'
   }
   
   // Em produção, verificar se VITE_API_BASE_URL está definida
   if (process.env.VITE_API_BASE_URL) {
-    console.log('� Produção: usando URL da API:', process.env.VITE_API_BASE_URL)
     return process.env.VITE_API_BASE_URL
   }
   
   // Fallback temporário para produção específica
   if (typeof window !== 'undefined' && window.location?.hostname === 'app.financialcontrol.com.br') {
     const fallbackURL = 'https://api.financialcontrol.com.br/api'
-    console.warn('⚠️ FALLBACK: Usando URL temporária:', fallbackURL)
     return fallbackURL
   }
   
   // Fallback de emergência - erro se chegar aqui
-  console.error('❌ ERRO: VITE_API_BASE_URL não está definida em produção!')
-  console.error('❌ Configure a variável VITE_API_BASE_URL no Render com a URL da sua API backend')
   throw new Error('API Base URL não configurada. Configure VITE_API_BASE_URL nas environment variables do Render.')
 }
 
 const baseURL = getBaseURL()
-console.log('📡 URL base final do axios:', baseURL)
 
 const api = axios.create({ 
   baseURL,
@@ -78,19 +72,22 @@ const api = axios.create({
  */
 api.interceptors.request.use(
   (config) => {
-    // Buscar token do localStorage
+    // Iniciar loading global
+    startLoading('Carregando...')
+    
+    // Buscar token da sessionStorage
     const tokenKey = process.env.VITE_TOKEN_STORAGE_KEY || 'auth_token'
-    const token = LocalStorage.getItem(tokenKey)
+    const token = SessionStorage.getItem(tokenKey)
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
-      console.log('🔑 Token JWT adicionado à requisição:', config.url)
     }
     
     return config
   },
   (error) => {
-    console.error('❌ Erro no interceptor de request:', error)
+    // Parar loading em caso de erro
+    stopLoading()
     return Promise.reject(error)
   }
 )
@@ -107,33 +104,18 @@ api.interceptors.request.use(
  */
 api.interceptors.response.use(
   (response) => {
-    // Log de sucesso para debug
-    console.log('✅ Resposta API recebida:', {
-      url: response.config.url,
-      method: response.config.method,
-      status: response.status,
-      data: response.data
-    })
+    // Parar loading após resposta bem-sucedida
+    stopLoading()
     
     return response
   },
   (error) => {
-    console.error('❌ Erro na resposta da API:', {
-      url: error.config?.url,
-      method: error.config?.method,
-      status: error.response?.status,
-      message: error.message,
-      data: error.response?.data
-    })
-    
+    // Parar loading em caso de erro
+    stopLoading()
     // Verificar se é erro de recursão infinita
     const errorMessage = error.message || error.response?.data?.message || ''
     if (errorMessage.includes('infinite recursion detected') || 
         errorMessage.includes('recursão infinita detectada')) {
-      console.error('🔥 ERRO CRÍTICO: Recursão infinita na política RLS!')
-      console.error('🔍 URL problemática:', error.config?.url)
-      console.error('🔍 Método:', error.config?.method)
-      
       Notify.create({
         type: 'negative',
         message: 'Erro de configuração no servidor. Contate o administrador.',
@@ -144,19 +126,18 @@ api.interceptors.response.use(
         ]
       })
     }
-    
+
     // Tratamento específico por código de status
     if (error.response) {
       const { status, data } = error.response
-      
+
       switch (status) {
-        case 401:
+        case 401: {
           // Token expirado ou inválido - fazer logout
-          console.log('🚪 Token inválido, fazendo logout...')
           const tokenKey = process.env.VITE_TOKEN_STORAGE_KEY || 'auth_token'
-          LocalStorage.remove(tokenKey)
-          LocalStorage.remove('user_data')
-          
+          SessionStorage.remove(tokenKey)
+          SessionStorage.remove('auth_user')
+
           // Notificar usuário
           Notify.create({
             type: 'negative',
@@ -164,13 +145,13 @@ api.interceptors.response.use(
             position: 'top',
             timeout: 5000
           })
-          
+
           // Redirecionar para login se não estiver já lá
           if (window.location.pathname !== '/login') {
             window.location.href = '/login'
           }
           break
-          
+        }
         case 403:
           Notify.create({
             type: 'negative',
@@ -179,7 +160,6 @@ api.interceptors.response.use(
             timeout: 4000
           })
           break
-          
         case 404:
           Notify.create({
             type: 'negative',
@@ -188,8 +168,7 @@ api.interceptors.response.use(
             timeout: 3000
           })
           break
-          
-        case 422:
+        case 422: {
           // Erro de validação - mostrar erros específicos
           const validationErrors = data.errors || data.message
           Notify.create({
@@ -199,7 +178,7 @@ api.interceptors.response.use(
             timeout: 5000
           })
           break
-          
+        }
         case 500:
           Notify.create({
             type: 'negative',
@@ -208,16 +187,16 @@ api.interceptors.response.use(
             timeout: 5000
           })
           break
-          
-        default:
+        default: {
           // Erro genérico
-          const errorMessage = data.message || 'Erro na comunicação com o servidor'
+          const genericMessage = data?.message || 'Erro na comunicação com o servidor'
           Notify.create({
             type: 'negative',
-            message: errorMessage,
+            message: genericMessage,
             position: 'top',
             timeout: 4000
           })
+        }
       }
     } else if (error.code === 'ECONNABORTED') {
       // Timeout específico
@@ -244,7 +223,7 @@ api.interceptors.response.use(
         timeout: 5000
       })
     }
-    
+
     return Promise.reject(error)
   }
 )
@@ -261,9 +240,6 @@ api.interceptors.response.use(
 export default boot(({ app }) => {
   // Disponibilizar globalmente como $api
   app.config.globalProperties.$api = api
-  
-  console.log('🚀 API Axios configurada e disponível globalmente')
-  console.log('📡 Base URL:', api.defaults.baseURL)
 })
 
 // ==========================================================================

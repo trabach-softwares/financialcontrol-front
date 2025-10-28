@@ -139,7 +139,6 @@ export const useTransactionStore = defineStore('transactions', {
      * Carrega lista de transações com filtros e paginação
      */
     async fetchTransactions(options = {}) {
-      console.log('💰 [TRANSACTION STORE] Carregando transações')
       
       this.isLoading = true
       this.error = null
@@ -162,15 +161,9 @@ export const useTransactionStore = defineStore('transactions', {
           limit: response.limit || 20,
           total: response.total || 0,
           totalPages: response.totalPages || 0
-        }
-        
-        console.log('✅ [TRANSACTION STORE] Transações carregadas:', {
-          count: this.transactions.length,
-          total: this.pagination.total
-        })
+        } 
         
       } catch (error) {
-        console.error('❌ [TRANSACTION STORE] Erro ao carregar transações:', error.message)
         this.error = error.response?.data?.message || 'Erro ao carregar transações'
         this.transactions = []
       } finally {
@@ -182,7 +175,6 @@ export const useTransactionStore = defineStore('transactions', {
      * Cria nova transação
      */
     async createTransaction(transactionData) {
-      console.log('➕ [TRANSACTION STORE] Criando transação:', transactionData.type)
       
       this.isCreating = true
       this.error = null
@@ -196,11 +188,9 @@ export const useTransactionStore = defineStore('transactions', {
         // Atualiza estatísticas
         await this.fetchStats()
         
-        console.log('✅ [TRANSACTION STORE] Transação criada:', newTransaction.id)
         return newTransaction
         
       } catch (error) {
-        console.error('❌ [TRANSACTION STORE] Erro ao criar transação:', error.message)
         this.error = error.response?.data?.message || 'Erro ao criar transação'
         throw error
       } finally {
@@ -212,7 +202,6 @@ export const useTransactionStore = defineStore('transactions', {
      * Atualiza transação existente
      */
     async updateTransaction(id, transactionData) {
-      console.log('✏️ [TRANSACTION STORE] Atualizando transação:', id)
       
       this.isUpdating = true
       this.error = null
@@ -229,11 +218,9 @@ export const useTransactionStore = defineStore('transactions', {
         // Atualiza estatísticas
         await this.fetchStats()
         
-        console.log('✅ [TRANSACTION STORE] Transação atualizada:', id)
         return updatedTransaction
         
       } catch (error) {
-        console.error('❌ [TRANSACTION STORE] Erro ao atualizar transação:', error.message)
         this.error = error.response?.data?.message || 'Erro ao atualizar transação'
         throw error
       } finally {
@@ -245,7 +232,6 @@ export const useTransactionStore = defineStore('transactions', {
      * Deleta transação
      */
     async deleteTransaction(id) {
-      console.log('🗑️ [TRANSACTION STORE] Deletando transação:', id)
       
       this.isDeleting = true
       this.error = null
@@ -259,10 +245,7 @@ export const useTransactionStore = defineStore('transactions', {
         // Atualiza estatísticas
         await this.fetchStats()
         
-        console.log('✅ [TRANSACTION STORE] Transação deletada:', id)
-        
       } catch (error) {
-        console.error('❌ [TRANSACTION STORE] Erro ao deletar transação:', error.message)
         this.error = error.response?.data?.message || 'Erro ao deletar transação'
         throw error
       } finally {
@@ -274,7 +257,6 @@ export const useTransactionStore = defineStore('transactions', {
      * Carrega estatísticas financeiras
      */
     async fetchStats(dateRange = {}) {
-      console.log('📊 [TRANSACTION STORE] Carregando estatísticas')
       
       this.isLoadingStats = true
       
@@ -289,14 +271,7 @@ export const useTransactionStore = defineStore('transactions', {
           lastUpdated: new Date()
         }
         
-        console.log('✅ [TRANSACTION STORE] Estatísticas carregadas:', {
-          receitas: this.stats.totalIncome,
-          despesas: this.stats.totalExpense,
-          saldo: this.stats.balance
-        })
-        
       } catch (error) {
-        console.error('❌ [TRANSACTION STORE] Erro ao carregar estatísticas:', error.message)
         this.error = error.response?.data?.message || 'Erro ao carregar estatísticas'
       } finally {
         this.isLoadingStats = false
@@ -307,7 +282,6 @@ export const useTransactionStore = defineStore('transactions', {
      * Aplica filtros e recarrega transações
      */
     async applyFilters(newFilters) {
-      console.log('🔍 [TRANSACTION STORE] Aplicando filtros:', newFilters)
       
       // Atualiza filtros
       this.filters = { ...this.filters, ...newFilters }
@@ -323,7 +297,6 @@ export const useTransactionStore = defineStore('transactions', {
      * Limpa filtros e recarrega
      */
     async clearFilters() {
-      console.log('🧹 [TRANSACTION STORE] Limpando filtros')
       
       this.filters = {
         type: '',
@@ -361,14 +334,12 @@ export const useTransactionStore = defineStore('transactions', {
      * Define transação atual para edição
      */
     async setCurrentTransaction(id) {
-      console.log('🔍 [TRANSACTION STORE] Carregando transação para edição:', id)
       
       try {
         const transaction = await transactionService.getTransactionById(id)
         this.currentTransaction = transaction
         
       } catch (error) {
-        console.error('❌ [TRANSACTION STORE] Erro ao carregar transação:', error.message)
         this.error = error.response?.data?.message || 'Erro ao carregar transação'
       }
     },
@@ -385,7 +356,6 @@ export const useTransactionStore = defineStore('transactions', {
      */
     loadCategories() {
       this.categories = transactionService.getDefaultCategories()
-      console.log('📋 [TRANSACTION STORE] Categorias carregadas:', this.categories.length)
     },
 
     /**
@@ -399,8 +369,6 @@ export const useTransactionStore = defineStore('transactions', {
      * Reseta o store para estado inicial
      */
     reset() {
-      console.log('🔄 [TRANSACTION STORE] Resetando store')
-      
       this.transactions = []
       this.currentTransaction = null
       this.pagination = { page: 1, limit: 20, total: 0, totalPages: 0 }

@@ -38,7 +38,6 @@ export default route(function (/* { store, ssrContext } */) {
    * Verifica se o usuário está autenticado antes de acessar rotas protegidas
    */
   Router.beforeEach(async (to, from, next) => {
-    console.log('🧭 [ROUTER] Navegando de', from.path, 'para', to.path)
     
     // Importa store dinamicamente para evitar problemas de dependência circular
     const { useAuthStore } = await import('src/stores/auth')
@@ -46,7 +45,6 @@ export default route(function (/* { store, ssrContext } */) {
     
     // Inicializa auth store se necessário
     if (!authStore.isInitialized) {
-      console.log('🔄 [ROUTER] Inicializando auth store')
       await authStore.initialize()
     }
     
@@ -54,11 +52,9 @@ export default route(function (/* { store, ssrContext } */) {
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
     const isAuthenticated = authStore.isAuthenticated
     
-    console.log('🔐 [ROUTER] Rota requer auth:', requiresAuth, '| Usuário autenticado:', isAuthenticated)
     
     // Redireciona para login se necessário
     if (requiresAuth && !isAuthenticated) {
-      console.log('❌ [ROUTER] Acesso negado, redirecionando para login')
       next({
         path: '/login',
         query: { redirect: to.fullPath } // Salva página de destino
@@ -68,7 +64,6 @@ export default route(function (/* { store, ssrContext } */) {
     
     // Redireciona usuário autenticado que tenta acessar login
     if (to.path === '/login' && isAuthenticated) {
-      console.log('✅ [ROUTER] Usuário já autenticado, redirecionando para dashboard')
       const redirectPath = to.query.redirect || '/dashboard'
       next(redirectPath)
       return
@@ -76,7 +71,6 @@ export default route(function (/* { store, ssrContext } */) {
     
     // Verifica permissões de admin
     if (to.meta.requiresAdmin && !authStore.isAdmin) {
-      console.log('❌ [ROUTER] Acesso de admin negado')
       next('/dashboard')
       return
     }
@@ -90,7 +84,6 @@ export default route(function (/* { store, ssrContext } */) {
    * Executa ações após a navegação ser confirmada
    */
   Router.afterEach((to, from) => {
-    console.log('✅ [ROUTER] Navegação concluída:', to.path)
     
     // Atualizar título da página
     document.title = to.meta.title ? 

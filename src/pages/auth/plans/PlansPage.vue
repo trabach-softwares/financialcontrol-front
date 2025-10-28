@@ -443,7 +443,6 @@
           <q-btn 
             :label="getPaymentButtonLabel()"
             :color="getPaymentColor()"
-            :loading="processingPayment"
             @click="processPayment"
           />
         </q-card-actions>
@@ -468,7 +467,6 @@ const { showSuccess, showError, showConfirm } = useNotifications()
 const billingCycle = ref('monthly')
 const showPaymentDialog = ref(false)
 const selectedPlan = ref('')
-const processingPayment = ref(false)
 
 // Computed
 const user = computed(() => authStore.user)
@@ -645,8 +643,6 @@ const getPaymentButtonLabel = () => {
 
 const processPayment = async () => {
   try {
-    processingPayment.value = true
-
     // For free plan (downgrade)
     if (selectedPlan.value === 'free') {
       await userService.changePlan({
@@ -675,8 +671,6 @@ const processPayment = async () => {
   } catch (error) {
     console.error('Erro ao processar pagamento:', error)
     showError('Erro ao processar pagamento. Tente novamente.')
-  } finally {
-    processingPayment.value = false
   }
 }
 

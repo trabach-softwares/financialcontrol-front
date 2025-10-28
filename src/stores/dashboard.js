@@ -127,7 +127,6 @@ export const useDashboardStore = defineStore('dashboard', {
      * Carrega todas as estatísticas principais do dashboard
      */
     async fetchStats(dateRange = {}) {
-      console.log('📊 [DASHBOARD STORE] Carregando estatísticas')
       
       this.isLoadingStats = true
       this.error = null
@@ -147,15 +146,8 @@ export const useDashboardStore = defineStore('dashboard', {
           ...growth
         }
 
-        console.log('✅ [DASHBOARD STORE] Estatísticas carregadas:', {
-          receitas: this.stats.totalIncome,
-          despesas: this.stats.totalExpense,
-          saldo: this.stats.balance,
-          crescimentoReceitas: this.growth.incomeGrowth
-        })
 
       } catch (error) {
-        console.error('❌ [DASHBOARD STORE] Erro ao carregar estatísticas:', error.message)
         this.error = error.message
       } finally {
         this.isLoadingStats = false
@@ -166,7 +158,6 @@ export const useDashboardStore = defineStore('dashboard', {
      * Carrega dados dos gráficos (evolução e categorias)
      */
     async fetchChartData(options = {}) {
-      console.log('📈 [DASHBOARD STORE] Carregando dados dos gráficos')
       
       this.isLoadingCharts = true
       this.chartsError = null
@@ -184,13 +175,7 @@ export const useDashboardStore = defineStore('dashboard', {
         // Atualiza configuração
         this.chartConfig.period = period
 
-        console.log('✅ [DASHBOARD STORE] Dados dos gráficos carregados:', {
-          periodos: this.monthlyEvolution.labels.length,
-          categorias: this.categoryAnalysis.labels.length
-        })
-
       } catch (error) {
-        console.error('❌ [DASHBOARD STORE] Erro ao carregar gráficos:', error.message)
         this.chartsError = error.message
         
         // Define dados vazios em caso de erro
@@ -205,7 +190,6 @@ export const useDashboardStore = defineStore('dashboard', {
      * Carrega transações recentes
      */
     async fetchRecentTransactions(limit = 5) {
-      console.log('🕒 [DASHBOARD STORE] Carregando transações recentes')
       
       this.isLoadingRecent = true
       
@@ -213,10 +197,8 @@ export const useDashboardStore = defineStore('dashboard', {
         const transactions = await dashboardService.getRecentTransactions(limit)
         this.recentTransactions = transactions
 
-        console.log('✅ [DASHBOARD STORE] Transações recentes carregadas:', transactions.length)
 
       } catch (error) {
-        console.error('❌ [DASHBOARD STORE] Erro ao carregar transações recentes:', error.message)
         this.recentTransactions = []
       } finally {
         this.isLoadingRecent = false
@@ -227,7 +209,6 @@ export const useDashboardStore = defineStore('dashboard', {
      * Carrega todos os dados do dashboard
      */
     async loadDashboard(options = {}) {
-      console.log('🚀 [DASHBOARD STORE] Carregando dashboard completo')
       
       const promises = [
         this.fetchStats(options.dateRange),
@@ -237,14 +218,12 @@ export const useDashboardStore = defineStore('dashboard', {
 
       await Promise.allSettled(promises)
       
-      console.log('✅ [DASHBOARD STORE] Dashboard carregado:', this.summary)
     },
 
     /**
      * Atualiza período dos gráficos
      */
     async updateChartPeriod(period) {
-      console.log('📅 [DASHBOARD STORE] Atualizando período dos gráficos:', period)
       
       this.chartConfig.period = period
       await this.fetchChartData({ period })
@@ -254,7 +233,6 @@ export const useDashboardStore = defineStore('dashboard', {
      * Recarrega apenas as estatísticas
      */
     async refreshStats() {
-      console.log('🔄 [DASHBOARD STORE] Atualizando estatísticas')
       await this.fetchStats()
     },
 
@@ -262,7 +240,6 @@ export const useDashboardStore = defineStore('dashboard', {
      * Limpa todos os dados do dashboard
      */
     clearDashboard() {
-      console.log('🧹 [DASHBOARD STORE] Limpando dados do dashboard')
       
       this.stats = {
         totalIncome: 0,
@@ -291,7 +268,6 @@ export const useDashboardStore = defineStore('dashboard', {
      * Atualiza configurações dos gráficos
      */
     updateChartConfig(config) {
-      console.log('⚙️ [DASHBOARD STORE] Atualizando configurações:', config)
       this.chartConfig = { ...this.chartConfig, ...config }
     }
   }

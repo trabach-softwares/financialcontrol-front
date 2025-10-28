@@ -11,11 +11,6 @@ export default ({ app }) => {
   // Inicializa o sistema de temas
   const theme = useTheme()
   theme.initTheme()
-  
-  console.log('🎨 [BOOT] Sistema de temas Sage Accountant inicializado')
-  console.log(`📋 [BOOT] Tema atual: ${theme.currentTheme.value}`)
-  console.log(`✨ [BOOT] Tema efetivo: ${theme.effectiveTheme.value}`)
-  
   // Disponibiliza globalmente (opcional)
   app.config.globalProperties.$theme = theme
 }

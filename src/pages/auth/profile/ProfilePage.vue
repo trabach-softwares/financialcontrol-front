@@ -16,7 +16,6 @@
           color="primary" 
           icon="save" 
           label="Salvar Alterações"
-          :loading="loading"
           @click="handleSaveProfile"
           :disable="!hasChanges"
         />
@@ -39,7 +38,7 @@
           </q-card-section>
 
           <q-card-section>
-            <q-form ref="profileForm" @submit.prevent="handleSaveProfile">
+            <q-form ref="profileFormRef" @submit.prevent="handleSaveProfile">
               <div class="row q-col-gutter-md">
                 <!-- Nome -->
                 <div class="col-12 col-sm-6">
@@ -251,14 +250,14 @@
               <div class="row items-center">
                 <div class="col text-body2 text-grey-7">Membro desde:</div>
                 <div class="col-auto text-body2">
-                  {{ formatDate(user.createdAt) }}
+                  {{ formatDate(userCreatedAt) }}
                 </div>
               </div>
 
               <div class="row items-center">
                 <div class="col text-body2 text-grey-7">Último login:</div>
                 <div class="col-auto text-body2">
-                  {{ formatDate(user.lastLogin) }}
+                  {{ formatDate(userLastLogin) }}
                 </div>
               </div>
 
@@ -332,7 +331,7 @@
         </q-card-section>
 
         <q-card-section>
-          <q-form ref="passwordForm" @submit.prevent="handleChangePassword">
+          <q-form ref="passwordFormRef" @submit.prevent="handleChangePassword">
             <div class="q-gutter-md">
               <q-input
                 v-model="passwordForm.currentPassword"
@@ -389,7 +388,6 @@
           <q-btn 
             label="Alterar Senha" 
             color="warning" 
-            :loading="changingPassword"
             @click="handleChangePassword"
           />
         </q-card-actions>
@@ -402,7 +400,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { userService } from '@/services/userService'
+import { userProfileGet, userProfileUpdate, userProfilePasswordChange, userProfileAvatarUpload, userProfileAvatarRemove } from 'src/apis/api-financial.js'
 import { useNotifications } from '@/composables/useNotifications'
 import { useDate } from '@/composables/useDate'
 
@@ -414,12 +412,23 @@ const { formatDate } = useDate()
 
 // Refs
 const fileInput = ref(null)
-const loading = ref(false)
-const changingPassword = ref(false)
+const profileFormRef = ref(null)
+const passwordFormRef = ref(null)
 const showChangePassword = ref(false)
 
 // User data
 const user = computed(() => authStore.user)
+
+// Datas de conta (tratando snake_case e camelCase)
+const userCreatedAt = computed(() => {
+  const u = user.value || {}
+  return u.createdAt || u.created_at || null
+})
+
+const userLastLogin = computed(() => {
+  const u = user.value || {}
+  return u.lastLogin || u.last_login || null
+})
 
 // Forms
 const profileFormData = ref({
@@ -440,9 +449,9 @@ const passwordFormData = ref({
   confirmPassword: ''
 })
 
-// Computed
-const profileForm = computed(() => profileFormData.value)
-const passwordForm = computed(() => passwordFormData.value)
+// Computed (dados do formulário)
+const profileForm = profileFormData
+const passwordForm = passwordFormData
 
 const hasChanges = computed(() => {
   if (!user.value) return false
@@ -451,7 +460,7 @@ const hasChanges = computed(() => {
     profileForm.value.name !== (user.value.name || '') ||
     profileForm.value.email !== (user.value.email || '') ||
     profileForm.value.phone !== (user.value.phone || '') ||
-    profileForm.value.birthDate !== (user.value.birthDate || '') ||
+    profileForm.value.birthDate !== (user.value.birthDate || user.value.birth_date || '') ||
     profileForm.value.cpf !== (user.value.cpf || '') ||
     profileForm.value.company !== (user.value.company || '') ||
     profileForm.value.position !== (user.value.position || '') ||
@@ -461,18 +470,31 @@ const hasChanges = computed(() => {
 })
 
 // Methods
+function toBrDate(iso) {
+  if (!iso) return ''
+  // iso esperado YYYY-MM-DD
+  const m = /^\d{4}-\d{2}-\d{2}$/.exec(iso)
+  if (!m) return iso // já pode estar em DD/MM/YYYY
+  const [y, mth, d] = iso.split('-')
+  return `${d}/${mth}/${y}`
+}
 const loadUserData = () => {
-  if (user.value) {
+  const source = user.value
+  if (source) {
     profileFormData.value = {
-      name: user.value.name || '',
-      email: user.value.email || '',
-      phone: user.value.phone || '',
-      birthDate: user.value.birthDate || '',
-      cpf: user.value.cpf || '',
-      company: user.value.company || '',
-      position: user.value.position || '',
-      bio: user.value.bio || '',
-      avatar: user.value.avatar || null
+      name: source.name || '',
+      email: source.email || '',
+      phone: source.phone || source.phone_number || '',
+      birthDate: (() => {
+        const bd = source.birthDate || source.birth_date || ''
+        if (!bd) return ''
+        return bd.includes('/') ? bd : toBrDate(bd)
+      })(),
+      cpf: source.cpf || '',
+      company: source.company || source.company_name || '',
+      position: source.position || source.job_title || '',
+      bio: source.bio || source.about || source.description || '',
+      avatar: source.avatar || source.avatar_url || null
     }
   }
 }
@@ -480,24 +502,80 @@ const loadUserData = () => {
 const handleSaveProfile = async () => {
   try {
     // Validate form
-    if (!(await profileForm.value?.validate())) {
-      return
+    if (profileFormRef.value) {
+      const valid = await profileFormRef.value.validate()
+      if (!valid) {
+        return
+      }
     }
 
-    loading.value = true
+    // Preparar payload (remover campos vazios e desnecessários)
+    // Normaliza birthDate do formulário para YYYY-MM-DD
+    let birth_date
+    if (profileFormData.value.birthDate) {
+      const v = profileFormData.value.birthDate.trim()
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
+        const [dd, mm, yyyy] = v.split('/')
+        birth_date = `${yyyy}-${mm}-${dd}`
+      } else {
+        birth_date = v
+      }
+    }
 
-    // Update profile
-    const updatedUser = await userService.updateProfile(profileForm.value)
+    const payload = {
+      name: profileFormData.value.name?.trim() || undefined,
+      email: profileFormData.value.email?.trim() || undefined,
+      phone: profileFormData.value.phone?.trim() || undefined,
+      birth_date: birth_date || undefined,
+      cpf: profileFormData.value.cpf?.trim() || undefined,
+      company: profileFormData.value.company?.trim() || undefined,
+      position: profileFormData.value.position?.trim() || undefined,
+      bio: profileFormData.value.bio?.trim() || undefined
+    }
+
+    // Remover campos undefined
+    Object.keys(payload).forEach(key => {
+      if (payload[key] === undefined || payload[key] === '') {
+        delete payload[key]
+      }
+    })
+
     
-    // Update store
+
+    // Update profile via API centralizada
+    const response = await userProfileUpdate(payload)
+    
+    
+    
+    // Extrair dados do usuário da resposta
+    const updatedUser = response?.data || response
+    
+    // Update store com novos dados
     authStore.updateUser(updatedUser)
-    
+
+    // Sincronizar formulário com dados atualizados (reflete imediatamente na tela)
+    profileFormData.value = {
+      ...profileFormData.value,
+      name: updatedUser.name ?? profileFormData.value.name,
+      email: updatedUser.email ?? profileFormData.value.email,
+      phone: (updatedUser.phone ?? updatedUser.phone_number) ?? profileFormData.value.phone,
+      birthDate: (() => {
+        const bd = (updatedUser.birthDate ?? updatedUser.birth_date) ?? profileFormData.value.birthDate
+        if (!bd) return ''
+        return bd.includes('/') ? bd : toBrDate(bd)
+      })(),
+      cpf: updatedUser.cpf ?? profileFormData.value.cpf,
+      company: (updatedUser.company ?? updatedUser.company_name) ?? profileFormData.value.company,
+      position: (updatedUser.position ?? updatedUser.job_title) ?? profileFormData.value.position,
+      bio: (updatedUser.bio ?? updatedUser.about ?? updatedUser.description) ?? profileFormData.value.bio,
+      avatar: (updatedUser.avatar ?? updatedUser.avatar_url) ?? profileFormData.value.avatar
+    }
+
     notifySuccess('Perfil atualizado com sucesso!')
+    
+    
   } catch (error) {
-    console.error('Erro ao atualizar perfil:', error)
-    notifyError('Erro ao atualizar perfil. Tente novamente.')
-  } finally {
-    loading.value = false
+    notifyError(error.message || 'Erro ao atualizar perfil. Tente novamente.')
   }
 }
 
@@ -521,23 +599,23 @@ const handleFileSelect = async (event) => {
   }
 
   try {
-    loading.value = true
-
+    // Criar FormData
+    const formData = new FormData()
+    formData.append('avatar', file)
+    
     // Upload avatar
-    const avatarUrl = await userService.uploadAvatar(file)
+    const updatedUser = await userProfileAvatarUpload(formData)
     
     // Update form
-    profileFormData.value.avatar = avatarUrl
+    profileFormData.value.avatar = updatedUser.avatar
     
     // Update user immediately
     await handleSaveProfile()
     
     notifySuccess('Avatar atualizado com sucesso!')
   } catch (error) {
-    console.error('Erro ao fazer upload do avatar:', error)
     notifyError('Erro ao fazer upload do avatar. Tente novamente.')
   } finally {
-    loading.value = false
     // Clear input
     event.target.value = ''
   }
@@ -545,9 +623,7 @@ const handleFileSelect = async (event) => {
 
 const handleRemoveAvatar = async () => {
   try {
-    loading.value = true
-
-    await userService.removeAvatar()
+    const updatedUser = await userProfileAvatarRemove()
     
     // Update form
     profileFormData.value.avatar = null
@@ -557,26 +633,26 @@ const handleRemoveAvatar = async () => {
     
     notifySuccess('Avatar removido com sucesso!')
   } catch (error) {
-    console.error('Erro ao remover avatar:', error)
     notifyError('Erro ao remover avatar. Tente novamente.')
-  } finally {
-    loading.value = false
   }
 }
 
 const handleChangePassword = async () => {
   try {
     // Validate form
-    if (!(await passwordForm.value?.validate())) {
-      return
+    if (passwordFormRef.value) {
+      const valid = await passwordFormRef.value.validate()
+      if (!valid) {
+        return
+      }
     }
 
-    changingPassword.value = true
-
-    await userService.changePassword({
-      currentPassword: passwordForm.value.currentPassword,
-      newPassword: passwordForm.value.newPassword
+    
+    await userProfilePasswordChange({
+      currentPassword: passwordFormData.value.currentPassword,
+      newPassword: passwordFormData.value.newPassword
     })
+    
 
     // Clear form
     passwordFormData.value = {
@@ -588,10 +664,7 @@ const handleChangePassword = async () => {
     showChangePassword.value = false
     notifySuccess('Senha alterada com sucesso!')
   } catch (error) {
-    console.error('Erro ao alterar senha:', error)
     notifyError(error.response?.data?.message || 'Erro ao alterar senha. Tente novamente.')
-  } finally {
-    changingPassword.value = false
   }
 }
 
@@ -605,8 +678,25 @@ const handleLogout = () => {
 watch(user, loadUserData, { immediate: true })
 
 // Lifecycle
-onMounted(() => {
+onMounted(async () => {
   loadUserData()
+  try {
+    const sessionRaw = sessionStorage.getItem('auth_user')
+    const sessionUser = sessionRaw ? JSON.parse(sessionRaw) : null
+    console.groupCollapsed('🔎 [PROFILE] Diagnóstico de dados do usuário')
+    console.log('AuthStore.user:', authStore.user)
+    console.log('SessionStorage auth_user:', sessionUser)
+    try {
+      const apiResp = await userProfileGet()
+      const apiUser = apiResp?.data || apiResp
+      console.log('API /users/profile:', apiUser)
+    } catch (e) {
+      console.warn('⚠️ Falha ao consultar API /users/profile:', e?.message || e)
+    }
+    console.groupEnd()
+  } catch (e) {
+    // ignore
+  }
 })
 </script>
 

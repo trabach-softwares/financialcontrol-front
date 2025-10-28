@@ -80,7 +80,6 @@ export const authService = {
    * Efeitos: Valida se o token ainda é válido
    */
   async getMe() {
-    console.log('👤 Buscando dados do usuário atual...')
     
     const response = await api.get('/auth/me')
     
@@ -88,7 +87,6 @@ export const authService = {
     const userData = apiData.user
     
     if (userData && userData.email) {
-      console.log('✅ Dados do usuário obtidos:', userData.email)
     } else {
       throw new Error('Estrutura de resposta inválida: user não encontrado')
     }
@@ -106,11 +104,5 @@ export const authService = {
    * Efeitos: Remove token, dados do usuário e redireciona
    */
   logout() {
-    console.log('🚪 Fazendo logout do usuário...')
-    
-    // Remover dados do localStorage (será feito pelo store)
-    // O interceptor do Axios já trata a remoção automática
-    
-    console.log('✅ Logout realizado com sucesso')
   }
 }

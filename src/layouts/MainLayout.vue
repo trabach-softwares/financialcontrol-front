@@ -276,6 +276,9 @@ Efeitos: Navegação completa e interface responsiva -->
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <!-- Session Manager - Gerenciamento de Timeout de Sessão -->
+    <SessionManager />
   </q-layout>
 </template>
 
@@ -285,6 +288,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from 'src/stores/auth'
 import { useNotifications } from 'src/composables/useNotifications'
 import { getMainMenuRoutes, getAdminMenuRoutes, getUserMenuRoutes } from 'src/router/routes'
+import SessionManager from 'src/components/SessionManager.vue'
 
 // ==========================================================================
 // COMPOSABLES E STORES
@@ -365,7 +369,6 @@ const getCurrentPageIcon = () => {
  * Processa logout
  */
 const handleLogout = async () => {
-  console.log('🚪 [MAIN LAYOUT] Processando logout')
   
   try {
     await authStore.logout()
@@ -373,7 +376,6 @@ const handleLogout = async () => {
     router.push('/login')
     
   } catch (error) {
-    console.error('❌ [MAIN LAYOUT] Erro no logout:', error.message)
   }
 }
 
@@ -381,7 +383,6 @@ const handleLogout = async () => {
 // LIFECYCLE
 // ==========================================================================
 onMounted(() => {
-  console.log('🚀 [MAIN LAYOUT] Layout principal montado')
 })
 </script>
 
