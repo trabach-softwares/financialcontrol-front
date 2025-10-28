@@ -42,13 +42,14 @@ Efeitos: Navegação completa e interface responsiva -->
         </q-item-label>
 
         <q-item
-          v-for="route in mainMenuRoutes"
+          v-for="route in filteredMainMenuRoutes"
           :key="route.name"
           :to="route.path"
           clickable
           v-ripple
           class="sidebar-item"
           active-class="sidebar-item-active"
+          v-if="!(authStore.isAdmin && route.path === '/plans')"
         >
           <q-item-section avatar>
             <q-icon :name="route.icon" />
@@ -202,6 +203,14 @@ const showNotifications = ref(false)
 const mainMenuRoutes = getMainMenuRoutes()
 const adminMenuRoutes = getAdminMenuRoutes()
 const userMenuRoutes = getUserMenuRoutes()
+
+// Rotas visíveis no menu principal (esconde "/plans" para admin)
+const filteredMainMenuRoutes = computed(() => {
+  if (authStore.isAdmin) {
+    return mainMenuRoutes.filter(r => r.path !== '/plans')
+  }
+  return mainMenuRoutes
+})
 
 // Notificações simuladas
 const notifications = ref([

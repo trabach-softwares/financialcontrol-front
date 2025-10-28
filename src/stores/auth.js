@@ -128,10 +128,27 @@ export const useAuthStore = defineStore('auth', {
         this.user = userData
         sessionStorage.setItem('auth_user', JSON.stringify(this.user))
         
-        // Enriquecer com informações de plano (plan_name/plan_type) e persistir
+        // Buscar dados completos (inclui plano) e normalizar plan_name/plan_type
         try {
-          await this.enrichUserPlan()
-        } catch (_) {}
+          const me = await authService.getMe()
+          if (me) {
+            const normalized = {
+              ...this.user,
+              ...me,
+              ...(me.plan ? { 
+                plan_name: me.plan.name,
+                plan_type: me.plan.type || me.plan.name
+              } : {})
+            }
+            this.user = normalized
+            sessionStorage.setItem('auth_user', JSON.stringify(this.user))
+          } else {
+            await this.enrichUserPlan()
+          }
+        } catch (_) {
+          // fallback: tenta enriquecer via plans store
+          try { await this.enrichUserPlan() } catch (_) {}
+        }
         
         
         // Retorna sucesso para a página de login
@@ -201,8 +218,29 @@ export const useAuthStore = defineStore('auth', {
       try {
         const raw = sessionStorage.getItem('auth_user')
         this.user = raw ? JSON.parse(raw) : null
-        // Opcional: enriquecer plano se necessário
-        await this.enrichUserPlan()
+        // Se temos plan_id mas faltam plan_name/plan_type, sincroniza com backend
+        if (this.user?.plan_id && (!this.user.plan_name || !this.user.plan_type)) {
+          try {
+            const me = await authService.getMe()
+            if (me) {
+              const merged = {
+                ...this.user,
+                ...me,
+                ...(me.plan ? {
+                  plan_name: me.plan.name,
+                  plan_type: me.plan.type || me.plan.name
+                } : {})
+              }
+              this.user = merged
+              sessionStorage.setItem('auth_user', JSON.stringify(this.user))
+            } else {
+              await this.enrichUserPlan()
+            }
+          } catch (_) {
+            // fallback: enriquecer via store de planos
+            try { await this.enrichUserPlan() } catch (_) {}
+          }
+        }
       } catch (_) {
         this.user = null
       }
@@ -343,7 +381,13 @@ export const useAuthStore = defineStore('auth', {
     updateUser(userData) {
       if (this.user) {
         // Mescla dados novos com existentes
-        this.user = { ...this.user, ...userData }
+        const merged = { ...this.user, ...userData }
+        // Normaliza plano quando vier como objeto `plan` do backend
+        if (merged.plan && (merged.plan.name || merged.plan.type)) {
+          merged.plan_name = merged.plan.name || merged.plan_name
+          merged.plan_type = merged.plan.type || merged.plan_name || merged.plan_type
+        }
+        this.user = merged
         // Persistir dados atualizados na sessão
         sessionStorage.setItem('auth_user', JSON.stringify(this.user))
         

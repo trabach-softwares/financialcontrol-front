@@ -136,15 +136,38 @@ async function refreshToken() {
     const data = await authService.refresh()
 
     if (data && data.token) {
-      // Persistir novo token e (opcional) usuário
+      // Persistir novo token e (opcional) usuário mínimo
       sessionStorage.setItem('auth_token', data.token)
       if (data.user) {
-        sessionStorage.setItem('auth_user', JSON.stringify(data.user))
+        // Mesclar com usuário existente para não perder informações (ex.: plan_name)
+        const current = authStore.user || {}
+        const mergedMin = { ...current, ...data.user }
+        sessionStorage.setItem('auth_user', JSON.stringify(mergedMin))
+        authStore.user = mergedMin
       }
 
-      // Atualizar store reativo
+      // Atualizar token no store
       authStore.token = data.token
-      if (data.user) authStore.user = data.user
+
+      // Buscar perfil completo para sincronizar plano e demais campos
+      try {
+        const me = await authService.getMe()
+        if (me) {
+          const base = authStore.user || {}
+          const normalized = {
+            ...base,
+            ...me,
+            ...(me.plan ? {
+              plan_name: me.plan.name,
+              plan_type: me.plan.type || me.plan.name
+            } : {})
+          }
+          authStore.user = normalized
+          sessionStorage.setItem('auth_user', JSON.stringify(normalized))
+        }
+      } catch (_) {
+        // ignore
+      }
 
       // Resetar contadores
       resetToken()

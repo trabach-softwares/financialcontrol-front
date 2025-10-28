@@ -275,7 +275,7 @@
             </div>
           </q-card-section>
 
-          <q-card-actions>
+          <q-card-actions v-if="!authStore.isAdmin">
             <q-btn 
               color="primary" 
               icon="upgrade" 
