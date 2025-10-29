@@ -313,10 +313,14 @@ export const useTransactionStore = defineStore('transactions', {
       this.error = null
       try {
         console.log(' [Store] markPaid:', { id, paid, paidAt })
-        const updated = await transactionService.markTransactionPaid(id, paid, paidAt)
+        const apiResponse = await transactionService.markTransactionPaid(id, paid, paidAt)
+        const updated = apiResponse?.data ?? apiResponse
         const index = this.transactions.findIndex(t => t.id === id)
-        if (index !== -1) {
-          this.transactions[index] = { ...this.transactions[index], ...updated }
+        if (index !== -1 && updated) {
+          this.transactions[index] = {
+            ...this.transactions[index],
+            ...updated
+          }
         }
         await this.fetchStats()
         return updated
@@ -337,7 +341,12 @@ export const useTransactionStore = defineStore('transactions', {
       this.isLoadingStats = true
       
       try {
-        const stats = await transactionService.getTransactionStats(dateRange)
+        const effectiveRange = {
+          startDate: (dateRange.startDate ?? this.filters.startDate) || undefined,
+          endDate: (dateRange.endDate ?? this.filters.endDate) || undefined
+        }
+
+        const stats = await transactionService.getTransactionStats(effectiveRange)
         
         this.stats = {
           totalIncome: stats.totalIncome || 0,
@@ -367,6 +376,7 @@ export const useTransactionStore = defineStore('transactions', {
       
       // Recarrega com novos filtros
       await this.fetchTransactions()
+      await this.fetchStats()
     },
 
     /**
@@ -384,6 +394,7 @@ export const useTransactionStore = defineStore('transactions', {
       
       this.pagination.page = 1
       await this.fetchTransactions()
+      await this.fetchStats()
     },
 
     /**

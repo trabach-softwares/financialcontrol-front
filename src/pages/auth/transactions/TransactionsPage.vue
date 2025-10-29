@@ -123,14 +123,14 @@
             </div>
 
             <!-- Botão limpar filtros -->
-            <div class="col-12 col-sm-6 col-md-1">
+            <div class="col-12 col-sm-6 col-md-1 div-clear-filters">
               <q-btn
                 icon="clear"
                 color="grey-6"
                 outline
                 dense
                 @click="clearAllFilters"
-                class="full-width"
+                class="btn-clear-filters"
               >
                 <q-tooltip>Limpar filtros</q-tooltip>
               </q-btn>
@@ -955,5 +955,13 @@ onMounted(() => {
   .stat-value {
     font-size: 1.2rem;
   }
+}
+
+.div-clear-filters {
+  margin-bottom: var(--spacing-2);
+}
+
+.btn-clear-filters {
+  height: 2.5rem;
 }
 </style>
