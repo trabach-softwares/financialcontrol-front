@@ -12,7 +12,7 @@ import { api } from 'boot/axios'
  * Serviços de transações que encapsulam todas as operações CRUD
  * Inclui filtros, paginação, estatísticas e categorias
  */
-export const transactionService = {
+const transactionService = {
 
   // ==========================================================================
   // LISTAR TRANSAÇÕES - GET /transactions
@@ -26,35 +26,76 @@ export const transactionService = {
    */
   async getTransactions(filters = {}) {
     console.log('💰 Buscando transações com filtros:', filters)
-    
+
     // Construir query parameters
     const params = new URLSearchParams()
-    
     if (filters.type) params.append('type', filters.type)
     if (filters.category) params.append('category', filters.category)
     if (filters.startDate) params.append('startDate', filters.startDate)
     if (filters.endDate) params.append('endDate', filters.endDate)
     if (filters.page) params.append('page', filters.page)
     if (filters.limit) params.append('limit', filters.limit)
-    
+    if (filters.paid !== undefined && filters.paid !== '' && filters.paid !== null) {
+      params.append('paid', String(filters.paid))
+    }
+
     const queryString = params.toString()
     const url = `/transactions${queryString ? `?${queryString}` : ''}`
-    
+
     const response = await api.get(url)
-    
-    // Validar estrutura da API conforme documentação
-    if (!response.data.success) {
-      throw new Error(response.data.message || 'Failed to get transactions')
+
+    // Algumas APIs respondem com { success, data, page, ... }
+    // Outras respondem com { transactions, pagination } ou um array direto
+    const raw = response?.data
+    const success = typeof raw?.success === 'boolean' ? raw.success : true
+    if (!success) {
+      throw new Error(raw?.message || 'Failed to get transactions')
     }
-    
-    const transactions = response.data.data
-    
+
+    let transactions = []
+    let page = Number(raw?.page || raw?.pagination?.page || 1)
+    let limit = Number(raw?.limit || raw?.pagination?.limit || 20)
+    let total = Number(raw?.total || raw?.pagination?.total || 0)
+    let totalPages = Number(raw?.totalPages || raw?.pagination?.totalPages || 0)
+
+    const payload = raw?.data ?? raw
+    if (Array.isArray(payload)) {
+      transactions = payload
+      // se backend não manda total/paginação, inferimos
+      total = typeof total === 'number' && total > 0 ? total : transactions.length
+      totalPages = typeof totalPages === 'number' && totalPages > 0 ? totalPages : 1
+    } else if (payload && typeof payload === 'object') {
+      transactions = payload.transactions || payload.items || []
+      page = Number(payload.page || payload.currentPage || page)
+      limit = Number(payload.limit || payload.perPage || limit)
+      total = Number(payload.total || total)
+      totalPages = Number(payload.totalPages || payload.pages || totalPages)
+    }
+
     console.log('✅ Transações obtidas:', {
       count: Array.isArray(transactions) ? transactions.length : 0,
-      filters: filters
+      page, limit, total, totalPages,
+      filters
     })
-    
-    return transactions
+
+    return { transactions, page, limit, total, totalPages }
+  },
+
+  // ==========================================================================
+  // CRIAÇÃO EM MASSA (SÉRIE) - POST /transactions/series
+  // ==========================================================================
+  async createTransactionsBulk(transactionsArray) {
+    console.log('➕ [POST /transactions/series] criando em massa:', transactionsArray)
+    try {
+      const response = await api.post('/transactions/series', transactionsArray)
+      console.log('✅ [POST /transactions/series] response:', response?.data)
+      return response.data
+    } catch (error) {
+      const status = error?.response?.status
+      const data = error?.response?.data
+      console.error('❌ [POST /transactions/series] failed:', { status, data })
+      throw error
+    }
   },
 
   // ==========================================================================
@@ -68,22 +109,32 @@ export const transactionService = {
    * Efeitos: Nova transação adicionada ao sistema
    */
   async createTransaction(transactionData) {
-    console.log('➕ Criando nova transação:', {
+    const payload = {
       type: transactionData.type,
-      amount: transactionData.amount,
-      category: transactionData.category
-    })
-    
-    const response = await api.post('/transactions', {
-      type: transactionData.type,           // 'income' | 'expense'
       amount: Number(transactionData.amount),
       description: transactionData.description,
       category: transactionData.category,
       date: transactionData.date
-    })
-    
-    console.log('✅ Transação criada com sucesso:', response.data.id)
-    return response.data
+    }
+    const baseURL = api?.defaults?.baseURL || '(no baseURL)'
+    const url = '/transactions'
+    console.log('➕ [POST /transactions] baseURL:', baseURL, 'url:', url, 'payload:', JSON.stringify(payload))
+
+    try {
+      const response = await api.post(url, payload)
+      console.log('✅ [POST /transactions] response:', response?.status, response?.data)
+      return response.data
+    } catch (error) {
+      const status = error?.response?.status
+      const data = error?.response?.data
+      const message = error?.message
+      const respText = error?.request?.responseText
+      const reqUrl = error?.config?.baseURL ? (error.config.baseURL + (error.config.url || '')) : (error?.config?.url || '(no url)')
+      let serialized = null
+      try { serialized = typeof error?.toJSON === 'function' ? error.toJSON() : null } catch (_) { }
+      console.error('❌ [POST /transactions] failed:', { status, data, message, reqUrl, respText, payload, serialized })
+      throw error
+    }
   },
 
   // ==========================================================================
@@ -101,7 +152,7 @@ export const transactionService = {
       type: transactionData.type,
       amount: transactionData.amount
     })
-    
+
     const response = await api.put(`/transactions/${id}`, {
       type: transactionData.type,
       amount: Number(transactionData.amount),
@@ -109,7 +160,7 @@ export const transactionService = {
       category: transactionData.category,
       date: transactionData.date
     })
-    
+
     console.log('✅ Transação atualizada com sucesso:', id)
     return response.data
   },
@@ -126,11 +177,51 @@ export const transactionService = {
    */
   async deleteTransaction(id) {
     console.log('🗑️ Deletando transação:', id)
-    
+
     const response = await api.delete(`/transactions/${id}`)
-    
+
     console.log('✅ Transação deletada com sucesso:', id)
     return response.data
+  },
+
+  /**
+   * Deleta uma série de parcelas a partir de uma data
+   */
+  async deleteSeriesForward(seriesId, fromDate) {
+    console.log('🗑️ Deletando série a partir de', { seriesId, fromDate })
+    try {
+      const params = new URLSearchParams()
+      if (fromDate) params.append('fromDate', fromDate)
+      const url = `/transactions/series/${seriesId}${params.toString() ? `?${params.toString()}` : ''}`
+      const response = await api.delete(url)
+      console.log('✅ Série deletada:', response?.data)
+      return response.data
+    } catch (error) {
+      const status = error?.response?.status
+      const data = error?.response?.data
+      console.error('❌ [DELETE /transactions/series/:seriesId] failed:', { status, data, seriesId, fromDate })
+      throw error
+    }
+  },
+
+  // ==========================================================================
+  // MARCAR COMO PAGA - PATCH /transactions/:id/paid
+  // ==========================================================================
+  /**
+   * Marca uma transação como paga/não paga
+   */
+  async markTransactionPaid(id, paid, paidAt) {
+    console.log('✅ Marcando transação como paga:', { id, paid, paidAt })
+    try {
+      const response = await api.patch(`/transactions/${id}/paid`, { paid: !!paid, paidAt })
+      console.log('✅ Paid status atualizado:', response?.data)
+      return response.data
+    } catch (error) {
+      const status = error?.response?.status
+      const data = error?.response?.data
+      console.error('❌ [PATCH /transactions/:id/paid] failed:', { status, data, id, paid, paidAt })
+      throw error
+    }
   },
 
   // ==========================================================================
@@ -145,24 +236,35 @@ export const transactionService = {
    */
   async getTransactionStats(dateRange = {}) {
     console.log('📊 Buscando estatísticas financeiras:', dateRange)
-    
-    const params = new URLSearchParams()
-    if (dateRange.startDate) params.append('startDate', dateRange.startDate)
-    if (dateRange.endDate) params.append('endDate', dateRange.endDate)
-    
-    const queryString = params.toString()
-    const url = `/transactions/stats${queryString ? `?${queryString}` : ''}`
-    
-    const response = await api.get(url)
-    
-    console.log('✅ Estatísticas obtidas:', {
-      receitas: response.data.totalIncome,
-      despesas: response.data.totalExpense,
-      saldo: response.data.balance,
-      total: response.data.transactionCount
-    })
-    
-    return response.data
+
+    try {
+      const params = new URLSearchParams()
+      if (dateRange.startDate) params.append('startDate', dateRange.startDate)
+      if (dateRange.endDate) params.append('endDate', dateRange.endDate)
+      const qs = params.toString()
+      const url = `/transactions/stats${qs ? `?${qs}` : ''}`
+      const response = await api.get(url)
+
+      const raw = response?.data
+      const payload = raw?.data ?? raw
+
+      // Backend retorna { income, expense, balance, totalTransactions }
+      const stats = {
+        totalIncome: Number(payload?.income || 0),
+        totalExpense: Number(payload?.expense || 0),
+        balance: Number(payload?.balance || 0),
+        transactionCount: Number(payload?.totalTransactions || 0)
+      }
+
+      console.log('✅ Estatísticas obtidas:', stats)
+
+      return stats
+    } catch (error) {
+      const status = error?.response?.status
+      const data = error?.response?.data
+      console.warn('⚠️ [GET /transactions/stats] failed, usando zeros:', { status, data })
+      return { totalIncome: 0, totalExpense: 0, balance: 0, transactionCount: 0 }
+    }
   },
 
   // ==========================================================================
@@ -177,9 +279,9 @@ export const transactionService = {
    */
   async getTransactionById(id) {
     console.log('🔍 Buscando transação por ID:', id)
-    
+
     const response = await api.get(`/transactions/${id}`)
-    
+
     console.log('✅ Transação encontrada:', response.data.id)
     return response.data
   },
@@ -203,7 +305,7 @@ export const transactionService = {
       'Comissões',
       'Investimentos',
       'Outras Receitas',
-      
+
       // Despesas
       'Fornecedores',
       'Salários',
@@ -230,22 +332,26 @@ export const transactionService = {
    */
   async getReports(filters = {}) {
     console.log('📊 Buscando dados para relatórios:', filters)
-    
+
     const params = new URLSearchParams()
     if (filters.startDate) params.append('startDate', filters.startDate)
     if (filters.endDate) params.append('endDate', filters.endDate)
-    
+
     const queryString = params.toString()
     const url = `/transactions/reports${queryString ? `?${queryString}` : ''}`
-    
+
     const response = await api.get(url)
-    
+
     console.log('✅ Dados de relatórios obtidos:', {
       totalTransactions: response.data.summary?.totalTransactions || 0,
       categoriesCount: response.data.categoryAnalysis?.length || 0,
       timelinePoints: response.data.timeline?.length || 0
     })
-    
+
     return response.data
   }
 }
+
+// Exports
+export default transactionService
+export { transactionService }

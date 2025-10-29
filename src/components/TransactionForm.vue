@@ -63,6 +63,21 @@ Efeitos: CRUD de transações com validação -->
                   :text-color="form.type === 'income' ? 'green-8' : 'red-8'"
                   size="md"
                 />
+                <q-chip 
+                  class="q-ml-sm"
+                  :label="form.type === 'income' ? (form.paid ? 'Recebido' : 'A receber') : (form.paid ? 'Pago' : 'Em aberto')"
+                  :color="form.paid ? 'teal-1' : 'grey-2'"
+                  :text-color="form.paid ? 'teal-8' : 'grey-8'"
+                  size="md"
+                />
+                <q-chip
+                  v-if="form.paid && props.transaction?.paid_at"
+                  class="q-ml-sm"
+                  :label="(form.type === 'income' ? 'Recebido em ' : 'Pago em ') + formatBRDate(props.transaction.paid_at)"
+                  color="teal-1"
+                  text-color="teal-8"
+                  size="md"
+                />
               </q-card-section>
             </q-card>
           </div>
@@ -109,6 +124,25 @@ Efeitos: CRUD de transações com validação -->
           </div>
         </div>
 
+        <!-- Pago -->
+        <div class="row q-col-gutter-md">
+          <div class="col-12 col-sm-6 col-md-6">
+            <q-toggle
+              :model-value="form.paid"
+              :label="form.type === 'income' ? 'Recebido' : 'Pago'"
+              color="teal-6"
+              dense
+              name="paid"
+              id="transaction-paid"
+              @update:model-value="onTogglePaidView"
+              :disable="!props.transaction?.id"
+            />
+            <div v-if="form.paid && props.transaction?.paid_at" class="text-caption q-mt-xs">
+              {{ form.type === 'income' ? 'Recebido em' : 'Pago em' }} {{ formatBRDate(props.transaction.paid_at) }}
+            </div>
+          </div>
+        </div>
+
         <!-- Botões do modo visualização -->
         <div class="row q-col-gutter-md q-mt-lg">
           <div class="col-6">
@@ -145,7 +179,7 @@ Efeitos: CRUD de transações com validação -->
           <!-- Seletor de Tipo -->
           <div class="row q-col-gutter-md">
             <div class="col-12">
-              <div class="field-label q-mb-sm">
+              <div class="q-mb-md">
                 Tipo da Transação *
               </div>
               <q-btn-toggle
@@ -154,19 +188,16 @@ Efeitos: CRUD de transações com validação -->
                   { 
                     label: 'Receita', 
                     value: 'income', 
-                    icon: 'trending_up',
-                    color: 'green-6'
+                    icon: 'trending_up'
                   },
                   { 
                     label: 'Despesa', 
                     value: 'expense', 
-                    icon: 'trending_down',
-                    color: 'red-6'
+                    icon: 'trending_down'
                   }
                 ]"
-                toggle-color="primary"
                 no-caps
-                class="full-width type-selector"
+                class="type-selector q-mb-md"
                 :class="{ 'income-selected': form.type === 'income', 'expense-selected': form.type === 'expense' }"
               />
             </div>
@@ -184,10 +215,9 @@ Efeitos: CRUD de transações com validação -->
                 :prefix="getCurrencySymbol()"
                 :rules="[
                   val => !!val || 'Valor é obrigatório',
-                  val => val > 0 || 'Valor deve ser maior que zero'
+                  val => parseCurrency(String(val)) > 0 || 'Valor deve ser maior que zero'
                 ]"
-                mask="#.##"
-                reverse-fill-mask
+                @update:model-value="onAmountInput"
                 input-class="text-right"
                 class="amount-input"
                 name="amount"
@@ -212,8 +242,9 @@ Efeitos: CRUD de transações com validação -->
                 outlined
                 dense
                 :rules="[
-                  val => !!val || 'Data é obrigatória'
+                  val => !form.isInstallment || (!!val) || 'Data é obrigatória'
                 ]"
+                :disable="form.isInstallment"
                 name="date"
                 id="transaction-date"
                 placeholder="YYYY-MM-DD"
@@ -320,6 +351,10 @@ Efeitos: CRUD de transações com validação -->
             fill-input
             input-debounce="0"
             new-value-mode="add-unique"
+            option-label="name"
+            option-value="name"
+            emit-value
+            map-options
             :rules="[
               val => !!val || 'Categoria é obrigatória'
             ]"
@@ -335,6 +370,13 @@ Efeitos: CRUD de transações com validação -->
             </template>
             <template v-slot:append>
               <q-btn round dense flat icon="add" @click.stop="openCreateCategoryDialog" />
+            </template>
+            <!-- Selected display (when a value is chosen) -->
+            <template v-slot:selected="scope">
+              <div class="row items-center no-wrap">
+                <q-icon :name="(availableCategories.find(c => c.name === scope.opt) || {}).icon || 'category'" :color="(availableCategories.find(c => c.name === scope.opt) || {}).color || 'blue-6'" class="q-mr-sm" />
+                <span>{{ scope.opt }}</span>
+              </div>
             </template>
             <template v-slot:option="{ itemProps, opt }">
               <q-item v-if="opt.header" dense class="bg-grey-2 text-grey-8">
@@ -434,6 +476,8 @@ import CategoryDialog from './CategoryDialog.vue'
 import { useCurrency } from 'src/composables/useCurrency'
 import { useDate } from 'src/composables/useDate'
 import { useNotifications } from 'src/composables/useNotifications'
+// UUID helper (browser-native)
+const uuidv4 = () => (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`)
 
 // ==========================================================================
 // PROPS E EMITS
@@ -450,7 +494,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['saved', 'cancelled'])
+const emit = defineEmits(['saved', 'cancelled', 'switch-edit'])
 
 // ==========================================================================
 // COMPOSABLES E STORES
@@ -471,6 +515,7 @@ const form = ref({
   category: '',
   date: toISODate(new Date()),
   notes: '',
+  paid: false,
   // Recorrência / Parcelado
   isInstallment: false,
   installmentsCount: 2,
@@ -497,12 +542,12 @@ let pendingNewValueDone = null // callback do @new-value do QSelect
  * Verifica se o formulário é válido
  */
 const isFormValid = computed(() => {
-  return form.value.type &&
-         form.value.amount &&
-         form.value.description &&
-         form.value.category &&
-         form.value.date &&
-         parseFloat(form.value.amount) > 0
+  const amountOk = parseCurrency(String(form.value.amount)) > 0
+  const baseOk = !!(form.value.type && form.value.description && form.value.category && amountOk)
+  const installmentOk = !form.value.isInstallment || (
+    (Number(form.value.installmentsCount) >= 2) && !!form.value.firstDueDate
+  )
+  return baseOk && installmentOk
 })
 
 // ==========================================================================
@@ -521,7 +566,8 @@ const initializeForm = () => {
       description: props.transaction.description || '',
       category: props.transaction.category || '',
       date: toISODate(props.transaction.date) || toISODate(new Date()),
-      notes: props.transaction.notes || ''
+      notes: props.transaction.notes || '',
+      paid: !!props.transaction.paid
     }
   } else {
     
@@ -531,9 +577,24 @@ const initializeForm = () => {
       description: '',
       category: '',
       date: toISODate(new Date()),
-      notes: ''
+      notes: '',
+      paid: false
     }
   }
+}
+
+// Helpers: BR <-> ISO date
+function pad2(n) { return String(n).padStart(2,'0') }
+function formatBRDate(d) {
+  const dt = (d instanceof Date) ? d : new Date(d)
+  return `${pad2(dt.getDate())}/${pad2(dt.getMonth()+1)}/${dt.getFullYear()}`
+}
+function toISOFromBR(s) {
+  if (!s) return ''
+  const parts = s.replace(/\s/g,'').split('/')
+  if (parts.length !== 3) return s
+  const [dd,mm,yyyy] = parts
+  return `${yyyy}-${mm}-${dd}`
 }
 
 /**
@@ -675,15 +736,20 @@ const handleSubmit = async () => {
   try {
     const baseData = {
       type: form.value.type,
-      amount: parseFloat(form.value.amount),
+      amount: parseCurrency(form.value.amount),
       description: form.value.description.trim(),
       category: form.value.category.trim(),
-      notes: form.value.notes?.trim() || null
+      notes: form.value.notes?.trim() || null,
+      paid: !!form.value.paid
     }
+    console.log('🧾 [Form] Submitting transaction base data:', JSON.stringify({ ...baseData, date: form.value.date }))
     
     if (props.mode === 'edit' && props.transaction?.id) {
       // Atualizar transação única
-      await transactionStore.updateTransaction(props.transaction.id, { ...baseData, date: form.value.date })
+      const payload = { ...baseData, date: form.value.date }
+      console.log('✏️ [Form] Update payload (before store):', JSON.stringify(payload))
+      const updated = await transactionStore.updateTransaction(props.transaction.id, payload)
+      console.log('✏️ [Form] Update response (after store):', updated)
       notifySuccess('Transação atualizada com sucesso!')
       
     } else {
@@ -691,14 +757,30 @@ const handleSubmit = async () => {
       if (form.value.isInstallment && form.value.installmentsCount >= 2) {
         const count = Math.min(Math.max(parseInt(form.value.installmentsCount) || 2, 2), 60)
         const startDate = new Date(form.value.firstDueDate || form.value.date)
+        const seriesId = uuidv4()
+        const batch = []
         for (let i = 1; i <= count; i++) {
           const due = addMonths(startDate, i - 1)
           const desc = `${baseData.description} (${i}/${count})`
-          await transactionStore.createTransaction({ ...baseData, description: desc, date: toISODate(due) })
+          batch.push({
+            ...baseData,
+            description: desc,
+            date: toISODate(due),
+            paid: false,
+            seriesId,
+            installmentNumber: i,
+            installmentTotal: count
+          })
         }
+        console.log('➕ [Form] Bulk create payload (count):', batch.length)
+        const bulkResp = await transactionStore.createTransactionsBulk(batch)
+        console.log('➕ [Form] Bulk create response:', Array.isArray(bulkResp) ? bulkResp.length : bulkResp)
         notifySuccess(`${count} parcelas lançadas com sucesso!`)
       } else {
-        await transactionStore.createTransaction({ ...baseData, date: form.value.date })
+        const payload = { ...baseData, date: form.value.date }
+        console.log('➕ [Form] Create payload (before store):', JSON.stringify(payload))
+        const created = await transactionStore.createTransaction(payload)
+        console.log('➕ [Form] Create response (after store):', created)
         notifySuccess('Transação criada com sucesso!')
       }
     }
@@ -706,7 +788,13 @@ const handleSubmit = async () => {
     emit('saved')
     
   } catch (error) {
-    notifyError(`Erro ao ${props.mode === 'edit' ? 'atualizar' : 'criar'} transação`)
+    const status = error?.response?.status
+    const data = error?.response?.data
+    const messageRaw = error?.message
+    const stack = error?.stack
+    console.error('❌ [Form] Submission failed:', { status, data, messageRaw, stack, error })
+    const message = data?.message || `Erro ao ${props.mode === 'edit' ? 'atualizar' : 'criar'} transação`
+    notifyError(message)
   }
 }
 
@@ -725,6 +813,26 @@ function addMonths(date, months) {
 }
 
 /**
+ * Formata entrada do valor deslocando para centavos
+ * 1 -> 0,01; 11 -> 0,11; 111 -> 1,11
+ */
+function onAmountInput(val) {
+  try {
+    const digits = String(val || '')
+      .replace(/\D/g, '')
+    const cents = digits ? parseInt(digits, 10) : 0
+    const number = cents / 100
+    const formatted = number.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })
+    form.value.amount = formatted
+  } catch (e) {
+    form.value.amount = '0,00'
+  }
+}
+
+/**
  * Cancela a operação
  */
 const handleCancel = () => {
@@ -735,8 +843,7 @@ const handleCancel = () => {
  * Muda para modo de edição (apenas do modo view)
  */
 const switchToEditMode = () => {
-  emit('cancelled') // Fecha e reabre em modo edit
-  // O componente pai deve lidar com a mudança de modo
+  emit('switch-edit')
 }
 
 /**
@@ -792,6 +899,62 @@ onMounted(() => {
   initializeForm()
 })
 
+/**
+ * Marca como pago no modo visualização, perguntando data
+ */
+const onTogglePaidView = async (val) => {
+  if (!props.transaction?.id) return
+  try {
+    // Pergunta: hoje ou outro dia?
+    const decision = await new Promise((resolve) => {
+      $q.dialog({
+        title: form.value.type === 'income' ? 'Confirmar recebimento' : 'Confirmar pagamento',
+        message: form.value.type === 'income' ? 'Deseja registrar como recebido com a data de hoje?' : 'Deseja registrar como pago com a data de hoje?',
+        ok: 'Hoje',
+        cancel: 'Outro dia'
+      }).onOk(() => resolve({ today: true }))
+        .onCancel(() => resolve({ today: false }))
+        .onDismiss(() => resolve(null))
+    })
+    if (!decision) return // sem mudança
+
+    let paidAt = null
+    if (val) {
+      if (decision.today) {
+        paidAt = toISODate(new Date())
+      } else {
+        // Solicita data
+        const res = await new Promise((resolve) => {
+          $q.dialog({
+            title: form.value.type === 'income' ? 'Data de recebimento' : 'Data de pagamento',
+            message: 'Informe a data (DD/MM/AAAA):',
+            prompt: {
+              model: formatBRDate(new Date()),
+              type: 'text'
+            },
+            cancel: true,
+            ok: 'Registrar'
+          }).onOk((val) => resolve(val))
+            .onCancel(() => resolve(null))
+            .onDismiss(() => resolve(null))
+        })
+        if (!res) { return }
+        paidAt = toISOFromBR(res)
+      }
+    }
+
+    await transactionStore.markPaid(props.transaction.id, !!val, paidAt)
+    form.value.paid = !!val
+    notifySuccess(
+      val
+        ? (form.value.type === 'income' ? 'Recebimento registrado' : 'Pagamento registrado')
+        : (form.value.type === 'income' ? 'Recebimento desmarcado' : 'Pagamento desmarcado')
+    )
+  } catch (e) {
+    notifyError('Falha ao alterar pagamento')
+  }
+}
+
 </script>
 
 <style lang="scss" scoped>
@@ -802,33 +965,110 @@ onMounted(() => {
 .transaction-form-card {
   width: 100%;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 2% auto; // top & bottom spacing as requested
   border-radius: 16px;
+  overflow: hidden; 
+  box-sizing: border-box;
   
   .q-bar {
     border-radius: 16px 16px 0 0;
   }
 }
 
+// Keep layout inside section bounds, avoid gutter bleed
+:deep(.transaction-form-card .q-card-section) {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+:deep(.transaction-form-card .q-card-section > .row.q-col-gutter-md) {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+:deep(.transaction-form-card .q-card-section > .row.q-col-gutter-md > [class^='col-'],
+      .transaction-form-card .q-card-section > .row.q-col-gutter-md > [class*=' col-']) {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+// Ensure inputs/selects never overflow
+:deep(.transaction-form-card .q-input,
+      .transaction-form-card .q-select,
+      .transaction-form-card .q-expansion-item,
+      .transaction-form-card .q-btn) {
+  max-width: 100%;
+}
+
+// Harmonize vertical gaps using existing utilities
+:deep(.transaction-form-card .q-gutter-md) { gap: 16px; }
+:deep(.transaction-form-card .q-mb-md) { margin-bottom: 16px !important; }
+
 // Seletor de tipo
 .type-selector {
   .q-btn {
     flex: 1;
-    
-    &.q-btn--active {
-      transform: scale(1.05);
-    }
+    font-weight: 600;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+
+  // Inactive (pastel) states - base
+  .q-btn:not(.q-btn--active) {
+    background: #f6f7f9 !important;
+    color: #546e7a !important;
+  }
+
+  // Map buttons by position: 1 = Receita (income), 2 = Despesa (expense)
+  .q-btn:nth-child(1):not(.q-btn--active) {
+    background: #E8F5E9 !important; // pastel green
+    color: #2e7d32 !important;      // dark green text
+  }
+  .q-btn:nth-child(2):not(.q-btn--active) {
+    background: #FFEBEE !important; // pastel red
+    color: #c62828 !important;      // dark red text
   }
   
-  &.income-selected .q-btn--active {
-    background-color: rgba(76, 175, 80, 0.1) !important;
-    color: #4CAF50 !important;
+  // Active states (strong colors) - INCOME
+  // Ultra-specific to beat theme's .sage-dark-theme .q-btn:not(.q-btn--outline).bg-primary
+  &.income-selected .q-btn:nth-child(1).q-btn--active,
+  &.income-selected .q-btn:nth-child(1).bg-primary,
+  &.income-selected .q-btn:nth-child(1) {
+    background: #2e7d32 !important; // strong green
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(46, 125, 50, 0.35) !important;
   }
   
-  &.expense-selected .q-btn--active {
-    background-color: rgba(244, 67, 54, 0.1) !important;
-    color: #f44336 !important;
+  // Active states (strong colors) - EXPENSE
+  // Ultra-specific to beat theme's .sage-dark-theme .q-btn:not(.q-btn--outline).bg-primary
+  &.expense-selected .q-btn:nth-child(2).q-btn--active,
+  &.expense-selected .q-btn:nth-child(2).bg-primary,
+  &.expense-selected .q-btn:nth-child(2) {
+    background: #c62828 !important; // strong red
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(198, 40, 40, 0.35) !important;
   }
+
+  // Force override any bg-primary that leaks through (nuclear option)
+  .q-btn.bg-primary {
+    background: transparent !important;
+  }
+  &.income-selected .q-btn:nth-child(1).bg-primary {
+    background: #2e7d32 !important;
+  }
+  &.expense-selected .q-btn:nth-child(2).bg-primary {
+    background: #c62828 !important;
+  }
+}
+
+// Global override for this component's toggle buttons (outside scoped to increase specificity)
+.transaction-form-card .type-selector.expense-selected .q-btn:nth-child(2).bg-primary {
+  background: #c62828 !important;
+  color: #ffffff !important;
+}
+.transaction-form-card .type-selector.income-selected .q-btn:nth-child(1).bg-primary {
+  background: #2e7d32 !important;
+  color: #ffffff !important;
 }
 
 // Input de valor
@@ -881,13 +1121,51 @@ onMounted(() => {
 // Responsividade
 @media (max-width: 768px) {
   .transaction-form-card {
-    margin: 0;
-    border-radius: 0;
-    height: 100vh;
+    margin: 10% auto; // keep consistent vertical spacing on mobile
+    border-radius: 12px;
     
     .q-bar {
-      border-radius: 0;
+      border-radius: 12px 12px 0 0;
     }
   }
+}
+</style>
+
+<style lang="scss">
+/* Global styles (non-scoped) to override theme's bg-primary with maximum specificity */
+
+/* Override dark theme gradient for expense button */
+.sage-dark-theme .transaction-form-card .type-selector.expense-selected .q-btn:nth-child(2).bg-primary,
+body.body--dark .transaction-form-card .type-selector.expense-selected .q-btn:nth-child(2).bg-primary,
+.transaction-form-card .type-selector.expense-selected .q-btn:nth-child(2).bg-primary {
+  background: #c62828 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(198, 40, 40, 0.35) !important;
+}
+
+/* Override dark theme gradient for income button */
+.sage-dark-theme .transaction-form-card .type-selector.income-selected .q-btn:nth-child(1).bg-primary,
+body.body--dark .transaction-form-card .type-selector.income-selected .q-btn:nth-child(1).bg-primary,
+.transaction-form-card .type-selector.income-selected .q-btn:nth-child(1).bg-primary {
+  background: #2e7d32 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.35) !important;
+}
+
+/* Ensure inactive buttons keep pastel colors even with bg-* classes */
+.transaction-form-card .type-selector .q-btn:nth-child(1):not(.q-btn--active) {
+  background: #d1ffd4 !important;
+  color: #2e7d32 !important;
+}
+
+.transaction-form-card .type-selector .q-btn:nth-child(2):not(.q-btn--active) {
+  background: #ffc1ca !important;
+  color: #c62828 !important;
+}
+
+/* Field label color adaptation for dark theme */
+body.body--dark .transaction-form-card .field-label,
+.sage-dark-theme .transaction-form-card .field-label {
+  color: rgba(255, 255, 255, 0.72) !important;
 }
 </style>

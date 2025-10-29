@@ -81,6 +81,21 @@
               />
             </div>
 
+            <!-- Pago -->
+            <div class="col-12 col-sm-6 col-md-2">
+              <q-select
+                v-model="filters.paid"
+                label="Status"
+                :options="paidOptions"
+                outlined
+                dense
+                clearable
+                emit-value
+                map-options
+                @update:model-value="applyFilters"
+              />
+            </div>
+
             <!-- Data inicial -->
             <div class="col-12 col-sm-6 col-md-2">
               <q-input
@@ -122,41 +137,7 @@
             </div>
           </div>
 
-          <!-- Resumo dos filtros aplicados -->
-          <div v-if="hasActiveFilters" class="q-mt-md">
-            <q-chip
-              v-if="filters.search"
-              :label="`Busca: ${filters.search}`"
-              removable
-              color="blue-1"
-              text-color="blue-9"
-              @remove="filters.search = ''; applyFilters()"
-            />
-            <q-chip
-              v-if="filters.type"
-              :label="`Tipo: ${getTypeLabel(filters.type)}`"
-              removable
-              color="green-1"
-              text-color="green-9"
-              @remove="filters.type = ''; applyFilters()"
-            />
-            <q-chip
-              v-if="filters.category"
-              :label="`Categoria: ${filters.category}`"
-              removable
-              color="purple-1"
-              text-color="purple-9"
-              @remove="filters.category = ''; applyFilters()"
-            />
-            <q-chip
-              v-if="filters.startDate || filters.endDate"
-              :label="`Período: ${getDateRangeLabel()}`"
-              removable
-              color="orange-1"
-              text-color="orange-9"
-              @remove="filters.startDate = ''; filters.endDate = ''; applyFilters()"
-            />
-          </div>
+          
         </q-card-section>
       </q-card>
 
@@ -281,8 +262,18 @@
                     text-color="blue-9"
                     dense
                   />
+                  <q-chip
+                    :label="transaction.type === 'income' ? (transaction.paid ? 'Recebido' : 'A receber') : (transaction.paid ? 'Pago' : 'Em aberto')"
+                    size="sm"
+                    :color="transaction.paid ? 'teal-1' : 'grey-2'"
+                    :text-color="transaction.paid ? 'teal-8' : 'grey-8'"
+                    dense
+                  />
                   <span class="">
-                    • {{ formatDate(transaction.date, 'medium') }}
+                    • {{ formatBRDateSafe(transaction.date) }}
+                  </span>
+                  <span v-if="transaction.paid && transaction.paid_at" class="">
+                    • {{ transaction.type === 'income' ? 'Recebido em' : 'Pago em' }} {{ formatBRDate(transaction.paid_at) }}
                   </span>
                 </q-item-label>
               </q-item-section>
@@ -298,6 +289,15 @@
                   </div>
                   <div class="text-caption">
                     {{ getTypeLabel(transaction.type) }}
+                  </div>
+                  <div class="q-mt-xs">
+                    <q-toggle
+                      v-model="transaction.paid"
+                      color="teal-6"
+                      dense
+                      :label="transaction.type === 'income' ? 'Recebido' : 'Pago'"
+                      @update:model-value="val => onTogglePaid(transaction, val)"
+                    />
                   </div>
                 </div>
               </q-item-section>
@@ -377,7 +377,6 @@
     <q-dialog 
       v-model="showTransactionDialog" 
       persistent 
-      maximized 
       transition-show="slide-up" 
       transition-hide="slide-down"
     >
@@ -386,6 +385,7 @@
         :mode="dialogMode"
         @saved="handleTransactionSaved"
         @cancelled="closeTransactionDialog"
+        @switch-edit="switchToEditFromView"
       />
     </q-dialog>
 
@@ -430,6 +430,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
+import { useQuasar } from 'quasar'
 import { useTransactionStore } from 'src/stores/transactions'
 import { useCurrency } from 'src/composables/useCurrency'
 import { useDate } from 'src/composables/useDate'
@@ -440,8 +441,9 @@ import TransactionForm from 'src/components/TransactionForm.vue'
 // COMPOSABLES E STORES
 // ==========================================================================
 const transactionStore = useTransactionStore()
+const $q = useQuasar()
 const { formatCurrency } = useCurrency()
-const { formatDate } = useDate()
+const { formatDate, toISODate } = useDate()
 const { notifySuccess, notifyError } = useNotifications()
 
 // ==========================================================================
@@ -460,7 +462,8 @@ const filters = ref({
   type: '',
   category: '',
   startDate: '',
-  endDate: ''
+  endDate: '',
+  paid: '' // '' | true | false (emit-value)
 })
 
 // Opções para selects
@@ -470,6 +473,11 @@ const typeOptions = [
 ]
 
 const categoryOptions = ref([])
+const paidOptions = [
+  { label: 'Todos', value: '' },
+  { label: 'Pago', value: true },
+  { label: 'Em aberto', value: false }
+]
 
 // ==========================================================================
 // COMPUTED PROPERTIES
@@ -506,11 +514,21 @@ const loadInitialData = async () => {
     transactionStore.loadCategories()
     categoryOptions.value = transactionStore.categories
     
-    // Carrega transações
-    await transactionStore.fetchTransactions()
+    // Define período padrão para o mês corrente, caso não haja filtros
+    if (!filters.value.startDate && !filters.value.endDate) {
+      const { start, end } = getCurrentMonthRange()
+      filters.value.startDate = start
+      filters.value.endDate = end
+    }
+
+    // Carrega transações já com o filtro de mês aplicado
+    await applyFilters()
     
     // Carrega estatísticas
-    await transactionStore.fetchStats()
+    await transactionStore.fetchStats({
+      startDate: filters.value.startDate,
+      endDate: filters.value.endDate
+    })
     
   } catch (error) {
     notifyError('Erro ao carregar transações')
@@ -528,7 +546,8 @@ const applyFilters = async () => {
       type: filters.value.type,
       category: filters.value.category,
       startDate: filters.value.startDate,
-      endDate: filters.value.endDate
+      endDate: filters.value.endDate,
+      paid: filters.value.paid
     })
     
     // Atualiza estatísticas com os filtros
@@ -547,16 +566,20 @@ const applyFilters = async () => {
  */
 const clearAllFilters = async () => {
   
+  const { start, end } = getCurrentMonthRange()
   filters.value = {
     search: '',
     type: '',
     category: '',
-    startDate: '',
-    endDate: ''
+    startDate: start,
+    endDate: end,
+    paid: ''
   }
   
-  await transactionStore.clearFilters()
-  await transactionStore.fetchStats()
+  await transactionStore.applyFilters({
+    search: '', type: '', category: '', startDate: start, endDate: end, paid: ''
+  })
+  await transactionStore.fetchStats({ startDate: start, endDate: end })
 }
 
 /**
@@ -605,12 +628,127 @@ const duplicateTransaction = (transaction) => {
 }
 
 /**
+ * Marca transação como paga/não paga
+ */
+const onTogglePaid = async (transaction, val) => {
+  try {
+    let paidAt = null
+    if (val) {
+      const decision = await new Promise((resolve) => {
+        $q.dialog({
+          title: transaction.type === 'income' ? 'Confirmar recebimento' : 'Confirmar pagamento',
+          message: transaction.type === 'income' ? 'Deseja registrar como recebido com a data de hoje?' : 'Deseja registrar como pago com a data de hoje?',
+          ok: 'Hoje',
+          cancel: 'Outro dia'
+        }).onOk(() => resolve({ today: true }))
+          .onCancel(() => resolve({ today: false }))
+          .onDismiss(() => resolve(null))
+      })
+      if (!decision) { transaction.paid = !val; return }
+      if (decision.today) {
+        // Mesmo formato usado no modal: YYYY-MM-DD
+        paidAt = toISODate(new Date())
+      } else {
+        const res = await new Promise((resolve) => {
+          $q.dialog({
+            title: transaction.type === 'income' ? 'Data de recebimento' : 'Data de pagamento',
+            message: 'Informe a data (DD/MM/AAAA):',
+            prompt: { model: formatBRDate(new Date()), type: 'text' },
+            cancel: true,
+            ok: 'Registrar'
+          }).onOk((v) => resolve(v))
+            .onCancel(() => resolve(null))
+            .onDismiss(() => resolve(null))
+        })
+        if (!res) { transaction.paid = !val; return }
+        // Mesmo formato do modal: YYYY-MM-DD
+        paidAt = toISOFromBR(res)
+      }
+    }
+    console.log('[UI] onTogglePaid -> calling store.markPaid', { id: transaction.id, paid: !!val, paidAt })
+    await transactionStore.markPaid(transaction.id, !!val, paidAt)
+    notifySuccess(
+      val
+        ? (transaction.type === 'income' ? 'Transação marcada como recebida' : 'Transação marcada como paga')
+        : (transaction.type === 'income' ? 'Recebimento desmarcado' : 'Pagamento desmarcado')
+    )
+  } catch (e) {
+    const status = e?.response?.status
+    const data = e?.response?.data
+    console.error('[UI] onTogglePaid failed', { status, data, id: transaction?.id, val })
+    notifyError('Falha ao atualizar status de pagamento')
+    transaction.paid = !val
+  }
+}
+
+/**
  * Confirma exclusão de transação
  */
 const confirmDeleteTransaction = (transaction) => {
-  
-  transactionToDelete.value = transaction
-  showDeleteDialog.value = true
+  // Detecta se é parcela: series_id, campos de total ou padrão na descrição (n/total)
+  const isInstallment = !!(
+    transaction.series_id ||
+    transaction.installment_total > 1 ||
+    transaction.installmentTotal > 1 ||
+    (/\(\d+\/\d+\)\s*$/.test(transaction.description || ''))
+  )
+
+  if (isInstallment) {
+    $q.dialog({
+      title: 'Excluir transação parcelada',
+      message: 'Deseja excluir apenas esta parcela ou todas as próximas parcelas desta série?',
+      options: {
+        type: 'radio',
+        model: 'single',
+        items: [
+          { label: 'Apenas esta parcela', value: 'single' },
+          { label: 'Todas as próximas (a partir desta)', value: 'forward' }
+        ]
+      },
+      cancel: true,
+      ok: 'Continuar'
+    }).onOk(async (choice) => {
+      try {
+        if (choice === 'forward') {
+          if (transaction.series_id) {
+            await transactionStore.deleteSeriesForward(transaction.series_id, transaction.date)
+            notifySuccess('Parcelas futuras excluídas com sucesso')
+          } else {
+            // Sem series_id: tenta excluir futuras com base no padrão da descrição
+            const base = (transaction.description || '').replace(/\s*\(\d+\/\d+\)\s*$/, '').trim()
+            const totalMatch = /\((\d+)\/(\d+)\)\s*$/.exec(transaction.description || '')
+            const total = totalMatch ? Number(totalMatch[2]) : null
+            const expr = total
+              ? new RegExp('^' + escapeRegex(base) + ' \\((?:\\d+)\/' + total + '\\)\\s*$')
+              : new RegExp('^' + escapeRegex(base) + ' \\((?:\\d+)\/\\d+\\)\\s*$')
+            const targets = (transactionStore.transactions || [])
+              .filter(t => expr.test(t.description || '') && (t.date >= transaction.date))
+              .map(t => t.id)
+            for (const id of targets) {
+              await transactionStore.deleteTransaction(id)
+            }
+            notifySuccess('Parcelas futuras excluídas com sucesso')
+          }
+        } else {
+          await transactionStore.deleteTransaction(transaction.id)
+          notifySuccess('Transação excluída com sucesso')
+        }
+        // Atualiza lista/estatísticas
+        await transactionStore.fetchTransactions()
+        await transactionStore.fetchStats()
+      } catch (e) {
+        notifyError('Erro ao excluir transação')
+      }
+    })
+  } else {
+    // Fluxo normal
+    transactionToDelete.value = transaction
+    showDeleteDialog.value = true
+  }
+}
+
+function escapeRegex(s) {
+  return (s || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
 /**
@@ -641,6 +779,13 @@ const closeTransactionDialog = () => {
   showTransactionDialog.value = false
   selectedTransaction.value = null
   dialogMode.value = 'create'
+}
+
+/**
+ * Troca para modo edição dentro do modal (emitido pelo TransactionForm)
+ */
+const switchToEditFromView = () => {
+  dialogMode.value = 'edit'
 }
 
 /**
@@ -699,6 +844,46 @@ const getPaginationLabel = () => {
   const end = Math.min(page * limit, total)
   
   return `${start}-${end} de ${total} transações`
+}
+
+function toISOFromBR(s) {
+  if (!s) return ''
+  const parts = s.replace(/\s/g,'').split('/')
+  if (parts.length !== 3) return s
+  const [dd,mm,yyyy] = parts
+  return `${yyyy}-${mm}-${dd}`
+}
+
+// Helpers para exibição e prompt em BR
+function pad2(n) { return String(n).padStart(2,'0') }
+// Formata data sem aplicar timezone quando vier como 'YYYY-MM-DD'
+function formatBRDateSafe(input) {
+  if (!input) return ''
+  if (typeof input === 'string') {
+    // 'YYYY-MM-DD' ou 'YYYY-MM-DDTHH:MM:SSZ'
+    const m = input.match(/^(\d{4})-(\d{2})-(\d{2})/)
+    if (m) {
+      const [, y, mth, d] = m
+      return `${d}/${mth}/${y}`
+    }
+  }
+  const dt = (input instanceof Date) ? input : new Date(input)
+  if (isNaN(dt)) return ''
+  return `${pad2(dt.getDate())}/${pad2(dt.getMonth()+1)}/${dt.getFullYear()}`
+}
+// manter compat com usos antigos
+const formatBRDate = formatBRDateSafe
+
+// (Sem uso: mantemos somente BR <-> ISO (YYYY-MM-DD) para alinhar com o modal)
+
+/**
+ * Retorna o primeiro e último dia do mês atual em YYYY-MM-DD
+ */
+function getCurrentMonthRange() {
+  const now = new Date()
+  const startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+  const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  return { start: toISODate(startDate), end: toISODate(endDate) }
 }
 
 // ==========================================================================

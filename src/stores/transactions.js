@@ -6,7 +6,7 @@
 // Efeitos: Estado reativo das transações em toda aplicação
 
 import { defineStore } from 'pinia'
-import { transactionService } from 'src/services/transactionService'
+import transactionService from 'src/services/transactionService'
 
 export const useTransactionStore = defineStore('transactions', {
   // ==========================================================================
@@ -23,6 +23,55 @@ export const useTransactionStore = defineStore('transactions', {
       limit: 20,
       total: 0,
       totalPages: 0
+    },
+
+    /**
+     * Cria múltiplas transações (parcelas) em massa
+     */
+    async createTransactionsBulk(transactionsArray) {
+      this.isCreating = true
+      this.error = null
+      try {
+        console.log(' [Store] createTransactionsBulk input:', transactionsArray)
+        const created = await transactionService.createTransactionsBulk(transactionsArray)
+        const items = Array.isArray(created?.data) ? created.data : (created || [])
+        // adiciona ao topo preservando ordem
+        this.transactions = [...items, ...this.transactions]
+        await this.fetchStats()
+        return items
+      } catch (error) {
+        const status = error?.response?.status
+        const data = error?.response?.data
+        console.error(' [Store] createTransactionsBulk failed:', { status, data })
+        this.error = data?.message || 'Erro ao criar parcelas'
+        throw error
+      } finally {
+        this.isCreating = false
+      }
+    },
+
+    /**
+     * Deleta parcelas de uma série a partir de uma data
+     */
+    async deleteSeriesForward(seriesId, fromDate) {
+      this.isDeleting = true
+      this.error = null
+      try {
+        const resp = await transactionService.deleteSeriesForward(seriesId, fromDate)
+        // Remover localmente transações dessa série com date >= fromDate
+        this.transactions = this.transactions.filter(t => {
+          const sameSeries = t.series_id === seriesId
+          const isForward = !fromDate || (t.date >= fromDate)
+          return !(sameSeries && isForward)
+        })
+        await this.fetchStats()
+        return resp
+      } catch (error) {
+        this.error = error.response?.data?.message || 'Erro ao excluir parcelas da série'
+        throw error
+      } finally {
+        this.isDeleting = false
+      }
     },
     
     // Filtros ativos
@@ -180,6 +229,7 @@ export const useTransactionStore = defineStore('transactions', {
       this.error = null
       
       try {
+        console.log(' [Store] createTransaction input:', JSON.stringify(transactionData))
         const newTransaction = await transactionService.createTransaction(transactionData)
         
         // Adiciona à lista local
@@ -191,7 +241,10 @@ export const useTransactionStore = defineStore('transactions', {
         return newTransaction
         
       } catch (error) {
-        this.error = error.response?.data?.message || 'Erro ao criar transação'
+        const status = error?.response?.status
+        const data = error?.response?.data
+        console.error(' [Store] createTransaction failed:', { status, data, input: transactionData })
+        this.error = data?.message || 'Erro ao criar transação'
         throw error
       } finally {
         this.isCreating = false
@@ -250,6 +303,29 @@ export const useTransactionStore = defineStore('transactions', {
         throw error
       } finally {
         this.isDeleting = false
+      }
+    },
+
+    /**
+     * Marca transação como paga/não paga
+     */
+    async markPaid(id, paid, paidAt) {
+      this.error = null
+      try {
+        console.log(' [Store] markPaid:', { id, paid, paidAt })
+        const updated = await transactionService.markTransactionPaid(id, paid, paidAt)
+        const index = this.transactions.findIndex(t => t.id === id)
+        if (index !== -1) {
+          this.transactions[index] = { ...this.transactions[index], ...updated }
+        }
+        await this.fetchStats()
+        return updated
+      } catch (error) {
+        const status = error?.response?.status
+        const data = error?.response?.data
+        console.error(' [Store] markPaid failed:', { status, data, id, paid, paidAt })
+        this.error = data?.message || 'Erro ao alterar status de pagamento'
+        throw error
       }
     },
 
