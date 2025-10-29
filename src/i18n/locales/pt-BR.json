@@ -54,5 +54,152 @@
     "closeDialog": "Fechar diálogo",
     "openMenu": "Abrir menu",
     "closeMenu": "Fechar menu"
+  },
+  "accounts": {
+    "preview": "Pré-visualização",
+    "types": {
+      "checking": "Conta corrente",
+      "savings": "Conta poupança",
+      "investment": "Investimento",
+      "digital": "Conta digital"
+    },
+    "status": {
+      "active": "Ativa",
+      "archived": "Arquivada"
+    },
+    "fields": {
+      "name": "Nome da conta",
+      "type": "Tipo de conta",
+      "bankName": "Banco",
+      "bankCode": "Código",
+      "branch": "Agência",
+      "accountNumber": "Número da conta",
+      "currency": "Moeda",
+      "creditLimit": "Limite de crédito",
+      "openingBalance": "Saldo inicial",
+      "currentBalance": "Saldo atual",
+      "status": "Status",
+      "icon": "Ícone",
+      "color": "Cor (token ou hex)",
+      "notes": "Notas internas"
+    },
+    "validation": {
+      "required": "Obrigatório"
+    },
+    "dialog": {
+      "createTitle": "Nova conta bancária",
+      "editTitle": "Editar conta bancária"
+    },
+    "actions": {
+      "create": "Criar conta",
+      "save": "Salvar alterações",
+      "newAccount": "Nova conta",
+      "view": "Visualizar detalhes",
+      "edit": "Editar conta",
+      "archive": "Arquivar conta",
+      "delete": "Excluir conta",
+      "back": "Voltar"
+    },
+    "page": {
+      "title": "Contas bancárias",
+      "subtitle": "Gerencie contas, saldos e limites"
+    },
+    "summary": {
+      "total": "Total de contas",
+      "active": "Contas ativas",
+      "archived": "Arquivadas",
+      "totalBalance": "Saldo total",
+      "creditLimit": "Limite total"
+    },
+    "filters": {
+      "search": "Pesquisar por nome ou banco",
+      "status": "Status",
+      "all": "Todas"
+    },
+    "table": {
+      "account": "Conta",
+      "type": "Tipo",
+      "status": "Status",
+      "balance": "Saldo atual"
+    },
+    "labels": {
+      "noBank": "Banco não informado",
+      "creditLimit": "Limite"
+    },
+    "empty": {
+      "title": "Nenhuma conta encontrada",
+      "description": "Cadastre contas para acompanhar saldos e limites bancários."
+    },
+    "archive": {
+      "title": "Arquivar conta",
+      "message": "Confirmar arquivamento desta conta? Ela poderá ser reativada via suporte."
+    },
+    "delete": {
+      "title": "Excluir conta",
+      "message": "Tem certeza que deseja excluir esta conta? Esta ação não poderá ser desfeita."
+    },
+    "feedback": {
+      "created": "Conta criada com sucesso",
+      "updated": "Conta atualizada com sucesso",
+      "archived": "Conta arquivada com sucesso",
+      "deleted": "Conta excluída com sucesso",
+      "error": "Não foi possível salvar a conta",
+      "loadError": "Não foi possível carregar as contas"
+    },
+    "hints": {
+      "currency": "Valores em moeda corrente"
+    }
+  },
+  "statements": {
+    "page": {
+      "title": "Extrato consolidado",
+      "subtitle": "Acompanhe entradas e saídas da conta selecionada"
+    },
+    "actions": {
+      "exportCsv": "Exportar CSV",
+      "exportXlsx": "Exportar XLSX",
+      "exportPdf": "Exportar PDF",
+      "loadMore": "Carregar mais",
+      "clearFilters": "Limpar filtros"
+    },
+    "account": {
+      "title": "Conta selecionada",
+      "unknown": "Conta não identificada",
+      "noBank": "Banco não informado",
+      "branch": "Agência: {branch}",
+      "number": "Conta: {number}"
+    },
+    "summary": {
+      "opening": "Saldo inicial",
+      "inflows": "Entradas",
+      "outflows": "Saídas",
+      "closing": "Saldo final",
+      "count": "Total de lançamentos"
+    },
+    "filters": {
+      "startDate": "Data inicial",
+      "endDate": "Data final",
+      "type": "Tipo",
+      "category": "Categoria",
+      "search": "Buscar por descrição",
+      "sort": "Ordenação",
+      "allTypes": "Todos os tipos",
+      "income": "Receita",
+      "expense": "Despesa",
+      "sortNewest": "Mais recentes",
+      "sortOldest": "Mais antigos"
+    },
+    "labels": {
+      "noCategory": "Sem categoria",
+      "noDescription": "Sem descrição"
+    },
+    "empty": {
+      "title": "Nenhuma transação encontrada"
+    },
+    "feedback": {
+      "loadError": "Não foi possível carregar o extrato",
+      "exported": "Exportação iniciada",
+      "exportError": "Não foi possível exportar o extrato"
+    }
   }
 }

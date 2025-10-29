@@ -68,6 +68,45 @@ const routes = [
         }
       },
 
+      // Gestão de Contas Bancárias
+      {
+        path: '/accounts',
+        name: 'accounts-admin',
+        component: () => import('pages/auth/accounts/AccountsAdminPage.vue'),
+        meta: {
+          title: 'Contas bancárias',
+          requiresAuth: true,
+          icon: 'account_balance',
+          description: 'Administrar contas cadastradas e saldos'
+        }
+      },
+
+      // Extrato Consolidado por Conta
+      {
+        path: '/accounts/:accountId/statement',
+        name: 'account-statement',
+        component: () => import('pages/auth/accounts/AccountStatementPage.vue'),
+        meta: {
+          title: 'Extrato da conta',
+          requiresAuth: true,
+          icon: 'summarize',
+          description: 'Histórico consolidado de movimentações da conta'
+        }
+      },
+
+      // Conciliação Bancária
+      {
+        path: '/accounts/:accountId/reconciliation',
+        name: 'account-reconciliation',
+        component: () => import('pages/auth/accounts/BankReconciliationPage.vue'),
+        meta: {
+          title: 'Conciliação bancária',
+          requiresAuth: true,
+          icon: 'compare_arrows',
+          description: 'Importar extratos e conciliar lançamentos da conta'
+        }
+      },
+
       // Relatórios e Análises
       {
         path: '/reports',
@@ -238,6 +277,13 @@ export const getMainMenuRoutes = () => {
       title: 'Dashboard',
       icon: 'dashboard',
       description: 'Visão geral das finanças'
+    },
+    {
+      path: '/accounts',
+      name: 'accounts-admin',
+      title: 'Contas bancárias',
+      icon: 'account_balance',
+      description: 'Gerenciar contas bancárias e saldos'
     },
     {
       path: '/transactions',

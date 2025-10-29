@@ -26,6 +26,18 @@ export const FINANCIAL_ROUTES = {
   transactionsStats: "/transactions/stats",
   transactionsTimeline: "/transactions/timeline",
 
+  // ========== ACCOUNTS ==========
+  accountsList: "/accounts",
+  accountsCreate: "/accounts",
+  accountsGetById: "/accounts", // + /:id
+  accountsUpdate: "/accounts", // + /:id
+  accountsDelete: "/accounts", // + /:id
+  accountsArchive: "/accounts", // + /:id/archive
+  accountsSummary: "/accounts/summary",
+  accountStatement: "/accounts", // + /:accountId/statement
+  accountStatementExport: "/accounts", // + /:accountId/statement/export
+  accountReconciliation: "/accounts", // + /:accountId/reconciliation
+
   // ========== PLANS ==========
   plansList: "/plans",
   plansGetById: "/plans", // + /:id
