@@ -12,6 +12,7 @@ export * from "./transactions";
 export * from "./plans";
 export * from "./dashboard";
 export * from "./admin";
+export * from "./categories";
 
 // Default aggregate export for backwards compatibility
 import * as auth from "./auth";
@@ -20,6 +21,7 @@ import * as transactions from "./transactions";
 import * as plans from "./plans";
 import * as dashboard from "./dashboard";
 import * as admin from "./admin";
+import * as categories from "./categories";
 import { FINANCIAL_ROUTES as ROUTES } from "./routes";
 
 const api = {
@@ -29,6 +31,7 @@ const api = {
   ...plans,
   ...dashboard,
   ...admin,
+  ...categories,
   FINANCIAL_ROUTES: ROUTES,
 };
 

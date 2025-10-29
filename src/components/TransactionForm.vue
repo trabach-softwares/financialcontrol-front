@@ -7,7 +7,7 @@ Destino: API de transações via store
 Efeitos: CRUD de transações com validação -->
 
 <template>
-  <q-card class="transaction-form-card">
+  <q-card class="transaction-form-card" :dark="$q.dark.isActive">
     
     <!-- ==========================================================================
     CABEÇALHO DO FORMULÁRIO
@@ -175,7 +175,7 @@ Efeitos: CRUD de transações com validação -->
           <div class="row q-col-gutter-md">
             
             <!-- Valor -->
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-sm-6 col-md-6">
               <q-input
                 v-model="form.amount"
                 label="Valor *"
@@ -190,6 +190,9 @@ Efeitos: CRUD de transações com validação -->
                 reverse-fill-mask
                 input-class="text-right"
                 class="amount-input"
+                name="amount"
+                id="transaction-amount"
+                placeholder="0,00"
               >
                 <template v-slot:prepend>
                   <q-icon 
@@ -201,7 +204,7 @@ Efeitos: CRUD de transações com validação -->
             </div>
 
             <!-- Data -->
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-sm-6 col-md-6">
               <q-input
                 v-model="form.date"
                 label="Data *"
@@ -211,6 +214,9 @@ Efeitos: CRUD de transações com validação -->
                 :rules="[
                   val => !!val || 'Data é obrigatória'
                 ]"
+                name="date"
+                id="transaction-date"
+                placeholder="YYYY-MM-DD"
               >
                 <template v-slot:prepend>
                   <q-icon name="event" color="grey-6" />
@@ -218,6 +224,67 @@ Efeitos: CRUD de transações com validação -->
               </q-input>
             </div>
           </div>
+
+          <!-- Parcelamento / Lançamento recorrente -->
+          <q-expansion-item
+            expand-separator
+            icon="schedule"
+            label="Lançamento Recorrente / Parcelado (opcional)"
+            :caption="form.isInstallment ? `${form.installmentsCount} parcelas mensais` : 'Desativado'"
+            dense
+          >
+            <div class="row q-col-gutter-md q-mt-sm">
+              <div class="col-12 col-sm-4">
+                <q-toggle
+                  v-model="form.isInstallment"
+                  label="Ativar parcelamento"
+                  name="is_installment"
+                  id="transaction-is-installment"
+                />
+              </div>
+
+              <div class="col-12 col-sm-4">
+                <q-input
+                  v-model.number="form.installmentsCount"
+                  label="Quantidade de parcelas"
+                  type="number"
+                  outlined
+                  dense
+                  :disable="!form.isInstallment"
+                  :min="2"
+                  :max="60"
+                  name="installments_count"
+                  id="transaction-installments-count"
+                  placeholder="2"
+                  :rules="[
+                    v => !form.isInstallment || (v && v >= 2) || 'Mínimo 2 parcelas'
+                  ]"
+                />
+              </div>
+
+              <div class="col-12 col-sm-4">
+                <q-input
+                  v-model="form.firstDueDate"
+                  label="1ª parcela em"
+                  type="date"
+                  outlined
+                  dense
+                  :disable="!form.isInstallment"
+                  name="first_due_date"
+                  id="transaction-first-due-date"
+                  placeholder="YYYY-MM-DD"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="event" color="grey-6" />
+                  </template>
+                </q-input>
+              </div>
+            </div>
+
+            <div class="text-caption text-grey q-mt-xs">
+              Ao salvar, serão criadas <b>{{ form.installmentsCount }}</b> transações, uma por mês, com descrição no formato "{{ form.description || 'Descrição' }} (n/{{ form.installmentsCount || 0 }})".
+            </div>
+          </q-expansion-item>
 
           <!-- Descrição -->
           <q-input
@@ -232,6 +299,9 @@ Efeitos: CRUD de transações com validação -->
               val => val.length <= 100 || 'Máximo 100 caracteres'
             ]"
             hint="Descreva brevemente esta transação"
+            name="description"
+            id="transaction-description"
+            placeholder="Ex.: Salário, Conta de luz, etc."
           >
             <template v-slot:prepend>
               <q-icon name="description" color="grey-6" />
@@ -254,16 +324,37 @@ Efeitos: CRUD de transações com validação -->
               val => !!val || 'Categoria é obrigatória'
             ]"
             @filter="filterCategories"
+            @new-value="handleNewCategory"
             hint="Selecione ou digite uma nova categoria"
+            name="category"
+            id="transaction-category"
+            placeholder="Selecione uma categoria"
           >
             <template v-slot:prepend>
               <q-icon name="category" color="grey-6" />
             </template>
-            
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey-6">
-                  Digite para criar uma nova categoria
+            <template v-slot:append>
+              <q-btn round dense flat icon="add" @click.stop="openCreateCategoryDialog" />
+            </template>
+            <template v-slot:option="{ itemProps, opt }">
+              <q-item v-if="opt.header" dense class="bg-grey-2 text-grey-8">
+                <q-item-section>
+                  <q-item-label class="text-caption">{{ opt.header }}</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-separator v-else-if="opt.separator" />
+              <q-item v-else v-bind="itemProps">
+                <q-item-section avatar>
+                  <q-icon :name="opt.icon || 'category'" :color="opt.color || 'blue-6'" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ opt.name }}</q-item-label>
+                </q-item-section>
+                <q-item-section side v-if="opt.is_default !== true">
+                  <div class="row items-center no-wrap q-gutter-xs">
+                    <q-btn size="sm" flat round icon="edit" @click.stop.prevent="openEditCategoryDialog(opt)" />
+                    <q-btn size="sm" flat round icon="delete" color="negative" @click.stop.prevent="deleteCategory(opt)" />
+                  </div>
                 </q-item-section>
               </q-item>
             </template>
@@ -279,6 +370,9 @@ Efeitos: CRUD de transações com validação -->
             maxlength="500"
             counter
             hint="Informações adicionais sobre esta transação"
+            name="notes"
+            id="transaction-notes"
+            placeholder="Detalhes adicionais (opcional)"
           >
             <template v-slot:prepend>
               <q-icon name="note" color="grey-6" />
@@ -314,11 +408,29 @@ Efeitos: CRUD de transações com validação -->
       </div>
     </q-card-section>
   </q-card>
+
+  <!-- Dialogo de categoria (reutilizável) -->
+  <CategoryDialog
+    :show="categoryDialog.show"
+    :mode="categoryDialog.mode"
+    :initial-name="categoryDialog.initial?.name"
+    :initial-icon="categoryDialog.initial?.icon"
+    :initial-color="categoryDialog.initial?.color"
+    :initial-type="categoryDialog.initial?.type || form.type"
+    :existing-names="availableCategories.map(c => c.name)"
+    :submit-fn="categoryDialog.submitFn || null"
+    @close="categoryDialog.show = false"
+    @created="onCategoryCreated"
+    @saved="onCategorySaved"
+  />
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
+import { useQuasar } from 'quasar'
 import { useTransactionStore } from 'src/stores/transactions'
+import { categoriesList, categoriesCreate, categoriesUpdate, categoriesDelete } from 'src/apis/categories'
+import CategoryDialog from './CategoryDialog.vue'
 import { useCurrency } from 'src/composables/useCurrency'
 import { useDate } from 'src/composables/useDate'
 import { useNotifications } from 'src/composables/useNotifications'
@@ -344,6 +456,7 @@ const emit = defineEmits(['saved', 'cancelled'])
 // COMPOSABLES E STORES
 // ==========================================================================
 const transactionStore = useTransactionStore()
+const $q = useQuasar()
 const { formatCurrency, getCurrencySymbol, parseCurrency } = useCurrency()
 const { formatDate, toISODate } = useDate()
 const { notifySuccess, notifyError } = useNotifications()
@@ -357,11 +470,24 @@ const form = ref({
   description: '',
   category: '',
   date: toISODate(new Date()),
-  notes: ''
+  notes: '',
+  // Recorrência / Parcelado
+  isInstallment: false,
+  installmentsCount: 2,
+  firstDueDate: toISODate(new Date())
 })
 
-const filteredCategories = ref([])
-const availableCategories = ref([])
+const filteredCategories = ref([]) // array para o QSelect (com headers/separators)
+const availableCategories = ref([]) // [{ id?, name, icon, color, type }]
+
+// Dialog de categoria (reutilizável)
+const categoryDialog = ref({
+  show: false,
+  mode: 'create', // 'create' | 'edit'
+  initial: null, // { name, icon, color }
+  submitFn: null
+})
+let pendingNewValueDone = null // callback do @new-value do QSelect
 
 // ==========================================================================
 // COMPUTED PROPERTIES
@@ -413,15 +539,29 @@ const initializeForm = () => {
 /**
  * Carrega categorias disponíveis
  */
-const loadCategories = () => {
-  if (transactionStore.categories.length === 0) {
-    transactionStore.loadCategories()
+const loadCategories = async () => {
+  try {
+    const resp = await categoriesList()
+    const items = Array.isArray(resp?.data) ? resp.data : resp
+    // normaliza mantendo type ('default' | 'user')
+    availableCategories.value = (items || []).map(c => ({
+      id: c.id,
+      name: c.name || (typeof c === 'string' ? c : ''),
+      icon: c.icon || 'category',
+      color: c.color || 'blue-6',
+      type: c.type || 'user'
+    })).filter(c => !!c.name)
+    filteredCategories.value = buildGroupedOptions('')
+  } catch (_) {
+    // fallback para store local se API indisponível
+    if (transactionStore.categories?.length) {
+      availableCategories.value = transactionStore.categories.map(name => ({ name, icon: 'category', color: 'blue-6', type: 'user' }))
+      filteredCategories.value = buildGroupedOptions('')
+    } else {
+      availableCategories.value = []
+      filteredCategories.value = []
+    }
   }
-  
-  availableCategories.value = [...transactionStore.categories]
-  filteredCategories.value = [...availableCategories.value]
-  
-  
 }
 
 /**
@@ -429,16 +569,103 @@ const loadCategories = () => {
  */
 const filterCategories = (val, update) => {
   update(() => {
-    if (val === '') {
-      filteredCategories.value = [...availableCategories.value]
-    } else {
-      const needle = val.toLowerCase()
-      filteredCategories.value = availableCategories.value.filter(
-        category => category.toLowerCase().includes(needle)
-      )
-    }
+    filteredCategories.value = buildGroupedOptions(val || '')
   })
 }
+
+/**
+ * Cria nova categoria no backend e seleciona
+ */
+const handleNewCategory = (val, done) => {
+  const name = (val || '').trim()
+  if (!name) { done(); return }
+  pendingNewValueDone = done
+  categoryDialog.value = {
+    show: true,
+    mode: 'create',
+    initial: { name, icon: 'category', color: 'blue-6', type: form.value.type },
+    submitFn: null
+  }
+}
+
+const onCategoryCreated = (created) => {
+  const item = {
+    id: created.id,
+    name: created.name,
+    icon: created.icon,
+    color: created.color,
+    type: 'user'
+  }
+  if (!availableCategories.value.some(c => c.name.toLowerCase() === item.name.toLowerCase())) {
+    availableCategories.value.push(item)
+  }
+  filteredCategories.value = buildGroupedOptions('')
+  form.value.category = item.name
+  if (pendingNewValueDone) pendingNewValueDone(item)
+  pendingNewValueDone = null
+}
+
+const onCategorySaved = (saved) => {
+  const idx = availableCategories.value.findIndex(c => c.id === saved.id)
+  if (idx !== -1) {
+    availableCategories.value[idx] = { ...availableCategories.value[idx], ...saved }
+  }
+  filteredCategories.value = buildGroupedOptions('')
+}
+
+const openCreateCategoryDialog = () => {
+  pendingNewValueDone = null
+  categoryDialog.value = { show: true, mode: 'create', initial: { name: '', icon: 'category', color: 'blue-6', type: form.value.type }, submitFn: null }
+}
+
+const openEditCategoryDialog = (opt) => {
+  categoryDialog.value = {
+    show: true,
+    mode: 'edit',
+    initial: { name: opt.name, icon: opt.icon, color: opt.color, type: opt.type },
+    submitFn: async ({ name, icon, color, type }) => {
+      const resp = await categoriesUpdate(opt.id, { name, icon, color, type })
+      return resp?.data || { id: opt.id, name, icon, color, type }
+    }
+  }
+}
+
+const deleteCategory = async (opt) => {
+  $q.dialog({ title: 'Excluir categoria', message: `Deseja excluir "${opt.name}"?`, cancel: true, ok: 'Excluir' })
+    .onOk(async () => {
+      try {
+        await categoriesDelete(opt.id)
+        availableCategories.value = availableCategories.value.filter(c => c.id !== opt.id)
+        filteredCategories.value = buildGroupedOptions('')
+        if (form.value.category === opt.name) form.value.category = ''
+        notifySuccess('Categoria excluída')
+      } catch (e) {
+        notifyError('Falha ao excluir categoria')
+      }
+    })
+}
+
+function buildGroupedOptions(filterText) {
+  const needle = (filterText || '').toLowerCase()
+  const def = availableCategories.value.filter(c => c.is_default === true && c.name.toLowerCase().includes(needle))
+  const usr = availableCategories.value.filter(c => c.is_default !== true && c.name.toLowerCase().includes(needle))
+  const out = []
+  if (def.length) {
+    out.push({ header: 'Categorias padrão' })
+    out.push(...def)
+  }
+  if (def.length && usr.length) out.push({ separator: true })
+  if (usr.length) {
+    out.push({ header: 'Minhas categorias' })
+    out.push(...usr)
+  }
+  return out
+}
+
+// Categoria selecionada (metadados para chip no modo view)
+const currentCategoryMeta = computed(() => {
+  return availableCategories.value.find(c => c.name === form.value.category) || null
+})
 
 /**
  * Processa o envio do formulário
@@ -446,24 +673,34 @@ const filterCategories = (val, update) => {
 const handleSubmit = async () => {
   
   try {
-    const transactionData = {
+    const baseData = {
       type: form.value.type,
       amount: parseFloat(form.value.amount),
       description: form.value.description.trim(),
       category: form.value.category.trim(),
-      date: form.value.date,
       notes: form.value.notes?.trim() || null
     }
     
     if (props.mode === 'edit' && props.transaction?.id) {
-      // Atualizar transação existente
-      await transactionStore.updateTransaction(props.transaction.id, transactionData)
+      // Atualizar transação única
+      await transactionStore.updateTransaction(props.transaction.id, { ...baseData, date: form.value.date })
       notifySuccess('Transação atualizada com sucesso!')
       
     } else {
-      // Criar nova transação
-      await transactionStore.createTransaction(transactionData)
-      notifySuccess('Transação criada com sucesso!')
+      // Criação (única ou parcelada)
+      if (form.value.isInstallment && form.value.installmentsCount >= 2) {
+        const count = Math.min(Math.max(parseInt(form.value.installmentsCount) || 2, 2), 60)
+        const startDate = new Date(form.value.firstDueDate || form.value.date)
+        for (let i = 1; i <= count; i++) {
+          const due = addMonths(startDate, i - 1)
+          const desc = `${baseData.description} (${i}/${count})`
+          await transactionStore.createTransaction({ ...baseData, description: desc, date: toISODate(due) })
+        }
+        notifySuccess(`${count} parcelas lançadas com sucesso!`)
+      } else {
+        await transactionStore.createTransaction({ ...baseData, date: form.value.date })
+        notifySuccess('Transação criada com sucesso!')
+      }
     }
     
     emit('saved')
@@ -471,6 +708,20 @@ const handleSubmit = async () => {
   } catch (error) {
     notifyError(`Erro ao ${props.mode === 'edit' ? 'atualizar' : 'criar'} transação`)
   }
+}
+
+/**
+ * Soma meses tratando virada de mês (mantém dia quando possível)
+ */
+function addMonths(date, months) {
+  const d = new Date(date)
+  const day = d.getDate()
+  d.setMonth(d.getMonth() + months)
+  // Ajuste quando o mês alvo não tem o mesmo dia (ex.: 31)
+  if (d.getDate() < day) {
+    d.setDate(0) // último dia do mês anterior
+  }
+  return d
 }
 
 /**
