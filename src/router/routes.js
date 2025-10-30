@@ -35,6 +35,21 @@ const routes = [
   },
 
   // ==========================================================================
+  // PÁGINA DE PLANOS (ACESSO PÚBLICO)
+  // ==========================================================================
+  {
+    path: '/plans',
+    name: 'plans',
+    component: () => import('pages/auth/plans/PlansPage.vue'),
+    meta: {
+      title: 'Planos',
+      requiresAuth: false,
+      icon: 'card_membership',
+      description: 'Planos e assinaturas premium'
+    }
+  },
+
+  // ==========================================================================
   // ÁREA PRINCIPAL DA APLICAÇÃO (REQUER AUTENTICAÇÃO)
   // ==========================================================================
   {
@@ -101,9 +116,9 @@ const routes = [
         component: () => import('pages/auth/plans/PlansPage.vue'),
         meta: {
           title: 'Planos',
-          requiresAuth: true,
+          requiresAuth: false, // Permitir acesso sem login para visualizar planos
           icon: 'card_membership',
-          description: 'Planos e assinaturas'
+          description: 'Planos e assinaturas premium'
         }
       },
 

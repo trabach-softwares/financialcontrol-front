@@ -25,7 +25,7 @@
         
         <!-- Card de Receitas -->
         <div class="col-12 col-sm-6 col-md-3">
-          <q-card class="metric-card income-card" flat bordered>
+          <q-card class="dashboard-metric-card income-card" flat bordered>
             <q-card-section class="flex items-center justify-between">
               <div v-if="!isLoadingStats">
                 <div class="metric-label text-caption">
@@ -56,7 +56,7 @@
 
         <!-- Card de Despesas -->
         <div class="col-12 col-sm-6 col-md-3">
-          <q-card class="metric-card expense-card" flat bordered>
+          <q-card class="dashboard-metric-card expense-card" flat bordered>
             <q-card-section class="flex items-center justify-between">
               <div v-if="!isLoadingStats">
                 <div class="metric-label text-caption">
@@ -87,7 +87,7 @@
 
         <!-- Card de Saldo -->
         <div class="col-12 col-sm-6 col-md-3">
-          <q-card class="metric-card balance-card" flat bordered>
+          <q-card class="dashboard-metric-card balance-card" flat bordered>
             <q-card-section class="flex items-center justify-between">
               <div v-if="!isLoadingStats">
                 <div class="metric-label text-caption">
@@ -118,7 +118,7 @@
 
         <!-- Card de Transações -->
         <div class="col-12 col-sm-6 col-md-3">
-          <q-card class="metric-card transactions-card" flat bordered>
+          <q-card class="dashboard-metric-card transactions-card" flat bordered>
             <q-card-section class="flex items-center justify-between">
               <div v-if="!isLoadingStats">
                 <div class="metric-label text-caption">
@@ -667,6 +667,18 @@ onMounted(async () => {
 .dashboard-page {
   background: var(--sage-app-gradient);
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
+  
+  .q-pa-md {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .row {
+    margin-left: 0;
+    margin-right: 0;
+  }
 }
 
 .welcome-section {
@@ -688,8 +700,8 @@ onMounted(async () => {
   color: #cfcfcf !important;
 }
 
-// Cards de métricas com gradientes Sage
-.metric-card {
+// Cards de métricas do dashboard com gradientes Sage
+.dashboard-metric-card {
   border-radius: 16px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(44, 95, 45, 0.1);
@@ -812,6 +824,10 @@ onMounted(async () => {
   border: 1px solid rgba(44, 95, 45, 0.1);
   background: white;
   transition: all 0.3s ease;
+  max-width: 100%;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
   
   &:hover {
     box-shadow: 0 8px 20px rgba(44, 95, 45, 0.12);
@@ -922,7 +938,7 @@ onMounted(async () => {
     padding: 0.5rem;
   }
   
-  .metric-card {
+  .dashboard-metric-card {
     &:hover {
       transform: translateY(-3px);
     }

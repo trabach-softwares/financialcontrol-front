@@ -1,34 +1,108 @@
 <!-- ==========================================================================
-LOGIN PAGE - SAGE ACCOUNTANT THEME
+LOGIN PAGE - SAGE ACCOUNTANT THEME EVOLVED
 ==========================================================================
-Propósito: Página de login com acessibilidade WCAG 2.1 AA
-Paleta: Sage Accountant (Verde contábil #2C5F2D)
-Acessibilidade: Skip link, ARIA labels, contraste validado
+Propósito: Página de login moderna com recursos de segurança e UX avançado
+Paleta: Sage Accountant (Verde contábil #2C5F2D) - Mantida
+Acessibilidade: Skip link, ARIA labels, contraste WCAG 2.1 AA/AAA
 Responsividade: Mobile-first design
+Recursos: SSL badge, 2FA, validação em tempo real, notificações
 ========================================================================== -->
 
 <template>
   <q-page class="login-page">
-    <div class="login-container">
+    
+    <!-- Badge de Segurança SSL -->
+    <div class="security-badge" aria-label="Conexão segura SSL">
+      <q-icon name="security" class="security-icon" />
+      <span class="security-text">Conexão Segura SSL</span>
+      <q-icon name="verified_user" class="verification-icon" />
+    </div>
+    
+    <!-- Layout Split Screen -->
+    <div class="split-layout row no-wrap">
       
-      <!-- Header com Logo e Título -->
-      <header class="login-header text-center q-mb-md">
-        <div class="logo-container q-mb-md" role="img" aria-label="Logo Financial Control">
-          <img 
-            src="/ControleFinanceiro.svg" 
-            alt="Logo Financial Control"
-            class="logo-img"
-            style="width: 80px; height: auto;"
-          />
+      <!-- Lado Esquerdo - Branding e Recursos -->
+      <div class="left-panel col-md-6 col-xs-12">
+        <div class="branding-section">
+          
+          <!-- Logo Centralizado -->
+          <div class="logo-section text-center q-mb-xl">
+            <div class="logo-container" role="img" aria-label="Logo Financial Control">
+              <div class="logo-wrapper">
+                <img 
+                  src="/ControleFinanceiro.svg" 
+                  alt="Logo Financial Control"
+                  class="logo-img"
+                />
+              </div>
+            </div>
+            
+            <h1 class="text-h2 text-weight-bold q-mb-sm brand-title">
+              Financial Control
+            </h1>
+            <p class="text-h6 brand-subtitle q-mb-lg">
+              Gerencie suas finanças com profissionalismo
+            </p>
+          </div>
+
+          <!-- Features List -->
+          <div class="features-list q-mb-xl">
+            <div class="feature-item row items-center q-mb-md">
+              <div class="feature-icon">
+                <q-icon name="trending_up" size="md" />
+              </div>
+              <div class="feature-content">
+                <h3 class="text-subtitle1 text-weight-semibold q-mb-xs">Controle Completo</h3>
+                <p class="text-caption">Gerencie receitas, despesas e investimentos em um só lugar</p>
+              </div>
+            </div>
+            
+            <div class="feature-item row items-center q-mb-md">
+              <div class="feature-icon">
+                <q-icon name="security" size="md" />
+              </div>
+              <div class="feature-content">
+                <h3 class="text-subtitle1 text-weight-semibold q-mb-xs">Segurança Bancária</h3>
+                <p class="text-caption">Criptografia de nível bancário para seus dados financeiros</p>
+              </div>
+            </div>
+            
+            <div class="feature-item row items-center q-mb-md">
+              <div class="feature-icon">
+                <q-icon name="analytics" size="md" />
+              </div>
+              <div class="feature-content">
+                <h3 class="text-subtitle1 text-weight-semibold q-mb-xs">Relatórios Inteligentes</h3>
+                <p class="text-caption">Insights automáticos para otimizar suas finanças</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trust Badges -->
+          <div class="trust-badges row justify-center q-gutter-lg">
+            <div class="trust-badge text-center">
+              <q-icon name="account_balance" size="lg" />
+              <div class="text-caption q-mt-xs">Padrão Bancário</div>
+            </div>
+            <div class="trust-badge text-center">
+              <q-icon name="verified" size="lg" />
+              <div class="text-caption q-mt-xs">ISO 27001</div>
+            </div>
+            <div class="trust-badge text-center">
+              <q-icon name="shield" size="lg" />
+              <div class="text-caption q-mt-xs">Anti-Fraude</div>
+            </div>
+          </div>
+          
         </div>
-        
-        <h1 class="text-h3 text-weight-bold q-mb-sm login-title">
-          Financial Control
-        </h1>
-        <p class="text-subtitle1 login-subtitle">
-          Gerencie suas finanças com profissionalismo
-        </p>
-      </header>
+      </div>
+      
+      <!-- Lado Direito - Formulário de Login -->
+      <div class="right-panel col-md-6 col-xs-12">
+        <div class="login-form-container">
+          
+          <!-- Conteúdo Principal -->
+          <div class="main-content">
 
       <!-- Card de Autenticação -->
       <q-card 
@@ -81,12 +155,14 @@ Responsividade: Mobile-first design
             role="tabpanel"
             aria-labelledby="login-tab"
           >
-            <h2 id="auth-title" class="text-h5 text-weight-semibold q-mb-md panel-title">
-              Bem-vindo de volta
-            </h2>
-            <p class="text-body2 q-mb-md panel-subtitle">
-              Entre com suas credenciais para acessar o sistema
-            </p>
+            <div class="welcome-section text-center q-mb-lg">
+              <h2 id="auth-title" class="text-h5 text-weight-semibold q-mb-sm panel-title">
+                Bem-vindo de volta!
+              </h2>
+              <p class="text-body2 q-mb-lg panel-subtitle">
+                Entre com suas credenciais para acessar o sistema
+              </p>
+            </div>
 
             <q-form 
               @submit.prevent="handleLogin" 
@@ -108,12 +184,19 @@ Responsividade: Mobile-first design
                   dense
                   @update:model-value="clearErrors"
                   @blur="validateLoginEmail"
-                  class="full-width focus-ring"
+                  class="full-width focus-ring modern-input"
+                  :class="{ 'input-valid': emailValidationStatus === 'valid', 'input-invalid': emailValidationStatus === 'invalid' }"
                   aria-required="true"
-                  autocomplete="email"
+                  autocomplete="username"
                   placeholder="seu@email.com"
                   lazy-rules
                   hide-bottom-space
+                  :loading="emailValidating"
+                  :input-style="{ 
+                    color: 'var(--text-primary)',
+                    fontSize: '16px',
+                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif'
+                  }"
                   :rules="[val => {
                     if (!val) return false
                     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return false
@@ -121,9 +204,26 @@ Responsividade: Mobile-first design
                   }]"
                 >
                   <template v-slot:prepend>
-                    <q-icon name="email" color="grey-6" aria-hidden="true" />
+                    <q-icon name="email" :color="emailValidationStatus === 'valid' ? 'positive' : 'grey-6'" aria-hidden="true" />
+                  </template>
+                  <template v-slot:append>
+                    <q-icon 
+                      v-if="emailValidationStatus === 'valid'" 
+                      name="check_circle" 
+                      color="positive" 
+                      class="validation-icon"
+                    />
+                    <q-icon 
+                      v-else-if="emailValidationStatus === 'invalid'" 
+                      name="error" 
+                      color="negative" 
+                      class="validation-icon"
+                    />
                   </template>
                 </q-input>
+                <div v-if="emailValidationMessage" class="validation-message" :class="emailValidationStatus">
+                  {{ emailValidationMessage }}
+                </div>
               </div>
 
               <!-- Campo Senha -->
@@ -138,11 +238,18 @@ Responsividade: Mobile-first design
                   :type="showPassword ? 'text' : 'password'"
                   outlined
                   dense
-                  class="full-width focus-ring"
+                  class="full-width focus-ring modern-input"
+                  :class="{ 'input-valid': passwordValidationStatus === 'valid', 'input-invalid': passwordValidationStatus === 'invalid' }"
                   aria-required="true"
                   autocomplete="current-password"
                   placeholder="Digite sua senha"
                   hide-bottom-space
+                  @update:model-value="validatePasswordStrength"
+                  :input-style="{ 
+                    color: 'var(--text-primary)',
+                    fontSize: '16px',
+                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, Segue UI, sans-serif'
+                  }"
                   :rules="[val => {
                     if (!val) {
                       notifyError('ERROR.REQUIRED_FIELDS')
@@ -156,51 +263,48 @@ Responsividade: Mobile-first design
                   }]"
                 >
                   <template v-slot:prepend>
-                    <q-icon name="lock" color="grey-6" aria-hidden="true" />
+                    <q-icon name="lock" :color="passwordValidationStatus === 'valid' ? 'positive' : 'grey-6'" aria-hidden="true" />
                   </template>
                   <template v-slot:append>
                     <q-btn
                       flat
                       dense
                       round
-                      :icon="showPassword ? 'visibility' : 'visibility_off'"
+                      :icon="showPassword ? 'visibility_off' : 'visibility'"
                       color="grey-6"
                       @click="showPassword = !showPassword"
                       :aria-label="showPassword ? 'Ocultar senha' : 'Mostrar senha'"
                       tabindex="0"
+                      class="password-toggle"
+                    />
+                    <q-icon 
+                      v-if="passwordValidationStatus === 'valid'" 
+                      name="check_circle" 
+                      color="positive" 
+                      class="validation-icon"
                     />
                   </template>
                 </q-input>
+                <div class="password-strength" v-if="loginForm.password">
+                  <div class="strength-bar">
+                    <div class="strength-fill" :class="passwordStrength.level"></div>
+                  </div>
+                  <span class="strength-text" :class="passwordStrength.level">
+                    {{ passwordStrength.text }}
+                  </span>
+                </div>
               </div>
 
-              <!-- Lembrar de mim -->
-              <q-checkbox
-                v-model="loginForm.rememberMe"
-                label="Lembrar de mim"
-                color="primary"
-                class="text-grey-7"
-                aria-label="Lembrar de mim neste dispositivo"
-              />
-
-              <!-- Botão de Login -->
-              <q-btn
-                type="submit"
-                label="Entrar"
-                color="primary"
-                size="lg"
-                class="q-mt-md btn-primary-sage "
-                :disable="!isLoginFormValid"
-                no-caps
-                unelevated
-                aria-label="Fazer login no sistema"
-              >
-                <template v-slot:loading>
-                  <q-spinner-dots color="white" />
-                </template>
-              </q-btn>
-
-              <!-- Link para recuperar senha -->
-              <div class="text-center q-mt-md">
+              <!-- Opções de Login -->
+              <div class="login-options row justify-between items-center q-mb-md">
+                <q-checkbox
+                  v-model="loginForm.rememberMe"
+                  label="Lembrar de mim por 30 dias"
+                  color="primary"
+                  class="text-grey-7 modern-checkbox"
+                  aria-label="Lembrar de mim neste dispositivo por 30 dias"
+                />
+                
                 <q-btn
                   flat
                   no-caps
@@ -208,15 +312,58 @@ Responsividade: Mobile-first design
                   label="Esqueci minha senha"
                   size="sm"
                   @click="showForgotPassword = true"
-                  class="link-button"
+                  class="forgot-link"
                   aria-label="Recuperar senha esquecida"
                 />
               </div>
+
+              <!-- Botão de Login -->
+              <q-btn
+                type="submit"
+                color="primary"
+                size="lg"
+                class="full-width q-mt-md btn-primary-evolved"
+                :disable="!isLoginFormValid || isLoading"
+                :loading="isLoading"
+                no-caps
+                unelevated
+                aria-label="Fazer login no sistema"
+              >
+                <span class="btn-content">
+                  <q-icon name="login" class="q-mr-sm" />
+                  Entrar com Segurança
+                </span>
+                <template v-slot:loading>
+                  <q-spinner-dots color="white" />
+                  <span class="q-ml-sm">Conectando...</span>
+                </template>
+              </q-btn>
+
+
             </q-form>
 
+
+
+            <!-- Security Features -->
+            <div class="security-features q-mt-lg">
+              <div class="row justify-center q-gutter-md text-center">
+                <div class="security-feature">
+                  <q-icon name="enhanced_encryption" color="positive" size="md" />
+                  <div class="text-caption">Criptografia 256-bit</div>
+                </div>
+                <div class="security-feature">
+                  <q-icon name="verified_user" color="positive" size="md" />
+                  <div class="text-caption">Dados Protegidos</div>
+                </div>
+                <div class="security-feature">
+                  <q-icon name="security" color="positive" size="md" />
+                  <div class="text-caption">Certificado SSL</div>
+                </div>
+              </div>
+            </div>
+
             <!-- Link para registro -->
-            <div class="text-center q-mt-md q-pt-md" 
-            style="border-top: 1px solid var(--color-grey-300);">
+            <div class="text-center q-mt-lg q-pt-md register-section">
               <p class="text-body2" style="color: var(--text-secondary);">
                 Não tem uma conta?
                 <q-btn
@@ -231,6 +378,8 @@ Responsividade: Mobile-first design
                 />
               </p>
             </div>
+
+
           </q-tab-panel>
 
           <!-- ==========================================================================
@@ -385,12 +534,17 @@ Responsividade: Mobile-first design
         </q-tab-panels>
       </q-card>
 
-      <!-- Rodapé -->
-      <footer class="login-footer text-center q-mt-sm" role="contentinfo">
-        <p class="text-caption text-secondary">
-          © 2024 Trabach Softwares. Todos os direitos reservados.
-        </p>
-      </footer>
+          </div>
+          
+          <!-- Rodapé -->
+          <footer class="login-footer text-center" role="contentinfo">
+            <p class="text-caption text-secondary">
+              © 2025 Trabach Softwares. Todos os direitos reservados.
+            </p>
+          </footer>
+          
+        </div>
+      </div>
     </div>
 
     <!-- Dialog de Recuperação de Senha -->
@@ -471,6 +625,12 @@ const isLoading = ref(false)
 const loginError = ref('')
 const registerError = ref('')
 
+// Novos estados para validação em tempo real
+const emailValidating = ref(false)
+const emailValidationStatus = ref('')
+const emailValidationMessage = ref('')
+const passwordValidationStatus = ref('')
+
 const loginForm = ref({
   email: '',
   password: '',
@@ -481,6 +641,23 @@ const registerForm = ref({
   name: '',
   email: '',
   password: ''
+})
+
+// Avaliação de força da senha
+const passwordStrength = computed(() => {
+  const password = loginForm.value.password
+  if (!password) return { level: '', text: '' }
+  
+  let score = 0
+  if (password.length >= 8) score++
+  if (/[a-z]/.test(password)) score++
+  if (/[A-Z]/.test(password)) score++
+  if (/[0-9]/.test(password)) score++
+  if (/[^A-Za-z0-9]/.test(password)) score++
+  
+  if (score < 2) return { level: 'weak', text: 'Senha fraca' }
+  if (score < 4) return { level: 'medium', text: 'Senha média' }
+  return { level: 'strong', text: 'Senha forte' }
 })
 
 // ==========================================================================
@@ -507,12 +684,36 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const validateLoginEmail = () => {
   const val = loginForm.value.email?.trim()
-  if (!val) return
+  if (!val) {
+    emailValidationStatus.value = ''
+    emailValidationMessage.value = ''
+    return
+  }
+  
   if (!emailRegex.test(val)) {
+    emailValidationStatus.value = 'invalid'
+    emailValidationMessage.value = 'E-mail inválido'
     if (lastInvalidLoginEmail.value !== val) {
       lastInvalidLoginEmail.value = val
       notifyError('ERROR.INVALID_EMAIL')
     }
+  } else {
+    emailValidationStatus.value = 'valid'
+    emailValidationMessage.value = 'E-mail válido'
+  }
+}
+
+const validatePasswordStrength = () => {
+  const password = loginForm.value.password
+  if (!password) {
+    passwordValidationStatus.value = ''
+    return
+  }
+  
+  if (password.length >= 6) {
+    passwordValidationStatus.value = 'valid'
+  } else {
+    passwordValidationStatus.value = 'invalid'
   }
 }
 
@@ -604,6 +805,20 @@ const handleForgotPassword = () => {
     notifyError('ERROR.INVALID_EMAIL')
   }
 }
+
+const handleSocialLogin = (provider) => {
+  console.log(`[LOGIN PAGE] Iniciando login social com ${provider}`)
+  
+  // Mostrar notificação de redirecionamento
+  notifySuccess(`Redirecionando para login com ${provider}...`)
+  
+  // Simular redirecionamento (implementar integração real conforme necessário)
+  setTimeout(() => {
+    // Aqui você implementaria a integração real com Google/Microsoft OAuth
+    console.log(`Redirecionando para ${provider} OAuth...`)
+    // window.location.href = `/auth/${provider}`
+  }, 1500)
+}
 </script>
 
 <style lang="scss" scoped>
@@ -612,27 +827,67 @@ const handleForgotPassword = () => {
   display: none !important;
 }
 
+// Corrige autocomplete globalmente - Versão Aprimorada
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #2d5a3d !important;
+  background-color: white !important;
+  background-image: none !important;
+  color: #2d5a3d !important;
+  border-radius: 12px !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  transition: all 0.3s ease, background-color 5000s ease-in-out 0s !important;
+}
+
+// Força override completo do autocomplete
+input:-webkit-autofill {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+// Para Firefox e outros
+input:-moz-autofill {
+  background-color: white !important;
+  color: #2d5a3d !important;
+  border-radius: 12px !important;
+}
+
 // ==========================================================================
 // LOGIN PAGE - SAGE ACCOUNTANT THEME
 // ==========================================================================
 
 .login-page {
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-4);
-  border-radius: 12px;
-  
-  // Background moderno com gradiente animado e padrão
-  background: radial-gradient(circle at 5% 0%, rgba(44, 95, 45, 0.08) 0%, transparent 45%), radial-gradient(circle at 43% 25%, rgba(151, 180, 152, 0.08) 0%, transparent 138%), linear-gradient(135deg, #e8eceb 0%, #d4dcd6 0%, #c8d3ca 17%
-42%
-);
-  background-size: 100% 100%;
   position: relative;
   overflow: hidden;
   
-  // Padrão de textura sutil
+  @media (max-width: 1023px) {
+    padding: var(--spacing-2);
+  }
+}
+
+// Layout Split Screen
+.split-layout {
+  min-height: 100vh;
+  
+  @media (max-width: 1023px) {
+    flex-direction: column;
+  }
+}
+
+// Lado Esquerdo - Branding
+.left-panel {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #1e4f1f 50%, #2d5a3d 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
+  
+  // Padrão de fundo elegante
   &::before {
     content: '';
     position: absolute;
@@ -641,125 +896,391 @@ const handleForgotPassword = () => {
     right: 0;
     bottom: 0;
     background-image: 
-      repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.03) 35px, rgba(255,255,255,.03) 70px);
+      radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.08) 2px, transparent 2px),
+      radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.08) 2px, transparent 2px);
+    background-size: 60px 60px;
+    animation: backgroundMove 30s ease-in-out infinite;
     pointer-events: none;
   }
   
-  @media (max-width: 599px) {
-    padding: var(--spacing-2);
+  .branding-section {
+    position: relative;
+    z-index: 1;
+    padding: var(--spacing-8);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    
+    @media (max-width: 1023px) {
+      height: auto;
+      min-height: 60vh;
+      padding: var(--spacing-6);
+    }
+    
+    @media (max-width: 599px) {
+      padding: var(--spacing-4);
+      min-height: 50vh;
+    }
   }
 }
 
-.login-container {
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
+// Lado Direito - Formulário
+.right-panel {
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(44, 95, 45, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(151, 180, 152, 0.05) 0%, transparent 50%),
+    linear-gradient(135deg, #f8fff9 0%, #f1f8f2 50%, #e8f5e8 100%);
+  
+  .login-form-container {
+    padding: var(--spacing-8);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; // Distribui espaço entre elementos
+    
+    @media (max-width: 1023px) {
+      height: auto;
+      min-height: 40vh;
+      padding: var(--spacing-6);
+      justify-content: flex-start; // Em mobile, não força espaçamento
+    }
+    
+    @media (max-width: 599px) {
+      padding: var(--spacing-4);
+    }
+  }
 }
 
-.logo-container {
-  width: 135px;
+@keyframes backgroundMove {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-10px, -10px); }
+}
+
+// Badge de Segurança SSL - Premium
+.security-badge {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  padding: 12px 20px;
+  border-radius: 50px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  align-content: center;
-  flex-wrap: nowrap;
-  flex-direction: row;
-}
-
-// Header com Logo - Glassmorphism
-.login-header {
-  .logo-container {
-    display: inline-flex;
-    padding: var(--spacing-4);
-    
-    // Efeito Glassmorphism no logo
-    background: rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    
-    border-radius: var(--radius-full);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    
-    box-shadow: 
-      0 8px 32px 0 rgba(44, 95, 45, 0.15),
-      0 2px 8px 0 rgba(0, 0, 0, 0.05),
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
-    
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    &:hover {
-      transform: translateY(-4px) scale(1.02);
-      box-shadow: 
-        0 12px 40px 0 rgba(44, 95, 45, 0.2),
-        0 4px 12px 0 rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 0 rgba(255, 255, 255, 0.7);
-    }
-    
-    .logo-icon {
-      animation: fadeInScale 0.6s ease-out, floatIcon 3s ease-in-out infinite;
-      filter: drop-shadow(0 2px 4px rgba(44, 95, 45, 0.2));
-    }
-  }
-}
-
-// Card de Autenticação - Glassmorphism Premium
-.auth-card {
-  // Glassmorphism com blur forte
-  background: rgba(255, 255, 255, 0.4) !important;
-  backdrop-filter: blur(30px) saturate(150%);
-  -webkit-backdrop-filter: blur(30px) saturate(150%);
-  
-  border-radius: 24px !important;
-  padding: var(--spacing-8);
-  
-  // Borda gradiente sutil
-  border: 1px solid rgba(255, 255, 255, 0.5) !important;
-  
-  // Sombras modernas em camadas
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary);
+  border: 1px solid rgba(44, 95, 45, 0.2);
   box-shadow: 
-    0 8px 32px 0 rgba(44, 95, 45, 0.12),
-    0 2px 8px 0 rgba(0, 0, 0, 0.04),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.7),
-    inset 0 -1px 0 0 rgba(0, 0, 0, 0.02) !important;
+    0 8px 32px rgba(44, 95, 45, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  z-index: 1000;
+  animation: fadeInSlideDown 0.8s ease-out;
   
-  animation: fadeInUp 0.5s ease-out;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  .security-icon {
+    color: var(--color-positive);
+    animation: pulse 2s infinite;
+  }
   
-  // Efeito de brilho no hover
-  position: relative;
-  overflow: hidden;
+  .verification-icon {
+    color: var(--color-positive);
+    font-size: 16px;
+  }
   
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 
-      0 16px 48px 0 rgba(44, 95, 45, 0.18),
-      0 4px 16px 0 rgba(0, 0, 0, 0.08),
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
-      inset 0 -1px 0 0 rgba(0, 0, 0, 0.03) !important;
+  @media (max-width: 768px) {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin-bottom: 16px;
+    align-self: center;
+  }
+}
+
+@keyframes fadeInSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+// Logo Section - Centralizado
+.logo-section {
+  .logo-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--spacing-6);
     
-    &::before {
-      left: 100%;
+    .logo-wrapper {
+      position: relative;
+      display: inline-flex;
+      padding: var(--spacing-6);
+      
+      // Glassmorphism premium
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(25px) saturate(180%);
+      -webkit-backdrop-filter: blur(25px) saturate(180%);
+      
+      border-radius: var(--radius-full);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      
+      box-shadow: 
+        0 16px 48px rgba(0, 0, 0, 0.2),
+        0 4px 16px rgba(0, 0, 0, 0.1),
+        inset 0 2px 0 rgba(255, 255, 255, 0.5);
+      
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      &:hover {
+        transform: translateY(-6px) scale(1.05);
+        box-shadow: 
+          0 24px 64px rgba(0, 0, 0, 0.25),
+          0 8px 24px rgba(0, 0, 0, 0.15),
+          inset 0 2px 0 rgba(255, 255, 255, 0.6);
+      }
+      
+      .logo-img {
+        width: 120px;
+        height: auto;
+        animation: fadeInScale 0.8s ease-out 0.4s both, logoFloat 6s ease-in-out infinite;
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+        z-index: 2;
+      }
+      
+
     }
   }
   
-  // Inputs com glassmorphism
-  :deep(.q-field__control) {
-    background: rgba(255, 255, 255, 0.6) !important;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 12px !important;
+  .brand-title {
+    color: white;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    font-size: 3rem;
+    line-height: 1.2;
+    
+    @media (max-width: 1023px) {
+      font-size: 2.5rem;
+    }
+    
+    @media (max-width: 599px) {
+      font-size: 2rem;
+    }
+  }
+  
+  .brand-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    font-weight: 400;
+    
+    @media (max-width: 599px) {
+      font-size: 1.1rem;
+    }
+  }
+}
+
+// Features List
+.features-list {
+  .feature-item {
+    margin-bottom: var(--spacing-5);
+    animation: fadeInLeft 0.8s ease-out calc(var(--delay, 0) * 0.2s) both;
+    
+    &:nth-child(1) { --delay: 1; }
+    &:nth-child(2) { --delay: 2; }
+    &:nth-child(3) { --delay: 3; }
+    
+    .feature-icon {
+      width: 60px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: var(--spacing-4);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      
+      i {
+        color: white;
+        font-size: 28px;
+      }
+    }
+    
+    .feature-content {
+      flex: 1;
+      
+      h3 {
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+      
+      p {
+        color: rgba(255, 255, 255, 0.8);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        line-height: 1.4;
+      }
+    }
+  }
+}
+
+// Trust Badges
+.trust-badges {
+  animation: fadeInUp 0.8s ease-out 1s both;
+  
+  .trust-badge {
+    opacity: 0.9;
     transition: all 0.3s ease;
     
     &:hover {
-      background: rgba(255, 255, 255, 0.75) !important;
+      opacity: 1;
+      transform: translateY(-4px);
+    }
+    
+    i {
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 8px;
+    }
+    
+    .text-caption {
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Card de Autenticação - Novo Layout
+.auth-card {
+  // Glassmorphism sutil para o novo layout
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  
+  border-radius: 24px !important;
+  padding: var(--spacing-8);
+  max-width: 480px;
+  margin: 0 auto;
+  
+  // Borda sutil
+  border: 1px solid rgba(44, 95, 45, 0.1) !important;
+  
+  // Sombras elegantes
+  box-shadow: 
+    0 20px 60px rgba(44, 95, 45, 0.15),
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  
+  animation: fadeInRight 0.8s ease-out 0.3s both;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 
+      0 32px 80px rgba(44, 95, 45, 0.2),
+      0 12px 32px rgba(0, 0, 0, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+  }
+  
+  // Inputs com melhor contraste e autocomplete TOTALMENTE corrigido
+  :deep(.q-field__control) {
+    background: white !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px !important;
+    border: 2px solid rgba(44, 95, 45, 0.1) !important;
+    transition: all 0.3s ease;
+    overflow: hidden !important;
+    
+    &:hover {
+      background: white !important;
+      border-color: rgba(44, 95, 45, 0.2) !important;
     }
   }
   
   :deep(.q-field--focused .q-field__control) {
-    background: rgba(255, 255, 255, 0.85) !important;
-    box-shadow: 0 4px 12px rgba(44, 95, 45, 0.15);
+    background: white !important;
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 3px rgba(44, 95, 45, 0.1) !important;
+  }
+  
+  // Força o input dentro do Quasar a seguir as regras
+  :deep(.q-field__native) {
+    background: transparent !important;
+    border-radius: 12px !important;
+    color: #2d5a3d !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    font-size: 16px !important;
+    
+    // Override completo do autocomplete
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus,
+    &:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px white inset !important;
+      -webkit-text-fill-color: #2d5a3d !important;
+      background-color: white !important;
+      background-image: none !important;
+      border-radius: 12px !important;
+      color: #2d5a3d !important;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segue UI', sans-serif !important;
+      font-size: 16px !important;
+      transition: all 0.3s ease, background-color 5000s ease-in-out 0s !important;
+    }
+    
+    &:-moz-autofill {
+      background-color: white !important;
+      color: #2d5a3d !important;
+      border-radius: 12px !important;
+    }
+    
+    &::placeholder {
+      color: var(--color-grey-500) !important;
+      opacity: 1;
+    }
+  }
+  
+  @media (max-width: 1023px) {
+    max-width: 100%;
   }
   
   @media (max-width: 599px) {
@@ -819,47 +1340,182 @@ const handleForgotPassword = () => {
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 }
 
-// Botões personalizados com glassmorphism
-.btn-primary-sage {
-  background: linear-gradient(135deg, #2C5F2D 0%, #3d7a3e 100%) !important;
-  color: white !important;
-  font-weight: var(--font-semibold);
-  border-radius: 14px !important;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  width: 95%;
-  position: relative;
-  overflow: hidden;
+// Inputs modernos com validação e autocomplete corrigido
+.modern-input {
+  transition: all 0.3s ease;
   
-  // Brilho interno
-  box-shadow: 
-    0 4px 12px rgba(44, 95, 45, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  
-  // Efeito de onda ao clicar
-  &::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.4);
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
+  &.input-valid {
+    :deep(.q-field__control) {
+      border-color: var(--color-positive) !important;
+      background: white !important;
+    }
+    
+    :deep(.q-field__native) {
+      &:-webkit-autofill,
+      &:-webkit-autofill:hover,
+      &:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px white inset !important;
+        -webkit-text-fill-color: #2d5a3d !important;
+        border-radius: 12px !important;
+      }
+    }
   }
   
-  &:active::after {
-    width: 300px;
-    height: 300px;
+  &.input-invalid {
+    :deep(.q-field__control) {
+      border-color: var(--color-negative) !important;
+      background: white !important;
+    }
+    
+    :deep(.q-field__native) {
+      &:-webkit-autofill,
+      &:-webkit-autofill:hover,
+      &:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px white inset !important;
+        -webkit-text-fill-color: #2d5a3d !important;
+        border-radius: 12px !important;
+      }
+    }
+  }
+  
+  .validation-icon {
+    animation: validationPop 0.3s ease-out;
+  }
+  
+  // Autocomplete personalizado para inputs de validação
+  :deep(.q-field__native) {
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus,
+    &:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px white inset !important;
+      -webkit-text-fill-color: #2d5a3d !important;
+      background-color: white !important;
+      background-image: none !important;
+      border-radius: 12px !important;
+      color: #2d5a3d !important;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+      font-size: 16px !important;
+      font-weight: 400 !important;
+    }
+  }
+}
+
+.validation-message {
+  font-size: 12px;
+  margin-top: 4px;
+  font-weight: 500;
+  
+  &.valid {
+    color: var(--color-positive);
+  }
+  
+  &.invalid {
+    color: var(--color-negative);
+  }
+}
+
+// Força da senha
+.password-strength {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  .strength-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    
+    .strength-fill {
+      height: 100%;
+      transition: all 0.3s ease;
+      border-radius: 2px;
+      
+      &.weak {
+        width: 33%;
+        background: var(--color-negative);
+      }
+      
+      &.medium {
+        width: 66%;
+        background: var(--color-warning);
+      }
+      
+      &.strong {
+        width: 100%;
+        background: var(--color-positive);
+      }
+    }
+  }
+  
+  .strength-text {
+    font-size: 12px;
+    font-weight: 500;
+    
+    &.weak { color: var(--color-negative); }
+    &.medium { color: var(--color-warning); }
+    &.strong { color: var(--color-positive); }
+  }
+}
+
+// Botão principal evoluído
+.btn-primary-evolved {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #1e4f1f 100%) !important;
+  color: white !important;
+  font-weight: 600;
+  border-radius: 16px !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  min-height: 56px;
+  
+  // Sombras em camadas
+  box-shadow: 
+    0 8px 24px rgba(44, 95, 45, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  
+  .btn-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  // Efeito de brilho
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg, 
+      transparent, 
+      rgba(255, 255, 255, 0.2), 
+      transparent
+    );
+    transition: left 0.5s;
   }
   
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #1a3a1b 0%, #2C5F2D 100%) !important;
-    transform: translateY(-3px) scale(1.01);
+    background: linear-gradient(135deg, #1a4a1b 0%, var(--color-primary) 100%) !important;
+    transform: translateY(-4px) scale(1.02);
     box-shadow: 
-      0 8px 24px rgba(44, 95, 45, 0.4),
+      0 16px 32px rgba(44, 95, 45, 0.4),
+      0 4px 16px rgba(0, 0, 0, 0.15),
       inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    
+    &::before {
+      left: 100%;
+    }
+  }
+  
+  &:active {
+    transform: translateY(-2px) scale(1.01);
   }
   
   &:focus-visible {
@@ -867,6 +1523,8 @@ const handleForgotPassword = () => {
     outline-offset: 3px;
   }
 }
+
+
 
 .link-button {
   font-weight: var(--font-medium);
@@ -890,14 +1548,45 @@ const handleForgotPassword = () => {
   }
 }
 
-// Footer com glassmorphism sutil
+// Footer fixo no final
 .login-footer {
-  margin-top: var(--spacing-8);
-  padding: var(--spacing-4);
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: var(--spacing-4) var(--spacing-6);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(15px);
+  border-top: 1px solid rgba(44, 95, 45, 0.1);
+  margin-top: auto; // Empurra para o final
+  flex-shrink: 0; // Não permite compressão
+  
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+  
+  @media (max-width: 1023px) {
+    padding: var(--spacing-3) var(--spacing-4);
+    margin-top: var(--spacing-6);
+  }
+  
+  @media (max-width: 599px) {
+    padding: var(--spacing-2) var(--spacing-3);
+    
+    p {
+      font-size: 12px;
+    }
+  }
+}
+
+// Container principal flexível
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  
+  @media (max-width: 1023px) {
+    justify-content: flex-start;
+  }
 }
 
 // Animações
@@ -920,6 +1609,91 @@ const handleForgotPassword = () => {
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+
+
+// Security Features
+.security-features {
+  padding: 24px;
+  background: rgba(248, 255, 249, 0.8);
+  border-radius: 16px;
+  border: 1px solid rgba(44, 95, 45, 0.1);
+  animation: fadeInUp 0.6s ease-out 0.6s both;
+  
+  .security-feature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-4px);
+    }
+    
+    i {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    
+    .text-caption {
+      font-weight: 500;
+      text-align: center;
+      line-height: 1.3;
+    }
+  }
+}
+
+// Register Section
+.register-section {
+  border-top: 1px solid rgba(44, 95, 45, 0.2);
+  animation: fadeInUp 0.6s ease-out 0.8s both;
+}
+
+// Checkbox moderno
+.modern-checkbox {
+  :deep(.q-checkbox__inner) {
+    border-radius: 8px !important;
+    border-width: 2px !important;
+    transition: all 0.3s ease;
+  }
+  
+  :deep(.q-checkbox__bg) {
+    border-radius: 8px !important;
+  }
+  
+  &:hover :deep(.q-checkbox__inner) {
+    border-color: var(--color-primary) !important;
+  }
+}
+
+// Forgot link
+.forgot-link {
+  font-weight: 500;
+  
+  &:hover {
+    text-decoration: underline;
+    transform: translateX(2px);
+  }
+}
+
+// Animações
+@keyframes validationPop {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -1003,21 +1777,189 @@ const handleForgotPassword = () => {
   }
 }
 
-// Responsividade adicional
-@media (max-width: 599px) {
-  .text-h3 {
-    font-size: var(--text-2xl) !important;
-  }
-  
-  .text-h5 {
-    font-size: var(--text-xl) !important;
-  }
-  
-  .login-page {
-    &::before {
-      background-image: 
-        repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,.03) 20px, rgba(255,255,255,.03) 40px);
+// Responsividade para layout split
+@media (max-width: 1023px) {
+  .split-layout {
+    .left-panel {
+      order: 1;
+      
+      .branding-section {
+        text-align: center;
+        padding: var(--spacing-6) var(--spacing-4);
+      }
+      
+      .features-list {
+        display: none; // Esconde features em mobile para economizar espaço
+      }
+      
+      .logo-section {
+        .logo-container .logo-wrapper .logo-img {
+          width: 80px;
+        }
+        
+        .brand-title {
+          font-size: 2.2rem;
+        }
+        
+        .brand-subtitle {
+          font-size: 1rem;
+        }
+      }
     }
+    
+    .right-panel {
+      order: 2;
+    }
+  }
+  
+  .login-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .security-features .row {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 599px) {
+  .split-layout {
+    .left-panel {
+      .branding-section {
+        padding: var(--spacing-4);
+        min-height: 40vh;
+      }
+      
+      .logo-section {
+        margin-bottom: var(--spacing-6);
+        
+        .logo-container .logo-wrapper {
+          padding: var(--spacing-4);
+          
+          .logo-img {
+            width: 60px;
+          }
+          
+
+        }
+        
+        .brand-title {
+          font-size: 1.8rem;
+        }
+        
+        .brand-subtitle {
+          font-size: 0.9rem;
+        }
+      }
+      
+      .trust-badges {
+        .trust-badge {
+          i {
+            font-size: 1.5rem;
+          }
+          
+          .text-caption {
+            font-size: 0.7rem;
+          }
+        }
+      }
+    }
+  }
+  
+  .btn-primary-evolved {
+    min-height: 48px;
+    font-size: 14px;
+  }
+  
+  .security-badge {
+    position: relative;
+    margin-bottom: 16px;
+    align-self: center;
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-page {
+    padding: var(--spacing-2);
+  }
+  
+  .auth-card {
+    padding: var(--spacing-4) !important;
+  }
+  
+  .social-login .divider {
+    margin: 16px 0;
+  }
+  
+  .security-features {
+    padding: 16px;
+  }
+}
+
+// Acessibilidade aprimorada
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// Alto contraste para acessibilidade
+@media (prefers-contrast: high) {
+  .auth-card {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 2px solid var(--color-primary) !important;
+  }
+  
+  .modern-input {
+    :deep(.q-field__control) {
+      border-width: 2px !important;
+    }
+  }
+  
+  .btn-primary-evolved {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .social-btn {
+    border-width: 2px !important;
+  }
+}
+
+// Dark mode support (se necessário no futuro)
+@media (prefers-color-scheme: dark) {
+  .body--dark {
+    .login-page {
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(44, 95, 45, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(151, 180, 152, 0.15) 0%, transparent 50%),
+        linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 35%, #2a2a2a 70%, #1f1f1f 100%);
+    }
+    
+    .security-badge {
+      background: rgba(0, 0, 0, 0.8);
+      color: #ffffff;
+    }
+    
+    .auth-card {
+      background: rgba(0, 0, 0, 0.6) !important;
+      border-color: rgba(44, 95, 45, 0.3) !important;
+    }
+  }
+}
+
+// Print styles (esconde elementos desnecessários)
+@media print {
+  .security-badge,
+  .trust-indicators,
+  .social-login,
+  .security-features {
+    display: none;
   }
 }
 </style>

@@ -19,7 +19,7 @@
     "@quasar/cli": "^2.5.0",
     "@quasar/extras": "^1.16.9",
     "axios": "^1.13.1",
-    "chart.js": "^4.4.1",
+    "chart.js": "^4.5.1",
     "date-fns": "^3.2.0",
     "jspdf": "^3.0.3",
     "jspdf-autotable": "^5.0.2",

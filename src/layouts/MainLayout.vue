@@ -110,7 +110,7 @@ Efeitos: Navegação completa e interface responsiva -->
                 no-caps
                 rounded
                 size="sm"
-                @click="$router.push('/plans')"
+                @click="navigateToPlans"
               />
             </q-card-section>
           </q-card>
@@ -255,6 +255,18 @@ const toggleLeftDrawer = () => {
 }
 
 /**
+ * Navega para a página de planos
+ */
+const navigateToPlans = () => {
+  console.log('🔄 [NAVIGATION] Navegando para planos...')
+  router.push('/plans').then(() => {
+    console.log('✅ [NAVIGATION] Navegação para planos concluída')
+  }).catch(error => {
+    console.error('❌ [NAVIGATION] Erro na navegação:', error)
+  })
+}
+
+/**
  * Obtém título da página atual
  */
 const getCurrentPageTitle = () => {
@@ -299,6 +311,7 @@ onMounted(async () => {
   // Sidebar
   .main-sidebar {
     border-right: 1px solid rgba(44, 95, 45, 0.1);
+    z-index: 100;
     
     .sidebar-header {
       background: var(--sage-gradient);
@@ -497,6 +510,15 @@ onMounted(async () => {
   // Conteúdo principal
   .main-content {
     background: var(--sage-bg-primary);
+    position: relative;
+    z-index: 1;
+    overflow-x: hidden;
+    
+    // Garante que o conteúdo não vaze sobre o sidebar
+    :deep(.q-page) {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
   }
 }
 
