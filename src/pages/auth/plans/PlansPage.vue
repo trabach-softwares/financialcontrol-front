@@ -717,7 +717,7 @@ const simulatePayment = async (paymentData) => {
 }
 
 .current-plan {
-  border: 2px solid #4caf50;
+  border: 2px solid var(--color-primary);
 }
 
 .popular-badge {
