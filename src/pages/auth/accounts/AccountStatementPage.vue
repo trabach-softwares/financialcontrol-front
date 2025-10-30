@@ -251,7 +251,7 @@ import { categoriesList } from 'src/apis/categories'
 import { useAccountStatementStore } from 'src/stores/accountStatement'
 import { useDate } from 'src/composables/useDate'
 import SummaryBox from 'src/components/summary/SummaryBox.vue'
-import EmptyState from 'src/components/EmptyState.vue'
+import EmptyState from 'src/components/design-system/molecules/EmptyState.vue'
 
 const route = useRoute()
 const router = useRouter()
