@@ -89,6 +89,36 @@ export const useAuthStore = defineStore('auth', {
      */
     isProcessing: (state) => {
       return state.isLoading || state.isLoggingIn || state.isRegistering
+    },
+
+    /**
+     * Verifica se o perfil do usuário está incompleto
+     * Considera incompleto quando QUALQUER campo obrigatório está vazio
+     * Campos obrigatórios: nome, telefone, CPF, data de nascimento
+     * @returns {boolean} True se o perfil precisa ser completado
+     */
+    isProfileIncomplete: (state) => {
+      if (!state.user) return false
+      
+      const user = state.user
+      
+      // Verifica campos obrigatórios
+      const hasName = !!user.name && user.name.trim() !== ''
+      const hasPhone = !!user.phone && user.phone.trim() !== ''
+      const hasCpf = !!user.cpf && user.cpf.trim() !== ''
+      const hasBirthDate = !!user.birth_date && user.birth_date.trim() !== ''
+      
+      // Perfil incompleto = QUALQUER campo obrigatório vazio
+      const isIncomplete = !hasName || !hasPhone || !hasCpf || !hasBirthDate
+      
+      console.log('🔍 [AUTH] Verificação de perfil incompleto:')
+      console.log('  - hasName:', hasName, '(', user.name, ')')
+      console.log('  - hasPhone:', hasPhone, '(', user.phone, ')')
+      console.log('  - hasCpf:', hasCpf, '(', user.cpf, ')')
+      console.log('  - hasBirthDate:', hasBirthDate, '(', user.birth_date, ')')
+      console.log('  - isIncomplete:', isIncomplete)
+      
+      return isIncomplete
     }
   },
 
@@ -180,8 +210,16 @@ export const useAuthStore = defineStore('auth', {
       this.registerError = null
 
       try {
+        // Adiciona plano FREE como padrão ao payload de registro
+        const registerPayload = {
+          ...userData,
+          // O backend deve aceitar plan_id ou plan_type
+          // Se o backend criar automaticamente com plano FREE, não é necessário enviar
+          // Mas garantimos aqui no frontend também
+        }
+        
         // Chama o serviço de registro
-        const response = await authService.register(userData)
+        const response = await authService.register(registerPayload)
         
         // Armazena o token (login automático após registro)
         this.token = response.token
@@ -189,6 +227,17 @@ export const useAuthStore = defineStore('auth', {
         
         // Carrega dados do usuário
         await this.fetchUser()
+        
+        // Garantir que o usuário tem um plano (fallback para FREE)
+        if (!this.user.plan_id && !this.user.plan_name) {
+          console.log('⚠️ [AUTH] Usuário sem plano definido, tentando atribuir plano FREE')
+          try {
+            await this.assignFreePlan()
+          } catch (error) {
+            console.warn('[AUTH] Não foi possível atribuir plano FREE automaticamente:', error)
+            // Não bloqueia o registro se falhar
+          }
+        }
         
         
         
@@ -208,41 +257,97 @@ export const useAuthStore = defineStore('auth', {
     },
 
     /**
+     * Atribui o plano FREE ao usuário atual
+     * Usado como fallback se o backend não definir plano automaticamente
+     */
+    async assignFreePlan() {
+      try {
+        const { usePlansStore } = await import('src/stores/plans')
+        const plansStore = usePlansStore()
+        
+        // Buscar planos se ainda não foram carregados
+        if (plansStore.plans.length === 0) {
+          await plansStore.fetchPlans()
+        }
+        
+        // Encontrar o plano FREE
+        const freePlan = plansStore.freePlans[0]
+        
+        if (freePlan) {
+          // Aqui você pode fazer uma chamada à API para atualizar o plano do usuário
+          // Por enquanto, apenas atualiza localmente
+          this.user = {
+            ...this.user,
+            plan_id: freePlan.id,
+            plan_name: freePlan.name,
+            plan_type: freePlan.type || 'FREE'
+          }
+          sessionStorage.setItem('auth_user', JSON.stringify(this.user))
+          console.log('✅ [AUTH] Plano FREE atribuído com sucesso')
+        } else {
+          console.warn('[AUTH] Nenhum plano FREE encontrado na base de dados')
+        }
+      } catch (error) {
+        console.error('[AUTH] Erro ao atribuir plano FREE:', error)
+        throw error
+      }
+    },
+
+    /**
      * Carrega dados do usuário atual
      * Origem: Inicialização do app, refresh de dados
      * Efeitos: Atualiza dados do usuário no estado
      */
     async fetchUser() {
       if (!this.token) return
-      // Recarrega usuário a partir da sessão (fonte única de leitura)
+      
       try {
-        const raw = sessionStorage.getItem('auth_user')
-        this.user = raw ? JSON.parse(raw) : null
-        // Se temos plan_id mas faltam plan_name/plan_type, sincroniza com backend
-        if (this.user?.plan_id && (!this.user.plan_name || !this.user.plan_type)) {
-          try {
-            const me = await authService.getMe()
-            if (me) {
-              const merged = {
-                ...this.user,
-                ...me,
-                ...(me.plan ? {
-                  plan_name: me.plan.name,
-                  plan_type: me.plan.type || me.plan.name
-                } : {})
-              }
-              this.user = merged
-              sessionStorage.setItem('auth_user', JSON.stringify(this.user))
-            } else {
+        console.log('🔄 [AUTH] Buscando dados atualizados do usuário do backend...')
+        
+        // Buscar dados do backend (sempre pegar dados frescos)
+        const me = await authService.getMe()
+        
+        if (me) {
+          // Mesclar com dados existentes se houver
+          const currentUser = this.user || {}
+          
+          const updatedUser = {
+            ...currentUser,
+            ...me,
+            ...(me.plan ? {
+              plan_name: me.plan.name,
+              plan_type: me.plan.type || me.plan.name
+            } : {})
+          }
+          
+          this.user = updatedUser
+          sessionStorage.setItem('auth_user', JSON.stringify(this.user))
+          
+          console.log('✅ [AUTH] Dados do usuário atualizados:', this.user)
+        } else {
+          // Fallback: tentar ler do sessionStorage
+          const raw = sessionStorage.getItem('auth_user')
+          this.user = raw ? JSON.parse(raw) : null
+          
+          // Se temos plan_id mas faltam plan_name/plan_type, enriquecer
+          if (this.user?.plan_id && (!this.user.plan_name || !this.user.plan_type)) {
+            try {
               await this.enrichUserPlan()
+            } catch (_) {
+              // Ignora erro silenciosamente
             }
-          } catch (_) {
-            // fallback: enriquecer via store de planos
-            try { await this.enrichUserPlan() } catch (_) {}
           }
         }
-      } catch (_) {
-        this.user = null
+      } catch (error) {
+        console.error('❌ [AUTH] Erro ao buscar dados do usuário:', error)
+        
+        // Fallback: tentar ler do sessionStorage
+        const raw = sessionStorage.getItem('auth_user')
+        if (raw) {
+          this.user = JSON.parse(raw)
+        } else {
+          this.user = null
+        }
       }
     },
 

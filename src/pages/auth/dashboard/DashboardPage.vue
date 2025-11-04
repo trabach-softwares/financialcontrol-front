@@ -429,6 +429,15 @@
         @saved="handleTransactionSuccess"
       />
     </q-dialog>
+
+    <!-- ==========================================================================
+    DIALOG DE COMPLETAR PERFIL
+    ========================================================================== -->
+    <CompleteProfileDialog
+      v-model="showCompleteProfileDialog"
+      @completed="handleProfileCompleted"
+      @skipped="handleProfileSkipped"
+    />
   </q-page>
 </template>
 
@@ -443,6 +452,7 @@ import { useCurrency } from 'src/composables/useCurrency'
 import { useDate } from 'src/composables/useDate'
 import { Chart, registerables } from 'chart.js'
 import TransactionForm from 'src/components/TransactionForm.vue'
+import CompleteProfileDialog from 'src/components/CompleteProfileDialog.vue'
 
 // Registrar componentes do Chart.js
 Chart.register(...registerables)
@@ -464,6 +474,7 @@ const { formatDate } = useDate()
 const showAddTransactionDialog = ref(false)
 const newTransactionType = ref('income')
 const chartPeriod = ref('current-month') // Inicia com o mês atual
+const showCompleteProfileDialog = ref(false)
 
 // Referências dos gráficos
 const lineChartRef = ref(null)
@@ -685,6 +696,41 @@ const handleTransactionSuccess = async (transaction) => {
       timeout: 3000
     })
   }
+}
+
+/**
+ * Manipula quando o usuário completa o perfil
+ */
+const handleProfileCompleted = async () => {
+  console.log('✅ [DASHBOARD] Perfil completado pelo usuário')
+  
+  // Recarregar dados do usuário para atualizar o estado
+  try {
+    await authStore.fetchUser()
+    
+    $q.notify({
+      type: 'positive',
+      message: '🎉 Perfil completado com sucesso!',
+      position: 'top',
+      timeout: 3000
+    })
+  } catch (error) {
+    console.error('Erro ao recarregar dados do usuário:', error)
+  }
+}
+
+/**
+ * Manipula quando o usuário pula completar o perfil
+ */
+const handleProfileSkipped = () => {
+  console.log('⏭️ [DASHBOARD] Usuário optou por pular completar perfil')
+  
+  $q.notify({
+    type: 'info',
+    message: 'Você pode completar seu perfil depois nas Configurações',
+    position: 'top',
+    timeout: 3000
+  })
 }
 
 /**
@@ -937,6 +983,15 @@ onMounted(async () => {
   await nextTick()
   initLineChart()
   initDoughnutChart()
+  
+  // Verifica se o perfil está incompleto e solicita completar
+  if (authStore.isProfileIncomplete) {
+    console.log('📝 [DASHBOARD] Perfil incompleto detectado, solicitando completar dados')
+    // Pequeno delay para garantir que o dashboard carregou visualmente
+    setTimeout(() => {
+      showCompleteProfileDialog.value = true
+    }, 1000)
+  }
 })
 </script>
 
