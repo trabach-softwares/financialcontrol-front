@@ -27,40 +27,50 @@
     <!-- Content -->
     <div v-else class="plans-content">
       <!-- Hero Section -->
-      <div class="hero-section text-center q-pa-xl">
+      <div class="hero-section text-center q-py-xl q-px-md">
         <div class="hero-content">
-          <h1 class="text-h2 text-weight-bold q-mb-md hero-title">
-            <q-icon name="diamond" class="q-mr-sm" />
-            Escolha Seu Plano Ideal
+          <div class="hero-badge q-mb-md">
+            <q-chip 
+              color="primary" 
+              text-color="white" 
+              size="sm"
+              class="hero-chip"
+            >
+              PLANOS E PREÇOS
+            </q-chip>
+          </div>
+          <h1 class="text-h3 text-weight-bold q-mb-md hero-title">
+            Escolha o plano perfeito para você
           </h1>
-          <p class="text-h6 q-mb-sm text-grey-8">
-            Transforme sua gestão financeira com as ferramentas certas
-          </p>
-          <p class="text-body1 text-grey-7">
-            Planos flexíveis que crescem com você
+          <p class="text-subtitle1 text-grey-7 hero-subtitle">
+            Recursos poderosos para controle financeiro completo
           </p>
         </div>
       </div>
 
       <!-- Current Plan Banner -->
       <div v-if="currentUserPlan" class="q-px-md q-pb-lg">
-        <q-banner 
-          rounded
-          class="current-plan-banner shadow-2"
-          :class="`bg-gradient-${getPlanColorName(currentUserPlan)}`"
-        >
-          <template v-slot:avatar>
-            <q-icon name="verified" size="32px" />
-          </template>
-          <div class="text-white">
-                      <div class="text-h6 text-weight-bold">
-            Seu Plano Atual: {{ currentUserPlan.name }}
-          </div>
-            <div class="text-body2 q-mt-xs">
-              Você está aproveitando todos os recursos do seu plano
+        <div class="current-plan-banner">
+          <div class="row items-center q-col-gutter-md">
+            <div class="col-auto">
+              <q-icon name="check_circle" size="32px" color="positive" />
+            </div>
+            <div class="col">
+              <div class="text-subtitle2 text-grey-7">Plano Atual</div>
+              <div class="text-h6 text-weight-bold">{{ currentUserPlan.name }}</div>
+            </div>
+            <div class="col-auto">
+              <q-chip 
+                color="positive" 
+                text-color="white" 
+                icon="verified"
+                size="md"
+              >
+                ATIVO
+              </q-chip>
             </div>
           </div>
-        </q-banner>
+        </div>
       </div>
 
 
@@ -73,73 +83,67 @@
           class="col-12 col-sm-6 col-md-4"
         >
           <q-card 
-            class="plan-card shadow-6"
+            flat
+            bordered
+            class="plan-card"
             :class="{
-              'popular-card': plan.is_recommended || plan.is_featured,
-              'current-card': isCurrentPlan(plan)
+              'plan-card-featured': plan.name === 'Pro',
+              'plan-card-current': isCurrentPlan(plan)
             }"
           >
-            <!-- Badge -->
-            <div v-if="plan.badge_text || plan.is_recommended" class="plan-badge">
-              <q-chip 
-                :color="plan.is_recommended ? 'warning' : 'primary'"
-                text-color="white"
-                icon="star"
-                class="badge-chip"
-              >
-                {{ plan.badge_text || 'POPULAR' }}
-              </q-chip>
+            <!-- Featured Badge -->
+            <div v-if="plan.name === 'Pro'" class="featured-ribbon">
+              <span>RECOMENDADO</span>
             </div>
 
-            <!-- Current Plan Badge -->
-            <div v-if="isCurrentPlan(plan)" class="current-badge">
-              <q-chip color="positive" text-color="white" icon="verified" size="sm">
-                SEU PLANO
+            <!-- Current Badge -->
+            <div v-if="isCurrentPlan(plan)" class="current-tag">
+              <q-chip color="positive" text-color="white" icon="check_circle" size="sm" dense>
+                Seu Plano
               </q-chip>
             </div>
 
             <!-- Header -->
-            <q-card-section class="plan-header text-center text-white" :class="`bg-gradient-${getPlanColorName(plan)}`">
-              <div class="plan-icon q-mb-md">
-                <q-icon :name="getPlanIcon(plan)" size="48px" />
+            <q-card-section class="plan-header text-center q-pt-xl q-pb-lg">
+              <div class="plan-icon-wrapper q-mb-md">
+                <div class="plan-icon-circle" :class="`plan-icon-${getPlanColorName(plan)}`">
+                  <q-icon :name="getPlanIcon(plan)" size="32px" />
+                </div>
               </div>
-              <div class="text-h4 text-weight-bold q-mb-xs">
+              <div class="text-h5 text-weight-bold q-mb-xs text-grey-9">
                 {{ plan.name }}
               </div>
-              <div v-if="plan.description" class="text-body2 plan-subtitle">
+              <div v-if="plan.description" class="text-body2 text-grey-7">
                 {{ plan.description }}
               </div>
             </q-card-section>
 
 
             <!-- Price Section -->
-            <q-card-section class="price-section text-center q-py-lg">
-              <div class="price-wrapper">
-                <div class="price-amount text-h2 text-weight-bold text-primary">
-                  {{ formatPrice(plan) }}
+            <q-card-section class="price-section text-center q-pb-lg">
+              <div class="price-display">
+                <div class="price-currency text-h6 text-grey-7">R$</div>
+                <div class="price-value text-h2 text-weight-bold text-grey-9">
+                  {{ plan.price === 0 ? '0' : plan.price.toFixed(2).replace('.', ',') }}
                 </div>
-                <div class="price-period text-body1 text-grey-7">
-                  por mês
-                </div>
+                <div class="price-period text-body2 text-grey-6">/mês</div>
               </div>
             </q-card-section>
 
             <q-separator />
 
+            <q-separator />
+
             <!-- Limits Section -->
-            <q-card-section class="limits-section q-pa-lg">
-              <div class="text-subtitle2 text-weight-bold text-grey-8 q-mb-md">
-                <q-icon name="trending_up" class="q-mr-xs" />
-                Limites e Recursos
-              </div>
-              <div class="limits-grid">
-                <div class="limit-item">
-                  <div class="limit-icon">
-                    <q-icon name="receipt_long" color="primary" size="24px" />
-                  </div>
-                  <div class="limit-info">
-                    <div class="limit-value">{{ formatLimit(plan.max_transactions) }}</div>
-                    <div class="limit-label">Transações</div>
+            <q-card-section class="q-px-lg q-py-md">
+              <div class="limit-highlight">
+                <div class="limit-highlight-icon">
+                  <q-icon name="receipt_long" size="20px" color="primary" />
+                </div>
+                <div>
+                  <div class="text-caption text-grey-7">Transações por mês</div>
+                  <div class="text-h6 text-weight-bold text-grey-9">
+                    {{ formatLimit(plan.max_transactions) }}
                   </div>
                 </div>
               </div>
@@ -149,22 +153,23 @@
 
             <!-- Features Section -->
             <q-card-section class="features-section q-pa-lg">
-              <div class="text-subtitle2 text-weight-bold text-grey-8 q-mb-md">
-                <q-icon name="check_circle" class="q-mr-xs" />
-                Recursos Incluídos
+              <div class="text-subtitle2 text-grey-7 text-uppercase q-mb-md" style="font-size: 0.7rem; letter-spacing: 1px;">
+                O que está incluído
               </div>
-              <div class="features-list">
+              <div class="features-list-modern">
                 <div 
                   v-for="(feature, index) in getDisplayFeatures(plan)" 
                   :key="index"
-                  class="feature-item"
+                  class="feature-item-modern"
                 >
-                  <q-icon 
-                    :name="feature.included ? 'check_circle' : 'cancel'" 
-                    :color="feature.included ? 'positive' : 'grey-5'"
-                    size="20px"
-                  />
-                  <span :class="{ 'text-grey-6': !feature.included }">
+                  <div class="feature-check">
+                    <q-icon 
+                      name="check" 
+                      :color="feature.included ? 'positive' : 'grey-4'"
+                      size="16px"
+                    />
+                  </div>
+                  <span class="feature-text" :class="{ 'text-grey-5': !feature.included }">
                     {{ feature.text }}
                   </span>
                 </div>
@@ -172,23 +177,25 @@
             </q-card-section>
 
             <!-- CTA Section -->
-            <q-card-section class="q-pa-lg">
+            <q-card-section class="q-pa-lg q-pt-md">
               <q-btn
                 v-if="isCurrentPlan(plan)"
-                color="grey-6"
-                label="Seu Plano Atual"
-                icon="verified"
-                class="full-width cta-button"
+                outline
+                color="grey-7"
+                label="Plano Atual"
+                icon-right="check"
+                class="full-width cta-button-modern"
                 size="lg"
+                unelevated
                 disable
               />
               <q-btn
                 v-else
-                :color="getPlanColorName(plan)"
+                :color="plan.name === 'Pro' ? 'primary' : 'grey-8'"
                 :label="getActionLabel(plan)"
-                :icon="getActionIcon(plan)"
-                class="full-width cta-button"
+                class="full-width cta-button-modern"
                 size="lg"
+                unelevated
                 @click="handlePlanSelection(plan)"
               />
             </q-card-section>
@@ -383,6 +390,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from 'src/stores/auth'
 import { plansList } from 'src/apis/plans'
+import { userPlanUpdate } from 'src/apis/user'
 import { useNotifications } from 'src/composables/useNotifications'
 
 // Stores & Composables
@@ -730,29 +738,65 @@ function getUpgradeButtonLabel() {
 }
 
 async function confirmUpgrade() {
-  if (!selectedPlanData.value) return
+  if (!selectedPlanData.value) {
+    notifyWarning('Nenhum plano selecionado')
+    return
+  }
+  
+  // Previne alteração para o mesmo plano
+  if (isCurrentPlan(selectedPlanData.value)) {
+    notifyWarning('Este já é o seu plano atual')
+    closeUpgradeDialog()
+    return
+  }
   
   processing.value = true
   
   try {
-    // TODO: Implement actual payment/upgrade logic here
-    // For now, just simulate
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    console.log('🔄 Atualizando plano do usuário...')
+    console.log('📦 Plano selecionado:', selectedPlanData.value.name, '| ID:', selectedPlanData.value.id)
     
-    // Update user plan_id in store
-    authStore.updateUser({
-      ...user.value,
-      plan_id: selectedPlanData.value.id
+    // Chama API para atualizar o plano do usuário
+    // Note: API usa "planId" (camelCase) conforme documentação do backend
+    const response = await userPlanUpdate({
+      planId: selectedPlanData.value.id
     })
     
+    console.log('✅ Resposta da API:', response)
+    
+    // Atualiza dados do usuário no store
+    const updatedUser = response?.data?.user || response?.user || {
+      ...user.value,
+      plan_id: selectedPlanData.value.id
+    }
+    
+    authStore.updateUser(updatedUser)
+    
+    // Feedback de sucesso
+    const actionText = isUpgradeAction() ? 'atualizado' : 'alterado'
     notifySuccess(
-      `Parabéns! Seu plano foi ${isUpgradeAction() ? 'atualizado' : 'alterado'} com sucesso!`
+      `Parabéns! Seu plano foi ${actionText} para ${selectedPlanData.value.name} com sucesso!`,
+      {
+        icon: 'celebration',
+        position: 'top'
+      }
     )
     
     closeUpgradeDialog()
+    
+    // Recarrega os planos para garantir dados atualizados
+    await fetchPlans()
+    
   } catch (err) {
-    console.error('Erro ao processar upgrade:', err)
-    notifyError('Erro ao processar alteração de plano. Tente novamente.')
+    console.error('❌ Erro ao processar upgrade:', err)
+    
+    const errorMessage = err?.message 
+      || err?.response?.data?.message 
+      || 'Erro ao processar alteração de plano. Tente novamente.'
+    
+    notifyError(errorMessage, {
+      timeout: 5000
+    })
   } finally {
     processing.value = false
   }
@@ -772,38 +816,40 @@ onMounted(() => {
 
 // Hero Section
 .hero-section {
-  background: linear-gradient(135deg, var(--q-primary) 0%, var(--q-secondary) 100%);
-  background-size: 200% 200%;
-  animation: gradientShift 15s ease infinite;
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,101.3C1248,85,1344,75,1392,69.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
-    background-size: cover;
-    opacity: 0.3;
-  }
+  background: var(--bg-primary, #ffffff);
+  padding-top: 4rem;
+  padding-bottom: 2rem;
 }
 
-.hero-content {
-  position: relative;
-  z-index: 1;
+.hero-badge {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.hero-chip {
+  font-weight: 600;
+  letter-spacing: 1px;
+  font-size: 0.7rem;
 }
 
 .hero-title {
-  color: var(--text-on-primary);
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  color: var(--text-primary, #1a1a1a);
+  font-weight: 700;
+  line-height: 1.2;
   animation: fadeInUp 0.8s ease-out;
+}
+
+.hero-subtitle {
+  max-width: 500px;
+  margin: 0 auto;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
 }
 
 // Current Plan Banner
 .current-plan-banner {
+  background: var(--bg-secondary, #f8f9fa);
+  border: 2px solid var(--color-border, #e0e0e0);
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.5rem;
   animation: slideInDown 0.6s ease-out;
 }
 
@@ -836,11 +882,13 @@ onMounted(() => {
 
 // Plan Cards
 .plan-card {
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  background: var(--bg-primary);
+  border-radius: var(--radius-lg, 12px);
+  overflow: visible;
+  transition: all 0.3s ease;
+  background: var(--bg-primary, #ffffff);
+  border: 2px solid var(--color-border, #e0e0e0);
   position: relative;
+  height: 100%;
   animation: cardEnter 0.6s ease-out backwards;
   
   &:nth-child(1) { animation-delay: 0.1s; }
@@ -848,88 +896,137 @@ onMounted(() => {
   &:nth-child(3) { animation-delay: 0.3s; }
   
   &:hover {
-    transform: translateY(-12px) scale(1.02);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
+    transform: translateY(-4px);
+    border-color: var(--q-primary);
+    box-shadow: 0 12px 24px -10px rgba(var(--q-primary-rgb), 0.2);
   }
 }
 
-.popular-card {
-  border: 3px solid var(--q-warning);
-  transform: scale(1.05);
+.plan-card-featured {
+  border-color: var(--q-primary);
+  border-width: 2px;
+  box-shadow: 0 4px 16px rgba(var(--q-primary-rgb), 0.15);
   
   &:hover {
-    transform: translateY(-12px) scale(1.07);
+    transform: translateY(-6px);
+    box-shadow: 0 16px 32px -12px rgba(var(--q-primary-rgb), 0.25);
   }
 }
 
-.current-card {
-  border: 3px solid var(--q-positive);
+.plan-card-current {
+  border-color: var(--q-positive);
+  background: linear-gradient(to bottom, rgba(var(--q-positive-rgb), 0.02) 0%, var(--bg-primary) 100%);
 }
 
-.plan-badge {
+.featured-ribbon {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: var(--q-primary);
+  color: white;
+  padding: 6px 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border-radius: 0 var(--radius-lg) 0 var(--radius-lg);
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.current-tag {
   position: absolute;
   top: 16px;
   right: 16px;
   z-index: 10;
-  animation: iconPulse 2s ease-in-out infinite;
-}
-
-.badge-chip {
-  font-weight: bold;
-  font-size: 11px;
-  letter-spacing: 0.5px;
-}
-
-.current-badge {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  z-index: 10;
-  animation: slideInLeft 0.6s ease-out;
 }
 
 .plan-header {
   padding: 32px 24px;
-  background: linear-gradient(135deg, var(--q-primary) 0%, var(--q-secondary) 100%);
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--color-border);
   position: relative;
-  overflow: hidden;
+  text-align: center;
+}
+
+.plan-icon-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
   
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-    animation: rotate 20s linear infinite;
+  .q-icon {
+    font-size: 28px;
+  }
+  
+  .plan-card:hover & {
+    transform: scale(1.1) rotate(5deg);
   }
 }
 
-.plan-icon {
-  animation: iconPulse 3s ease-in-out infinite;
+.plan-icon-circle-free {
+  background: rgba(var(--q-grey-8-rgb), 0.1);
+  color: var(--q-grey-8);
+  
+  .plan-card:hover & {
+    background: var(--q-grey-8);
+    color: white;
+  }
+}
+
+.plan-icon-circle-pro {
+  background: rgba(var(--q-primary-rgb), 0.15);
+  color: var(--q-primary);
+  
+  .plan-card:hover & {
+    background: var(--q-primary);
+    color: white;
+  }
+}
+
+.plan-icon-circle-premium {
+  background: rgba(var(--q-warning-rgb), 0.15);
+  color: var(--q-warning);
+  
+  .plan-card:hover & {
+    background: var(--q-warning);
+    color: white;
+  }
 }
 
 .plan-subtitle {
-  opacity: 0.9;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 // Price Section
 .price-section {
-  background: linear-gradient(to bottom, var(--color-grey-50) 0%, var(--bg-primary) 100%);
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--color-border);
 }
 
-.price-wrapper {
-  animation: fadeIn 0.8s ease-out;
+.price-display {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
 }
 
-.price-amount {
+.price-currency {
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.price-value {
   font-size: 3rem;
+  color: var(--text-primary);
+  font-weight: 700;
   line-height: 1;
-  background: linear-gradient(135deg, var(--q-primary) 0%, var(--q-secondary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .price-period {
@@ -942,54 +1039,67 @@ onMounted(() => {
 
 // Limits Section
 .limits-section {
-  background: var(--color-grey-50);
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--color-border);
 }
 
-.limits-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 16px;
-}
-
-.limit-item {
+.limit-highlight {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
-  padding: 12px;
-  background: var(--bg-primary);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  padding: 16px;
+  background: rgba(var(--q-primary-rgb), 0.05);
+  border: 1px solid rgba(var(--q-primary-rgb), 0.15);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
   
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  .q-icon {
+    font-size: 24px;
+    color: var(--q-primary);
   }
 }
 
-.limit-icon {
-  flex-shrink: 0;
-}
-
-.limit-info {
-  flex: 1;
-}
-
 .limit-value {
-  font-size: 1.25rem;
-  font-weight: bold;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: var(--q-primary);
-  line-height: 1.2;
 }
 
 .limit-label {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  margin-left: 4px;
 }
 
 // Features Section
+.features-section {
+  background: var(--bg-primary);
+  padding: var(--spacing-6);
+}
+
+.features-list-modern {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.feature-item-modern {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  
+  .q-icon {
+    font-size: 18px;
+    color: var(--q-positive);
+    flex-shrink: 0;
+  }
+}
+
+// Legacy features (if still used)
 .features-list {
   display: flex;
   flex-direction: column;
@@ -1005,16 +1115,25 @@ onMounted(() => {
   line-height: 1.5;
   transition: all 0.2s ease;
   
-  &:hover {
-    transform: translateX(4px);
-  }
-  
   i {
     margin-top: 2px;
   }
 }
 
 // CTA Button
+.cta-button-modern {
+  width: 100%;
+  padding: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+}
+
+// Legacy button (if still used)
 .cta-button {
   border-radius: var(--radius-lg);
   font-weight: bold;
@@ -1034,33 +1153,38 @@ onMounted(() => {
 }
 
 .comparison-card {
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   overflow: hidden;
+  border: 1px solid var(--color-border);
   
   .q-markup-table {
     thead tr th {
-      background: linear-gradient(135deg, var(--q-primary) 0%, var(--q-secondary) 100%);
-      color: var(--text-on-primary);
-      font-weight: bold;
-      padding: var(--spacing-5) var(--spacing-4);
-      font-size: 1rem;
+      background: var(--q-primary);
+      color: white;
+      font-weight: 600;
+      padding: var(--spacing-4);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     
     tbody tr {
       transition: background-color 0.2s ease;
       
       &:hover {
-        background-color: var(--color-grey-50);
+        background-color: rgba(var(--q-primary-rgb), 0.02);
       }
       
       td {
         padding: var(--spacing-4);
-        font-size: 0.95rem;
+        font-size: 0.875rem;
+        border-bottom: 1px solid var(--color-border);
       }
       
       td:first-child {
-        font-weight: 500;
-        background: var(--color-grey-50);
+        font-weight: 600;
+        background: rgba(var(--q-primary-rgb), 0.03);
+        color: var(--text-primary);
       }
     }
   }
@@ -1119,20 +1243,11 @@ onMounted(() => {
   color: var(--text-primary);
 }
 
-// Animations
-@keyframes gradientShift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
+// Animations - Subtle & Modern
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -1152,69 +1267,22 @@ onMounted(() => {
 @keyframes slideInDown {
   from {
     opacity: 0;
-    transform: translateY(-30px);
+    transform: translateY(-20px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
   }
 }
 
 @keyframes cardEnter {
   from {
     opacity: 0;
-    transform: translateY(40px) scale(0.9);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes bounce {
-  0%, 100% {
     transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
-
-@keyframes iconPulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-}
-
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes shimmer {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
   }
 }
 
@@ -1232,16 +1300,16 @@ onMounted(() => {
     margin-bottom: 24px;
   }
   
-  .popular-card {
-    transform: scale(1);
+  .plan-card-featured {
+    border-width: 2px;
   }
   
-  .price-amount {
+  .price-value {
     font-size: 2.5rem;
   }
   
-  .limits-grid {
-    grid-template-columns: 1fr;
+  .comparison-card .q-markup-table {
+    font-size: 0.75rem;
   }
 }
 </style>

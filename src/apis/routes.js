@@ -16,6 +16,7 @@ export const FINANCIAL_ROUTES = {
   userSettingsGet: "/users/settings",
   userSettingsUpdate: "/users/settings",
   userAccountDelete: "/users/account",
+  userPlanUpdate: "/users/plan",
 
   // ========== TRANSACTIONS ==========
   transactionsList: "/transactions",

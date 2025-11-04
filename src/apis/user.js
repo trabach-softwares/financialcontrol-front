@@ -160,3 +160,24 @@ export async function userAccountDelete(payload, config = {}) {
     return Promise.reject(handleApiError(error));
   }
 }
+
+/**
+ * Atualiza o plano de assinatura do usuário
+ * @param {Object} payload - Dados do plano
+ * @param {string} payload.planId - ID do plano escolhido (camelCase conforme API)
+ * @param {Object} [config] - Configurações adicionais
+ * @returns {Promise<Object>} Dados atualizados do usuário
+ */
+export async function userPlanUpdate(payload, config = {}) {
+  try {
+    const { data } = await api.put(
+      FINANCIAL_ROUTES.userPlanUpdate,
+      payload,
+      config
+    );
+    return data;
+  } catch (error) {
+    return Promise.reject(handleApiError(error));
+  }
+}
+
