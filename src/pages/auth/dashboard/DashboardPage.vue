@@ -1,235 +1,252 @@
 <template>
-  <q-page class="dashboard-page">
-    <div class="q-pa-md">
+  <q-page class="modern-dashboard">
+    <div class="dashboard-wrapper q-pa-md">
       
       <!-- ==========================================================================
-      CABEÇALHO DO DASHBOARD
+      CABEÇALHO ULTRA-MODERNO
       ========================================================================== -->
-      <div class="row q-col-gutter-md q-mb-lg">
-        <div class="col-12">
-          <div class="welcome-section">
-            <h1 class="text-h4 q-mb-xs">
-              Olá, {{ authStore.userDisplayName }}!
+      <div class="hero-header q-mb-lg">
+        <div class="hero-content">
+          <div class="hero-left">
+            <div class="greeting-badge q-mb-sm">
+              <q-icon name="wb_sunny" size="1.2rem" class="q-mr-xs" />
+              {{ getCurrentGreeting() }}
+            </div>
+            <h1 class="hero-title q-mb-xs">
+              Olá, <span class="name-highlight">{{ authStore.userDisplayName }}</span>! 👋
             </h1>
-            <p class="text-subtitle1">
-              Aqui está um resumo das suas finanças
+            <p class="hero-subtitle">
+              {{ getCurrentDate() }} • Seu controle financeiro em tempo real
             </p>
+          </div>
+          
+          <div class="hero-actions">
+            <q-btn
+              icon="add_circle_outline"
+              label="Receita"
+              unelevated
+              no-caps
+              size="md"
+              class="hero-btn income-hero-btn"
+              @click="openTransactionDialog('income')"
+            >
+              <q-icon name="arrow_upward" size="1rem" class="q-ml-xs" />
+            </q-btn>
+            
+            <q-btn
+              icon="remove_circle_outline"
+              label="Despesa"
+              unelevated
+              no-caps
+              size="md"
+              class="hero-btn expense-hero-btn"
+              @click="openTransactionDialog('expense')"
+            >
+              <q-icon name="arrow_downward" size="1rem" class="q-ml-xs" />
+            </q-btn>
           </div>
         </div>
       </div>
 
       <!-- ==========================================================================
-      CARDS DE MÉTRICAS PRINCIPAIS
+      CARDS DE MÉTRICAS PREMIUM
       ========================================================================== -->
-      <div class="row q-col-gutter-md q-mb-lg">
+      <div class="row q-col-gutter-lg q-mb-xl">
         
-        <!-- Card de Receitas -->
-        <div class="col-12 col-sm-6 col-md-3">
-          <q-card class="dashboard-metric-card income-card" flat bordered>
-            <q-card-section class="flex items-center justify-between">
-              <div v-if="!isLoadingStats">
-                <div class="metric-label text-caption">
-                  Receitas
-                </div>
-                <div class="metric-value text-h5 text-green-7 q-mb-xs">
-                  {{ formatCurrency(transactionStats.totalIncome) }}
-                </div>
-                <div class="metric-trend text-green-6 text-caption">
-                  <q-icon name="trending_up" size="xs" />
-                  {{ transactionStats.incomeGrowth > 0 ? '+' : '' }}{{ transactionStats.incomeGrowth.toFixed(1) }}% este mês
-                </div>
+        <!-- Card de Receitas Premium -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="metric-card income-metric" @click="$router.push('/transactions?type=income')">
+            <div class="metric-icon-wrapper income-icon">
+              <q-icon name="arrow_upward" size="2rem" />
+            </div>
+            <div class="metric-content">
+              <div class="metric-label">Receitas</div>
+              <div v-if="!isLoadingStats" class="metric-value">
+                {{ formatCurrency(transactionStats.totalIncome) }}
               </div>
-              <div v-else class="full-width">
-                <q-skeleton type="text" width="30%" />
-                <q-skeleton type="text" width="60%" height="2rem" class="q-mt-xs" />
-                <q-skeleton type="text" width="40%" />
+              <q-skeleton v-else type="text" width="70%" height="2rem" />
+              <div v-if="!isLoadingStats" class="metric-badge positive">
+                <q-icon name="trending_up" size="0.9rem" />
+                <span>+{{ transactionStats.incomeGrowth.toFixed(1) }}%</span>
               </div>
-              <q-icon 
-                name="trending_up" 
-                size="2.5rem" 
-                color="green-6" 
-                class="metric-icon"
-              />
-            </q-card-section>
-          </q-card>
+            </div>
+            <div class="metric-bg-icon">
+              <q-icon name="arrow_upward" />
+            </div>
+          </div>
         </div>
 
-        <!-- Card de Despesas -->
-        <div class="col-12 col-sm-6 col-md-3">
-          <q-card class="dashboard-metric-card expense-card" flat bordered>
-            <q-card-section class="flex items-center justify-between">
-              <div v-if="!isLoadingStats">
-                <div class="metric-label text-caption">
-                  Despesas
-                </div>
-                <div class="metric-value text-h5 text-red-7 q-mb-xs">
-                  {{ formatCurrency(transactionStats.totalExpense) }}
-                </div>
-                <div class="metric-trend text-red-6 text-caption">
-                  <q-icon name="trending_down" size="xs" />
-                  {{ transactionStats.expenseGrowth > 0 ? '+' : '' }}{{ transactionStats.expenseGrowth.toFixed(1) }}% este mês
-                </div>
+        <!-- Card de Despesas Premium -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="metric-card expense-metric" @click="$router.push('/transactions?type=expense')">
+            <div class="metric-icon-wrapper expense-icon">
+              <q-icon name="arrow_downward" size="2rem" />
+            </div>
+            <div class="metric-content">
+              <div class="metric-label">Despesas</div>
+              <div v-if="!isLoadingStats" class="metric-value">
+                {{ formatCurrency(transactionStats.totalExpense) }}
               </div>
-              <div v-else class="full-width">
-                <q-skeleton type="text" width="30%" />
-                <q-skeleton type="text" width="60%" height="2rem" class="q-mt-xs" />
-                <q-skeleton type="text" width="40%" />
+              <q-skeleton v-else type="text" width="70%" height="2rem" />
+              <div v-if="!isLoadingStats" class="metric-badge negative">
+                <q-icon name="trending_down" size="0.9rem" />
+                <span>{{ transactionStats.expenseGrowth.toFixed(1) }}%</span>
               </div>
-              <q-icon 
-                name="trending_down" 
-                size="2.5rem" 
-                color="red-6" 
-                class="metric-icon"
-              />
-            </q-card-section>
-          </q-card>
+            </div>
+            <div class="metric-bg-icon">
+              <q-icon name="arrow_downward" />
+            </div>
+          </div>
         </div>
 
-        <!-- Card de Saldo -->
-        <div class="col-12 col-sm-6 col-md-3">
-          <q-card class="dashboard-metric-card balance-card" flat bordered>
-            <q-card-section class="flex items-center justify-between">
-              <div v-if="!isLoadingStats">
-                <div class="metric-label text-caption">
-                  Saldo
-                </div>
-                <div class="metric-value text-h5 q-mb-xs" :class="balanceColor">
-                  {{ formatCurrency(transactionStats.balance) }}
-                </div>
-                <div class="metric-trend text-caption">
-                  <q-icon name="account_balance_wallet" size="xs" />
-                  Posição atual
-                </div>
+        <!-- Card de Saldo Premium -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="metric-card balance-metric" @click="$router.push('/transactions')">
+            <div class="metric-icon-wrapper balance-icon">
+              <q-icon name="account_balance_wallet" size="2rem" />
+            </div>
+            <div class="metric-content">
+              <div class="metric-label">Saldo Total</div>
+              <div v-if="!isLoadingStats" class="metric-value" :class="balanceColor">
+                {{ formatCurrency(transactionStats.balance) }}
               </div>
-              <div v-else class="full-width">
-                <q-skeleton type="text" width="30%" />
-                <q-skeleton type="text" width="60%" height="2rem" class="q-mt-xs" />
-                <q-skeleton type="text" width="40%" />
+              <q-skeleton v-else type="text" width="70%" height="2rem" />
+              <div v-if="!isLoadingStats" class="metric-badge neutral">
+                <q-icon name="savings" size="0.9rem" />
+                <span>Posição Atual</span>
               </div>
-              <q-icon 
-                name="account_balance_wallet" 
-                size="2.5rem" 
-                :color="transactionStats.balance >= 0 ? 'blue-6' : 'orange-6'" 
-                class="metric-icon"
-              />
-            </q-card-section>
-          </q-card>
+            </div>
+            <div class="metric-bg-icon">
+              <q-icon name="account_balance_wallet" />
+            </div>
+          </div>
         </div>
 
-        <!-- Card de Transações -->
-        <div class="col-12 col-sm-6 col-md-3">
-          <q-card class="dashboard-metric-card transactions-card" flat bordered>
-            <q-card-section class="flex items-center justify-between">
-              <div v-if="!isLoadingStats">
-                <div class="metric-label text-caption">
-                  Transações
-                </div>
-                <div class="metric-value text-h5 text-purple-7 q-mb-xs">
-                  {{ transactionStats.transactionCount }}
-                </div>
-                <div class="metric-trend text-purple-6 text-caption">
-                  <q-icon name="receipt_long" size="xs" />
-                  Este período
-                </div>
+        <!-- Card de Transações Premium -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="metric-card transactions-metric" @click="$router.push('/transactions')">
+            <div class="metric-icon-wrapper transactions-icon">
+              <q-icon name="receipt_long" size="2rem" />
+            </div>
+            <div class="metric-content">
+              <div class="metric-label">Transações</div>
+              <div v-if="!isLoadingStats" class="metric-value">
+                {{ transactionStats.transactionCount }}
               </div>
-              <div v-else class="full-width">
-                <q-skeleton type="text" width="30%" />
-                <q-skeleton type="text" width="60%" height="2rem" class="q-mt-xs" />
-                <q-skeleton type="text" width="40%" />
+              <q-skeleton v-else type="text" width="70%" height="2rem" />
+              <div v-if="!isLoadingStats" class="metric-badge info">
+                <q-icon name="history" size="0.9rem" />
+                <span>Este mês</span>
               </div>
-              <q-icon 
-                name="receipt_long" 
-                size="2.5rem" 
-                color="purple-6" 
-                class="metric-icon"
-              />
-            </q-card-section>
-          </q-card>
+            </div>
+            <div class="metric-bg-icon">
+              <q-icon name="receipt_long" />
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- ==========================================================================
-      GRÁFICOS E ANÁLISES
+      SEÇÃO SECUNDÁRIA - ANÁLISES E AÇÕES
       ========================================================================== -->
-      <div class="row q-col-gutter-md q-mb-lg">
+      <div class="row q-col-gutter-lg q-mb-lg">
         
-        <!-- Gráfico de Evolução Financeira -->
-        <div class="col-12 col-md-8">
-          <q-card class="chart-card" flat bordered>
-            <q-card-section class="flex items-center justify-between">
+        <!-- Gráfico de Categorias Melhorado -->
+        <div class="col-12 col-md-5">
+          <div class="category-chart-card">
+            <div class="chart-header-simple">
+              <div class="chart-icon-wrapper category">
+                <q-icon name="pie_chart" size="1.3rem" />
+              </div>
               <div>
-                <h6 class="text-h6 q-ma-none">
-                  Evolução Financeira
-                </h6>
-                <p class="text-caption q-ma-none">
-                  Receitas vs Despesas nos últimos meses
-                </p>
+                <h6 class="chart-title-small">Despesas por Categoria</h6>
+                <p class="chart-subtitle-small">Onde seu dinheiro está sendo gasto</p>
               </div>
-              
-              <!-- Filtros de período -->
-              <q-btn-toggle
-                v-model="chartPeriod"
-                toggle-color="primary"
-                :options="[
-                  { label: '3M', value: '3months' },
-                  { label: '6M', value: '6months' },
-                  { label: '1A', value: '1year' }
-                ]"
-                no-caps
-                flat
-                dense
-                @update:model-value="updateChartData"
-              />
-            </q-card-section>
+            </div>
             
-            <q-card-section class="chart-container">
-              <div v-if="isLoadingCharts" class="flex items-center justify-center full-height">
-                <q-spinner-dots color="primary" size="2em" />
-              </div>
-              <canvas 
-                v-else
-                ref="lineChartRef" 
-                id="lineChart"
-                class="full-width"
-              ></canvas>
-            </q-card-section>
-          </q-card>
-        </div>
-
-        <!-- Gráfico de Categorias -->
-        <div class="col-12 col-md-4">
-          <q-card class="chart-card" flat bordered>
-            <q-card-section>
-              <h6 class="text-h6 q-ma-none">
-                Por Categoria
-              </h6>
-              <p class="text-caption q-ma-none">
-                Distribuição das despesas
-              </p>
-            </q-card-section>
-            
-            <q-card-section class="chart-container">
-              <div v-if="isLoadingCharts" class="flex items-center justify-center full-height">
+            <div class="category-chart-body">
+              <div v-if="isLoadingCharts" class="chart-loading-small">
                 <q-spinner-dots color="primary" size="2em" />
               </div>
               <canvas 
                 v-else
                 ref="doughnutChartRef" 
                 id="doughnutChart"
-                class="full-width"
+                class="category-chart-canvas"
               ></canvas>
-            </q-card-section>
-          </q-card>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ações Rápidas Melhoradas -->
+        <div class="col-12 col-md-7">
+          <div class="quick-actions-modern">
+            <div class="actions-header">
+              <div class="chart-icon-wrapper actions">
+                <q-icon name="bolt" size="1.3rem" />
+              </div>
+              <div>
+                <h6 class="chart-title-small">Ações Rápidas</h6>
+                <p class="chart-subtitle-small">Gerencie suas finanças rapidamente</p>
+              </div>
+            </div>
+            
+            <div class="actions-grid">
+              <div class="action-card" @click="openTransactionDialog('income')">
+                <div class="action-icon income">
+                  <q-icon name="add_circle" size="2rem" />
+                </div>
+                <div class="action-content">
+                  <h6 class="action-title">Nova Receita</h6>
+                  <p class="action-description">Registrar entrada de dinheiro</p>
+                </div>
+                <q-icon name="arrow_forward" class="action-arrow" />
+              </div>
+              
+              <div class="action-card" @click="openTransactionDialog('expense')">
+                <div class="action-icon expense">
+                  <q-icon name="remove_circle" size="2rem" />
+                </div>
+                <div class="action-content">
+                  <h6 class="action-title">Nova Despesa</h6>
+                  <p class="action-description">Registrar saída de dinheiro</p>
+                </div>
+                <q-icon name="arrow_forward" class="action-arrow" />
+              </div>
+              
+              <div class="action-card" @click="$router.push('/transactions')">
+                <div class="action-icon transactions">
+                  <q-icon name="list_alt" size="2rem" />
+                </div>
+                <div class="action-content">
+                  <h6 class="action-title">Ver Transações</h6>
+                  <p class="action-description">Histórico completo</p>
+                </div>
+                <q-icon name="arrow_forward" class="action-arrow" />
+              </div>
+              
+              <div class="action-card" @click="$router.push('/reports')">
+                <div class="action-icon reports">
+                  <q-icon name="assessment" size="2rem" />
+                </div>
+                <div class="action-content">
+                  <h6 class="action-title">Relatórios</h6>
+                  <p class="action-description">Análises detalhadas</p>
+                </div>
+                <q-icon name="arrow_forward" class="action-arrow" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- ==========================================================================
-      TRANSAÇÕES RECENTES E AÇÕES RÁPIDAS
+      TRANSAÇÕES RECENTES
       ========================================================================== -->
       <div class="row q-col-gutter-md">
         
         <!-- Lista de Transações Recentes -->
-        <div class="col-12 col-md-8">
+        <div class="col-12">
           <q-card class="recent-transactions-card" flat bordered>
             <q-card-section class="flex items-center justify-between">
               <div>
@@ -314,74 +331,84 @@
             </q-card-section>
           </q-card>
         </div>
+      </div>
 
-        <!-- Ações Rápidas -->
-        <div class="col-12 col-md-4">
-          <q-card class="quick-actions-card" flat bordered>
-            <q-card-section>
-              <h6 class="text-h6 q-ma-none">
-                Ações Rápidas
-              </h6>
-              <p class="text-caption q-ma-none">
-                Adicionar movimentações
-              </p>
-            </q-card-section>
-
-            <q-card-section class="q-pt-none">
-              <div class="q-gutter-md">
-                
-                <!-- Botão Adicionar Receita -->
-                <q-btn
-                  label="Nova Receita"
-                  icon="add_circle"
-                  color="green-6"
-                  class="full-width"
-                  size="md"
-                  no-caps
-                  @click="openTransactionDialog('income')"
-                />
-
-                <!-- Botão Adicionar Despesa -->
-                <q-btn
-                  label="Nova Despesa"
-                  icon="remove_circle"
-                  color="red-6"
-                  class="full-width"
-                  size="md"
-                  no-caps
-                  @click="openTransactionDialog('expense')"
-                />
-
-                <!-- Separador -->
-                <q-separator class="q-my-md" />
-
-                <!-- Links Úteis -->
-                <div class="quick-links">
-                  <q-btn
-                    label="Relatórios"
-                    icon="assessment"
-                    flat
-                    color="primary"
-                    class="full-width"
-                    no-caps
-                    align="left"
-                    @click="$router.push('/reports')"
-                  />
-                  
-                  <q-btn
-                    label="Configurações"
-                    icon="settings"
-                    flat
-                    color="primary"
-                    class="full-width"
-                    no-caps
-                    align="left"
-                    @click="$router.push('/profile')"
-                  />
+      <!-- ==========================================================================
+      GRÁFICO DE EVOLUÇÃO FINANCEIRA - ANÁLISE DETALHADA
+      ========================================================================== -->
+      <div class="row q-mt-xl q-mb-lg">
+        <div class="col-12">
+          <div class="main-chart-card">
+            <div class="chart-header">
+              <div class="chart-header-left">
+                <div class="chart-icon-wrapper">
+                  <q-icon name="trending_up" size="1.5rem" />
+                </div>
+                <div>
+                  <h5 class="chart-title">Evolução Financeira</h5>
+                  <p class="chart-subtitle">Acompanhe suas receitas e despesas ao longo do tempo</p>
                 </div>
               </div>
-            </q-card-section>
-          </q-card>
+              
+              <div class="chart-period-selector">
+                <q-btn-toggle
+                  v-model="chartPeriod"
+                  :options="[
+                    { label: 'Este mês', value: 'current-month', icon: 'today' },
+                    { label: '7 dias', value: '7days', icon: 'event_note' },
+                    { label: '30 dias', value: '30days', icon: 'calendar_view_week' },
+                    { label: '3 meses', value: '3months', icon: 'calendar_view_month' },
+                    { label: '6 meses', value: '6months', icon: 'date_range' },
+                    { label: '1 ano', value: '1year', icon: 'calendar_today' }
+                  ]"
+                  no-caps
+                  unelevated
+                  class="period-toggle"
+                  @update:model-value="updateChartData"
+                />
+              </div>
+            </div>
+            
+            <div class="chart-body">
+              <div v-if="isLoadingCharts" class="chart-loading">
+                <q-spinner-dots color="primary" size="3em" />
+                <p>Carregando dados...</p>
+              </div>
+              <canvas 
+                v-else
+                ref="lineChartRef" 
+                id="lineChart"
+                class="main-chart-canvas"
+              ></canvas>
+            </div>
+            
+            <!-- Legenda personalizada com totais -->
+            <div class="chart-legend">
+              <div class="legend-item">
+                <span class="legend-dot income"></span>
+                <div class="legend-content">
+                  <span class="legend-label">Receitas</span>
+                  <span class="legend-value">{{ formatCurrency(chartPeriodTotals.income) }}</span>
+                </div>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot expense"></span>
+                <div class="legend-content">
+                  <span class="legend-label">Despesas</span>
+                  <span class="legend-value">{{ formatCurrency(chartPeriodTotals.expense) }}</span>
+                </div>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot balance"></span>
+                <div class="legend-content">
+                  <span class="legend-label">Saldo Final</span>
+                  <span class="legend-value" :class="chartPeriodTotals.balance >= 0 ? 'positive' : 'negative'">
+                    {{ formatCurrency(chartPeriodTotals.balance) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -390,40 +417,17 @@
     DIALOG DE NOVA TRANSAÇÃO
     ========================================================================== -->
     <q-dialog 
-      v-model="showAddTransactionDialog" 
-      persistent 
+      v-model="showAddTransactionDialog"
       maximized 
       transition-show="slide-up" 
       transition-hide="slide-down"
     >
-      <q-card class="transaction-dialog">
-        <q-bar class="bg-primary text-white">
-          <q-icon name="receipt_long" />
-          <div class="text-weight-medium">
-            {{ newTransactionType === 'income' ? 'Nova Receita' : 'Nova Despesa' }}
-          </div>
-          <q-space />
-          <q-btn 
-            dense 
-            flat 
-            icon="close" 
-            @click="closeTransactionDialog"
-          />
-        </q-bar>
-
-        <q-card-section class="q-pa-lg">
-          <!-- Formulário será implementado no próximo componente -->
-          <div class="text-center q-py-xl">
-            <q-icon name="construction" size="4rem" color="grey-4" />
-            <p class="text-h6 q-mt-md">
-              Formulário de transação
-            </p>
-            <p class="text-caption">
-              Será implementado na página de transações
-            </p>
-          </div>
-        </q-card-section>
-      </q-card>
+      <TransactionForm
+        mode="create"
+        :initialType="newTransactionType"
+        @cancelled="closeTransactionDialog"
+        @saved="handleTransactionSuccess"
+      />
     </q-dialog>
   </q-page>
 </template>
@@ -431,12 +435,14 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
 import { useAuthStore } from 'src/stores/auth'
 import { useTransactionStore } from 'src/stores/transactions'
 import { useDashboardStore } from 'src/stores/dashboard'
 import { useCurrency } from 'src/composables/useCurrency'
 import { useDate } from 'src/composables/useDate'
 import { Chart, registerables } from 'chart.js'
+import TransactionForm from 'src/components/TransactionForm.vue'
 
 // Registrar componentes do Chart.js
 Chart.register(...registerables)
@@ -445,6 +451,7 @@ Chart.register(...registerables)
 // COMPOSABLES E STORES
 // ==========================================================================
 const router = useRouter()
+const $q = useQuasar()
 const authStore = useAuthStore()
 const transactionStore = useTransactionStore()
 const dashboardStore = useDashboardStore()
@@ -456,7 +463,7 @@ const { formatDate } = useDate()
 // ==========================================================================
 const showAddTransactionDialog = ref(false)
 const newTransactionType = ref('income')
-const chartPeriod = ref('6months')
+const chartPeriod = ref('current-month') // Inicia com o mês atual
 
 // Referências dos gráficos
 const lineChartRef = ref(null)
@@ -469,10 +476,23 @@ let doughnutChart = null
 // ==========================================================================
 
 /**
- * Estatísticas das transações
+ * Estatísticas das transações com valores padrão seguros
  */
 const transactionStats = computed(() => {
-  return dashboardStore.formattedStats
+  const stats = dashboardStore.formattedStats || {}
+  
+  const result = {
+    totalIncome: stats.totalIncome || 0,
+    totalExpense: stats.totalExpense || 0,
+    balance: stats.balance || 0,
+    transactionCount: stats.transactionCount || 0,
+    incomeGrowth: stats.incomeGrowth || 0,
+    expenseGrowth: stats.expenseGrowth || 0
+  }
+  
+  console.log('📊 [DASHBOARD] Stats computados:', result)
+  
+  return result
 })
 
 /**
@@ -500,6 +520,37 @@ const isLoadingCharts = computed(() => {
   return dashboardStore.isLoadingCharts
 })
 
+/**
+ * Totais do período selecionado no gráfico
+ */
+const chartPeriodTotals = computed(() => {
+  const chartData = dashboardStore.monthlyEvolution
+  
+  if (!chartData || !chartData.datasets || chartData.datasets.length === 0) {
+    return {
+      income: 0,
+      expense: 0,
+      balance: 0
+    }
+  }
+  
+  // Datasets: [0] = Receitas, [1] = Despesas, [2] = Saldo
+  const incomeData = chartData.datasets[0]?.data || []
+  const expenseData = chartData.datasets[1]?.data || []
+  const balanceData = chartData.datasets[2]?.data || []
+  
+  // Somar todos os valores do período
+  const totalIncome = incomeData.reduce((sum, val) => sum + (val || 0), 0)
+  const totalExpense = expenseData.reduce((sum, val) => sum + (val || 0), 0)
+  const finalBalance = balanceData.length > 0 ? balanceData[balanceData.length - 1] : 0
+  
+  return {
+    income: totalIncome,
+    expense: totalExpense,
+    balance: finalBalance
+  }
+})
+
 // ==========================================================================
 // MÉTODOS
 // ==========================================================================
@@ -513,13 +564,50 @@ const loadDashboardData = async () => {
   try {
     // Carrega todos os dados do dashboard usando a nova store
     await dashboardStore.loadDashboard({
-      dateRange: {}, // Pode adicionar filtros aqui
+      period: chartPeriod.value, // Inclui o período atual dos gráficos
+      dateRange: {}, 
       recentLimit: 5
+    })
+    
+    console.log('✅ [DASHBOARD] Dados carregados:', {
+      stats: dashboardStore.stats,
+      formattedStats: dashboardStore.formattedStats,
+      chartData: dashboardStore.monthlyEvolution
     })
     
   } catch (error) {
     console.error('❌ [DASHBOARD] Erro ao carregar dados:', error.message)
+    console.error('Stack:', error.stack)
   }
+}
+
+/**
+ * Retorna saudação baseada no horário
+ */
+const getCurrentGreeting = () => {
+  const hour = new Date().getHours()
+  
+  if (hour >= 5 && hour < 12) {
+    return 'Bom dia'
+  } else if (hour >= 12 && hour < 18) {
+    return 'Boa tarde'
+  } else {
+    return 'Boa noite'
+  }
+}
+
+/**
+ * Retorna data formatada atual
+ */
+const getCurrentDate = () => {
+  const options = { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  }
+  
+  return new Date().toLocaleDateString('pt-BR', options)
 }
 
 /**
@@ -540,15 +628,80 @@ const closeTransactionDialog = () => {
 }
 
 /**
+ * Manipula sucesso ao criar transação
+ */
+const handleTransactionSuccess = async (transaction) => {
+  console.log('✅ [DASHBOARD] Transação criada com sucesso:', transaction)
+  
+  try {
+    // Fechar dialog
+    closeTransactionDialog()
+    
+    // Mostrar notificação
+    $q.notify({
+      type: 'positive',
+      message: transaction?.type === 'income' 
+        ? 'Receita adicionada com sucesso!' 
+        : 'Despesa adicionada com sucesso!',
+      position: 'top',
+      timeout: 2500,
+      icon: transaction?.type === 'income' ? 'trending_up' : 'trending_down'
+    })
+    
+    // Aguardar um momento para garantir que a transação foi salva
+    await new Promise(resolve => setTimeout(resolve, 300))
+    
+    // Recarregar TODOS os dados do dashboard
+    console.log('🔄 [DASHBOARD] Recarregando dados...')
+    await loadDashboardData()
+    
+    // Aguardar o DOM atualizar
+    await nextTick()
+    
+    // Destruir e reinicializar gráficos com novos dados
+    console.log('📊 [DASHBOARD] Reinicializando gráficos...')
+    if (lineChart) {
+      lineChart.destroy()
+      lineChart = null
+    }
+    if (doughnutChart) {
+      doughnutChart.destroy()
+      doughnutChart = null
+    }
+    
+    // Aguardar mais um tick
+    await nextTick()
+    
+    initLineChart()
+    initDoughnutChart()
+    
+    console.log('✅ [DASHBOARD] Dashboard atualizado com sucesso!')
+  } catch (error) {
+    console.error('❌ [DASHBOARD] Erro ao atualizar dashboard:', error)
+    $q.notify({
+      type: 'warning',
+      message: 'Transação salva, mas houve erro ao atualizar a tela. Recarregue a página.',
+      position: 'top',
+      timeout: 3000
+    })
+  }
+}
+
+/**
  * Inicializa gráfico de linha (Evolução Financeira)
  */
 const initLineChart = () => {
-  if (!lineChartRef.value) return
+  if (!lineChartRef.value) {
+    console.warn('⚠️ [CHART] Referência do canvas não encontrada')
+    return
+  }
   
   const ctx = lineChartRef.value.getContext('2d')
   
   // Usar dados reais da dashboard store
   const chartData = dashboardStore.monthlyEvolution
+  
+  console.log('📊 [CHART] Inicializando gráfico de linha com dados:', chartData)
 
   const config = {
     type: 'line',
@@ -556,44 +709,141 @@ const initLineChart = () => {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
       plugins: {
         legend: {
-          display: true,
-          position: 'bottom'
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            callback: function(value) {
-              return formatCurrency(value)
+          display: false  // Desabilitar legenda padrão (usando customizada)
+        },
+        tooltip: {
+          backgroundColor: 'rgba(255, 255, 255, 0.98)',
+          titleColor: '#1e293b',
+          titleFont: {
+            size: 14,
+            weight: 'bold'
+          },
+          bodyColor: '#475569',
+          bodyFont: {
+            size: 13
+          },
+          borderColor: '#e2e8f0',
+          borderWidth: 2,
+          padding: 16,
+          displayColors: true,
+          boxPadding: 6,
+          usePointStyle: true,
+          callbacks: {
+            title: function(tooltipItems) {
+              // Mostrar o label do período
+              return tooltipItems[0].label
+            },
+            label: function(context) {
+              let label = context.dataset.label || ''
+              if (label) {
+                label += ': '
+              }
+              label += formatCurrency(context.parsed.y)
+              return label
+            },
+            footer: function(tooltipItems) {
+              // Calcular o total do dia
+              let total = 0
+              tooltipItems.forEach(item => {
+                if (item.dataset.label === 'Receitas') {
+                  total += item.parsed.y
+                } else if (item.dataset.label === 'Despesas') {
+                  total -= item.parsed.y
+                }
+              })
+              return 'Total: ' + formatCurrency(total)
             }
           }
         }
       },
+      scales: {
+        x: {
+          grid: {
+            display: true,
+            color: 'rgba(226, 232, 240, 0.5)',
+            drawBorder: false,
+            drawTicks: false
+          },
+          ticks: {
+            color: '#64748b',
+            font: {
+              size: 11,
+              weight: '600'
+            },
+            padding: 8
+          },
+          border: {
+            display: false
+          }
+        },
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(226, 232, 240, 0.8)',
+            drawBorder: false,
+            drawTicks: false
+          },
+          ticks: {
+            color: '#64748b',
+            font: {
+              size: 11,
+              weight: '600'
+            },
+            padding: 12,
+            callback: function(value) {
+              // Formato compacto: 1k, 10k, 100k
+              if (value >= 1000000) {
+                return 'R$ ' + (value / 1000000).toFixed(1) + 'M'
+              } else if (value >= 1000) {
+                return 'R$ ' + (value / 1000).toFixed(0) + 'k'
+              }
+              return formatCurrency(value)
+            }
+          },
+          border: {
+            display: false
+          }
+        }
+      },
       elements: {
+        line: {
+          borderWidth: 3
+        },
         point: {
-          radius: 4,
-          hoverRadius: 6
+          radius: 5,
+          hoverRadius: 7,
+          borderWidth: 2,
+          hoverBorderWidth: 3
         }
       }
     }
   }
 
   lineChart = new Chart(ctx, config)
+  console.log('✅ [CHART] Gráfico de linha inicializado com sucesso')
 }
 
 /**
  * Inicializa gráfico de rosca (Categorias)
  */
 const initDoughnutChart = () => {
-  if (!doughnutChartRef.value) return
+  if (!doughnutChartRef.value) {
+    console.warn('⚠️ [CHART] Referência do canvas (doughnut) não encontrada')
+    return
+  }
   
   const ctx = doughnutChartRef.value.getContext('2d')
   
   // Usar dados reais da dashboard store
   const chartData = dashboardStore.categoryAnalysis
+  
+  console.log('🍩 [CHART] Inicializando gráfico de categorias com dados:', chartData)
 
   const config = {
     type: 'doughnut',
@@ -604,13 +854,44 @@ const initDoughnutChart = () => {
       plugins: {
         legend: {
           display: true,
-          position: 'bottom'
+          position: 'bottom',
+          labels: {
+            color: '#475569',
+            font: {
+              size: 12
+            },
+            padding: 15,
+            usePointStyle: true,
+            pointStyle: 'circle'
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          titleColor: '#1e293b',
+          bodyColor: '#475569',
+          borderColor: '#e2e8f0',
+          borderWidth: 1,
+          padding: 12,
+          callbacks: {
+            label: function(context) {
+              const label = context.label || ''
+              const value = formatCurrency(context.parsed)
+              
+              // Calcular percentual
+              const total = context.dataset.data.reduce((a, b) => a + b, 0)
+              const percentage = ((context.parsed / total) * 100).toFixed(1)
+              
+              return `${label}: ${value} (${percentage}%)`
+            }
+          }
         }
-      }
+      },
+      cutout: '65%'  // Tamanho do buraco interno (mais moderno)
     }
   }
 
   doughnutChart = new Chart(ctx, config)
+  console.log('✅ [CHART] Gráfico de categorias inicializado com sucesso')
 }
 
 /**
@@ -661,184 +942,738 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 // ==========================================================================
-// SAGE ACCOUNTANT DESIGN SYSTEM - DASHBOARD PAGE
+// ULTRA-MODERN DASHBOARD DESIGN SYSTEM
 // ==========================================================================
 
-.dashboard-page {
-  background: var(--sage-app-gradient);
+.modern-dashboard {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
   min-height: 100vh;
-  max-width: 100%;
-  overflow-x: hidden;
-  
-  .q-pa-md {
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-  
-  .row {
-    margin-left: 0;
-    margin-right: 0;
-  }
+  padding-bottom: 3rem;
 }
 
-.welcome-section {
-  padding: 1.5rem 0;
-  animation: fadeIn 0.6s ease;
-  
-  h1 {
-    color: var(--sage-primary);
-    text-shadow: 0 2px 4px rgba(44, 95, 45, 0.1);
-  }
+.dashboard-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-// Reconhecimento de tema dark no cabeçalho
-:global(.body--dark) .welcome-section :deep(h1) {
-  color: #fff !important;
-}
-
-:global(.body--dark) .welcome-section :deep(.text-subtitle1) {
-  color: #cfcfcf !important;
-}
-
-// Cards de métricas do dashboard com gradientes Sage
-.dashboard-metric-card {
-  border-radius: 16px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(44, 95, 45, 0.1);
-  background: white;
-  overflow: hidden;
+// ==========================================================================
+// HERO HEADER - Design Sofisticado e Limpo
+// ==========================================================================
+.hero-header {
+  background: linear-gradient(135deg, #2c5f2d 0%, #3a7541 50%, #2c5f2d 100%);
+  border-radius: 20px;
+  padding: 2rem 2.5rem;
+  color: white;
   position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(44, 95, 45, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   
+  // Padrão geométrico sutil de fundo
   &::before {
     content: '';
     position: absolute;
-    left: 0;
     top: 0;
-    bottom: 0;
-    width: 4px;
-    transition: width 0.3s ease;
+    right: 0;
+    width: 400px;
+    height: 400px;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
   }
+  
+  // Detalhe de brilho suave
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at top right, rgba(255,255,255,0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.hero-left {
+  flex: 1;
+  min-width: 300px;
+}
+
+.greeting-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  padding: 0.5rem 1.25rem;
+  border-radius: 50px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: slideInLeft 0.6s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hero-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+  animation: slideInLeft 0.7s ease;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  .name-highlight {
+    color: #fff;
+    font-weight: 800;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.4) 100%);
+      border-radius: 2px;
+    }
+  }
+}
+
+.hero-subtitle {
+  font-size: 0.95rem;
+  opacity: 0.85;
+  margin: 0;
+  animation: slideInLeft 0.8s ease;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  animation: slideInRight 0.8s ease;
+}
+
+.hero-btn {
+  padding: 0.875rem 1.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 14px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.3px;
+  border: 2px solid transparent;
   
   &:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 28px rgba(44, 95, 45, 0.15);
-    border-color: var(--sage-primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.income-hero-btn {
+  background: rgba(255, 255, 255, 0.95);
+  color: #059669;
+  
+  &:hover {
+    background: white;
+    color: #047857;
+  }
+  
+  .q-icon {
+    color: #059669;
+  }
+}
+
+.expense-hero-btn {
+  background: rgba(255, 255, 255, 0.95);
+  color: #dc2626;
+  
+  &:hover {
+    background: white;
+    color: #b91c1c;
+  }
+  
+  .q-icon {
+    color: #dc2626;
+  }
+}
+
+// ==========================================================================
+// METRIC CARDS - Premium Design
+// ==========================================================================
+.metric-card {
+  background: white;
+  border-radius: 20px;
+  padding: 1.75rem;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  height: 100%;
+  
+  &:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
     
-    &::before {
-      width: 8px;
-    }
-    
-    .metric-icon {
+    .metric-icon-wrapper {
       transform: scale(1.1) rotate(5deg);
-      opacity: 1;
+    }
+    
+    .metric-bg-icon {
+      transform: scale(1.1) rotate(-5deg);
+      opacity: 0.15;
     }
   }
   
-  &.income-card {
-    &::before {
-      background: linear-gradient(180deg, #107C10 0%, #0f6e0f 100%);
-    }
-    
-    &:hover {
-      box-shadow: 0 12px 28px rgba(16, 124, 16, 0.2);
-    }
+  &:active {
+    transform: translateY(-4px) scale(1);
   }
-  
-  &.expense-card {
-    &::before {
-      background: linear-gradient(180deg, #d32f2f 0%, #b71c1c 100%);
-    }
-    
-    &:hover {
-      box-shadow: 0 12px 28px rgba(211, 47, 47, 0.2);
-    }
-  }
-  
-  &.balance-card {
-    &::before {
-      background: var(--sage-gradient);
-    }
-    
-    &:hover {
-      box-shadow: 0 12px 28px rgba(44, 95, 45, 0.2);
-    }
-  }
-  
-  &.transactions-card {
-    &::before {
-      background: linear-gradient(180deg, #5F7C60 0%, #4a6350 100%);
-    }
-    
-    &:hover {
-      box-shadow: 0 12px 28px rgba(95, 124, 96, 0.2);
-    }
-  }
+}
+
+.metric-icon-wrapper {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.income-icon {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.expense-icon {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.balance-icon {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+
+.transactions-icon {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+}
+
+.metric-content {
+  position: relative;
+  z-index: 2;
+}
+
+.metric-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
 }
 
 .metric-value {
+  font-size: 2rem;
   font-weight: 700;
-  line-height: 1.2;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  color: #1e293b;
+  margin-bottom: 0.75rem;
+  line-height: 1;
 }
 
-.metric-icon {
-  opacity: 0.75;
-  transition: all 0.3s ease;
+.metric-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  
+  &.positive {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+  }
+  
+  &.negative {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+  }
+  
+  &.neutral {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+  }
+  
+  &.info {
+    background: rgba(139, 92, 246, 0.1);
+    color: #7c3aed;
+  }
 }
 
-// Cards de gráficos
-.chart-card {
-  border-radius: 16px;
-  border: 1px solid rgba(44, 95, 45, 0.1);
+.metric-bg-icon {
+  position: absolute;
+  right: -20px;
+  bottom: -20px;
+  font-size: 140px;
+  color: #f1f5f9;
+  opacity: 0.1;
+  transition: all 0.4s ease;
+  z-index: 1;
+}
+
+// ==========================================================================
+// MAIN CHART - Gráfico Principal de Evolução (Posição Final)
+// ==========================================================================
+.main-chart-card {
+  background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
   transition: all 0.3s ease;
-  background: white;
+  position: relative;
+  overflow: hidden;
+  
+  // Efeito de brilho sutil no topo
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      #10b981 25%, 
+      #3b82f6 50%, 
+      #ef4444 75%, 
+      transparent 100%
+    );
+  }
   
   &:hover {
-    box-shadow: 0 8px 20px rgba(44, 95, 45, 0.12);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
   }
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.chart-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.chart-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #2c5f2d 0%, #3d7c3e 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(44, 95, 45, 0.3);
   
-  .chart-container {
-    height: 300px;
-    position: relative;
-    padding: 1rem;
+  &.category {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
   }
   
-  .q-btn-toggle {
-    border: 1px solid rgba(44, 95, 45, 0.2);
-    border-radius: 8px;
+  &.actions {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  }
+}
+
+.chart-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.2;
+}
+
+.chart-subtitle {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.chart-period-selector {
+  .period-toggle {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
     
-    .q-btn {
-      transition: all 0.3s ease;
+    :deep(.q-btn) {
+      border-radius: 10px;
+      padding: 0.625rem 1rem;
+      font-weight: 600;
+      font-size: 0.8rem;
+      transition: all 0.2s ease;
+      min-width: fit-content;
       
       &:hover {
-        background: rgba(44, 95, 45, 0.05);
+        background: #e2e8f0;
+      }
+      
+      &.q-btn--active {
+        background: linear-gradient(135deg, #2c5f2d 0%, #3d7c3e 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(44, 95, 45, 0.3);
+      }
+      
+      // Ícones menores para economizar espaço
+      .q-icon {
+        font-size: 1rem;
+        margin-right: 0.25rem;
       }
     }
   }
 }
 
-// Transações recentes
-.recent-transactions-card {
-  border-radius: 16px;
-  border: 1px solid rgba(44, 95, 45, 0.1);
-  background: white;
-  transition: all 0.3s ease;
-  max-width: 100%;
-  overflow: hidden;
+.chart-body {
+  min-height: 380px;
   position: relative;
-  z-index: 1;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+}
+
+.main-chart-canvas {
+  max-height: 380px;
+}
+
+.chart-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 380px;
+  gap: 1rem;
+  
+  p {
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  flex-wrap: wrap;
+  border: 2px solid #e2e8f0;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: white;
+  border-radius: 10px;
+  transition: all 0.2s ease;
   
   &:hover {
-    box-shadow: 0 8px 20px rgba(44, 95, 45, 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.legend-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+  
+  &.income {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  }
+  
+  &.expense {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  }
+  
+  &.balance {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  }
+}
+
+.legend-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.legend-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.legend-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e293b;
+  
+  &.positive {
+    color: #10b981;
+  }
+  
+  &.negative {
+    color: #ef4444;
+  }
+}
+
+// ==========================================================================
+// CATEGORY CHART - Gráfico de Categorias
+// ==========================================================================
+.category-chart-card {
+  background: white;
+  border-radius: 20px;
+  padding: 1.75rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  height: 100%;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+}
+
+.chart-header-simple {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.chart-title-small {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
+}
+
+.chart-subtitle-small {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.category-chart-body {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.category-chart-canvas {
+  max-height: 280px;
+}
+
+.chart-loading-small {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+}
+
+// ==========================================================================
+// QUICK ACTIONS - Ações Rápidas Modernizadas
+// ==========================================================================
+.quick-actions-modern {
+  background: white;
+  border-radius: 20px;
+  padding: 1.75rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  height: 100%;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.actions-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.action-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: #f8fafc;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    background: white;
+    border-color: #e2e8f0;
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    
+    .action-arrow {
+      transform: translateX(4px);
+      opacity: 1;
+    }
+    
+    .action-icon {
+      transform: scale(1.1);
+    }
+  }
+}
+
+.action-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  
+  &.income {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+  
+  &.expense {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  }
+  
+  &.transactions {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+  
+  &.reports {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  }
+}
+
+.action-content {
+  flex: 1;
+}
+
+.action-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
+}
+
+.action-description {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.action-arrow {
+  color: #cbd5e1;
+  transition: all 0.3s ease;
+  opacity: 0;
+}
+
+// ==========================================================================
+// RECENT TRANSACTIONS - Modern Design
+// ==========================================================================
+.recent-transactions-card {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  }
+  
+  h6 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+  }
+  
+  .text-caption {
+    color: #64748b;
   }
   
   .transaction-item {
-    padding: 1rem;
-    margin: 0 0.5rem;
-    border-radius: 12px;
-    transition: all 0.3s ease;
+    padding: 1.25rem;
+    margin: 0.5rem 0;
+    border-radius: 16px;
+    background: #f8fafc;
+    border: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
     position: relative;
+    overflow: hidden;
     
     &::before {
       content: '';
@@ -846,80 +1681,76 @@ onMounted(async () => {
       left: 0;
       top: 0;
       bottom: 0;
-      width: 3px;
-      background: var(--sage-positive);
-      transform: scaleY(0);
+      width: 4px;
+      background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+      transform: scaleX(0);
+      transform-origin: left;
       transition: transform 0.3s ease;
-      border-radius: 0 4px 4px 0;
     }
     
     &:hover {
-      background: linear-gradient(90deg, rgba(44, 95, 45, 0.04) 0%, rgba(44, 95, 45, 0.02) 100%);
-      transform: translateX(4px);
+      background: white;
+      border-color: #e2e8f0;
+      transform: translateX(8px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       
       &::before {
-        transform: scaleY(1);
+        transform: scaleX(1);
+      }
+      
+      .q-avatar {
+        transform: scale(1.1) rotate(5deg);
       }
     }
     
     .q-avatar {
-      border: 2px solid transparent;
       transition: all 0.3s ease;
-    }
-    
-    &:hover .q-avatar {
-      border-color: var(--sage-primary-light);
-      transform: scale(1.05);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
   }
 }
 
-// Ações rápidas
-.quick-actions-card {
-  border-radius: 16px;
-  border: 1px solid rgba(44, 95, 45, 0.1);
-  background: white;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    box-shadow: 0 8px 20px rgba(44, 95, 45, 0.12);
+// ==========================================================================
+// ANIMATIONS
+// ==========================================================================
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
   }
-  
-  .q-btn {
-    border-radius: 12px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-    }
+  33% {
+    transform: translate(30px, -30px) rotate(5deg);
   }
-  
-  .quick-links {
-    .q-btn {
-      margin-bottom: 0.5rem;
-      
-      &:hover {
-        background: rgba(44, 95, 45, 0.05);
-      }
-    }
+  66% {
+    transform: translate(-20px, 20px) rotate(-5deg);
   }
 }
 
-// Dialog de transação
-.transaction-dialog {
-  .q-bar {
-    background: var(--sage-gradient);
-    border-radius: 0;
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
-// Animações
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -927,21 +1758,200 @@ onMounted(async () => {
   }
 }
 
-// Responsividade
-@media (max-width: 768px) {
-  .metric-value {
-    font-size: 1.2rem;
+// ==========================================================================
+// DARK MODE SUPPORT
+// ==========================================================================
+:global(.body--dark) {
+  .modern-dashboard {
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
   }
   
-  .chart-container {
-    height: 250px;
-    padding: 0.5rem;
+  .hero-header {
+    background: linear-gradient(135deg, #1f3a20 0%, #2a4a2b 100%);
   }
   
-  .dashboard-metric-card {
-    &:hover {
-      transform: translateY(-3px);
+  .metric-card,
+  .chart-card,
+  .recent-transactions-card,
+  .quick-actions-card {
+    background: #1e1e2e;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    
+    h6 {
+      color: #e2e8f0;
     }
+    
+    .metric-label {
+      color: #94a3b8;
+    }
+    
+    .metric-value {
+      color: #f1f5f9;
+    }
+  }
+  
+  .transaction-item {
+    background: #252535;
+    
+    &:hover {
+      background: #2a2a3a;
+      border-color: #3a3a4a;
+    }
+  }
+  
+  .quick-links .q-btn {
+    background: #252535;
+    color: #cbd5e1;
+    
+    &:hover {
+      background: #2a2a3a;
+      color: #f1f5f9;
+    }
+  }
+}
+
+// ==========================================================================
+// RESPONSIVE DESIGN
+// ==========================================================================
+@media (max-width: 1024px) {
+  .hero-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .hero-actions {
+    width: 100%;
+    
+    .hero-btn {
+      flex: 1;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-wrapper {
+    padding: 1rem;
+  }
+  
+  .hero-header {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+  
+  .hero-title {
+    font-size: 1.75rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 0.875rem;
+  }
+  
+  .hero-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+    
+    .hero-btn {
+      width: 100%;
+      padding: 1rem;
+    }
+  }
+  
+  .metric-card {
+    padding: 1.25rem;
+    
+    &:hover {
+      transform: translateY(-4px);
+    }
+  }
+  
+  .metric-value {
+    font-size: 1.5rem;
+  }
+  
+  .metric-icon-wrapper {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .chart-period-selector {
+    width: 100%;
+    overflow-x: auto;
+    
+    .period-toggle {
+      width: 100%;
+      flex-wrap: nowrap;
+      
+      :deep(.q-btn) {
+        flex: 1;
+        padding: 0.5rem 0.625rem;
+        font-size: 0.7rem;
+        min-width: auto;
+        
+        .q-btn__content {
+          flex-direction: column;
+          gap: 0.125rem;
+        }
+        
+        .q-icon {
+          font-size: 0.875rem;
+          margin: 0;
+        }
+      }
+    }
+  }
+  
+  .chart-body,
+  .category-chart-body {
+    min-height: 280px;
+  }
+  
+  .chart-legend {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .actions-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .action-card {
+    padding: 1rem;
+  }
+  
+  .transaction-item {
+    padding: 1rem;
+    
+    &:hover {
+      transform: translateX(4px);
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .greeting-badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+  }
+  
+  .hero-title {
+    font-size: 1.5rem;
+  }
+  
+  .metric-value {
+    font-size: 1.25rem;
+  }
+  
+  .metric-badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
   }
 }
 </style>

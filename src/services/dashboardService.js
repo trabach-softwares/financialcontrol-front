@@ -63,35 +63,338 @@ export const dashboardService = {
   // EVOLUÇÃO MENSAL - GET /transactions/timeline
   // ==========================================================================
   /**
-   * Busca evolução mensal (gráfico de linha temporal)
-   * Origem: ChartJS no dashboard
-   * Destino: GET /transactions/timeline?period=monthly&year=2024
-   * Retorna: Array de { month, income, expense, balance }
+   * Busca evolução financeira detalhada (gráfico de linha temporal)
+   * Busca transações individuais e agrupa inteligentemente baseado no período
+   * Períodos curtos (7 dias) = agrupamento diário
+   * Períodos longos (1 ano) = agrupamento mensal
    */
-  async getMonthlyEvolution(year = new Date().getFullYear()) {
+  async getMonthlyEvolution(period = 'current-month') {
     try {
-      const response = await api.get(FINANCIAL_ROUTES.transactionsTimeline, {
+      console.log('📊 [SERVICE] Buscando evolução para período:', period)
+      
+      // Calcular datas baseado no período selecionado
+      const dateRange = this.calculateDateRange(period)
+      console.log('📅 [SERVICE] Range de datas:', dateRange)
+      
+      // Buscar todas as transações do período
+      const response = await api.get(FINANCIAL_ROUTES.transactionsList, {
         params: {
-          period: 'monthly',
-          year
+          startDate: dateRange.startDate,
+          endDate: dateRange.endDate,
+          limit: 1000 // Buscar todas as transações do período
         }
       })
 
       if (!response.data.success) {
-        throw new Error(response.data.message || 'Failed to get monthly evolution')
+        throw new Error(response.data.message || 'Failed to get transactions')
       }
 
-      return response.data.data || []
+      const transactions = response.data.data || []
+      console.log(`📦 [SERVICE] ${transactions.length} transações recebidas`)
+      
+      // Determinar tipo de agrupamento baseado no período
+      const groupingType = this.determineGroupingType(period)
+      console.log('📋 [SERVICE] Tipo de agrupamento:', groupingType)
+      
+      // Agrupar transações e transformar para formato Chart.js
+      return this.groupAndTransformData(transactions, dateRange, groupingType, period)
+      
     } catch (error) {
-      console.error('Erro ao buscar evolução mensal:', error)
-      // Retornar dados mock em caso de erro
-      const currentDate = new Date()
-      return Array.from({ length: 12 }, (_, i) => ({
-        month: new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(new Date(year, i)),
-        income: 0,
-        expense: 0,
-        balance: 0
-      }))
+      console.error('❌ [SERVICE] Erro ao buscar evolução:', error)
+      
+      // Retornar estrutura vazia mas válida para Chart.js
+      return this.getEmptyChartStructure()
+    }
+  },
+  
+  /**
+   * Calcula range de datas baseado no período selecionado
+   */
+  calculateDateRange(period) {
+    const now = new Date()
+    const endDate = now.toISOString().split('T')[0]
+    let startDate
+    
+    switch (period) {
+      case 'current-month':
+        // Primeiro dia do mês atual
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
+        break
+      case '7days':
+        const date7 = new Date(now)
+        date7.setDate(date7.getDate() - 6) // 6 dias atrás + hoje = 7 dias
+        startDate = date7.toISOString().split('T')[0]
+        break
+      case '30days':
+        const date30 = new Date(now)
+        date30.setDate(date30.getDate() - 29) // 29 dias atrás + hoje = 30 dias
+        startDate = date30.toISOString().split('T')[0]
+        break
+      case '3months':
+        const date3m = new Date(now)
+        date3m.setMonth(date3m.getMonth() - 3)
+        startDate = date3m.toISOString().split('T')[0]
+        break
+      case '6months':
+        const date6m = new Date(now)
+        date6m.setMonth(date6m.getMonth() - 6)
+        startDate = date6m.toISOString().split('T')[0]
+        break
+      case '1year':
+        const date1y = new Date(now)
+        date1y.setFullYear(date1y.getFullYear() - 1)
+        startDate = date1y.toISOString().split('T')[0]
+        break
+      default:
+        // Default: mês atual
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
+    }
+    
+    return { startDate, endDate }
+  },
+  
+  /**
+   * Determina o tipo de agrupamento baseado no período
+   */
+  determineGroupingType(period) {
+    switch (period) {
+      case '7days':
+      case 'current-month':
+      case '30days':
+        return 'daily' // Agrupamento diário para períodos curtos
+      case '3months':
+        return 'weekly' // Agrupamento semanal para trimestre
+      case '6months':
+      case '1year':
+        return 'monthly' // Agrupamento mensal para períodos longos
+      default:
+        return 'daily'
+    }
+  },
+  
+  /**
+   * Agrupa transações e transforma para formato Chart.js
+   */
+  groupAndTransformData(transactions, dateRange, groupingType, period) {
+    console.log(`🔄 [SERVICE] Agrupando ${transactions.length} transações (tipo: ${groupingType})`)
+    
+    // Gerar todos os períodos (dias/semanas/meses) no range
+    const periods = this.generatePeriods(dateRange, groupingType, period)
+    console.log(`📅 [SERVICE] ${periods.length} períodos gerados:`, periods.map(p => p.label))
+    
+    // Inicializar acumuladores para cada período
+    const periodData = periods.map(period => ({
+      label: period.label,
+      date: period.date,
+      income: 0,
+      expense: 0,
+      balance: 0
+    }))
+    
+    // Agrupar transações nos períodos corretos
+    transactions.forEach(transaction => {
+      const transactionDate = new Date(transaction.date || transaction.created_at)
+      const periodIndex = this.findPeriodIndex(transactionDate, periods, groupingType)
+      
+      if (periodIndex !== -1) {
+        const amount = Math.abs(transaction.amount || 0)
+        
+        if (transaction.type === 'income') {
+          periodData[periodIndex].income += amount
+          periodData[periodIndex].balance += amount
+        } else if (transaction.type === 'expense') {
+          periodData[periodIndex].expense += amount
+          periodData[periodIndex].balance -= amount
+        }
+      }
+    })
+    
+    // Calcular saldo acumulado
+    let accumulatedBalance = 0
+    periodData.forEach(period => {
+      accumulatedBalance += period.balance
+      period.balance = accumulatedBalance
+    })
+    
+    console.log('📊 [SERVICE] Dados agrupados:', periodData)
+    
+    // Transformar para formato Chart.js
+    return {
+      labels: periodData.map(p => p.label),
+      datasets: [
+        {
+          label: 'Receitas',
+          data: periodData.map(p => p.income),
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          tension: 0.4,
+          fill: true,
+          borderWidth: 3,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#10b981',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2
+        },
+        {
+          label: 'Despesas',
+          data: periodData.map(p => p.expense),
+          borderColor: '#ef4444',
+          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          tension: 0.4,
+          fill: true,
+          borderWidth: 3,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#ef4444',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2
+        },
+        {
+          label: 'Saldo',
+          data: periodData.map(p => p.balance),
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          tension: 0.4,
+          fill: true,
+          borderWidth: 3,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#3b82f6',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2
+        }
+      ]
+    }
+  },
+  
+  /**
+   * Gera todos os períodos (dias/semanas/meses) no range
+   */
+  generatePeriods(dateRange, groupingType, period) {
+    const periods = []
+    const start = new Date(dateRange.startDate)
+    const end = new Date(dateRange.endDate)
+    
+    if (groupingType === 'daily') {
+      // Gerar todos os dias no range
+      const current = new Date(start)
+      while (current <= end) {
+        const dateStr = current.toISOString().split('T')[0]
+        
+        // Formato do label varia com o período
+        let label
+        if (period === '7days') {
+          // Para 7 dias: Seg, Ter, Qua...
+          label = current.toLocaleDateString('pt-BR', { weekday: 'short' })
+          label = label.charAt(0).toUpperCase() + label.slice(1)
+        } else {
+          // Para outros: 01, 02, 03...
+          label = current.getDate().toString().padStart(2, '0')
+        }
+        
+        periods.push({
+          label,
+          date: dateStr,
+          start: new Date(current),
+          end: new Date(current)
+        })
+        
+        current.setDate(current.getDate() + 1)
+      }
+    } else if (groupingType === 'weekly') {
+      // Gerar semanas
+      const current = new Date(start)
+      let weekNumber = 1
+      
+      while (current <= end) {
+        const weekStart = new Date(current)
+        const weekEnd = new Date(current)
+        weekEnd.setDate(weekEnd.getDate() + 6)
+        
+        periods.push({
+          label: `Sem ${weekNumber}`,
+          date: current.toISOString().split('T')[0],
+          start: weekStart,
+          end: weekEnd > end ? end : weekEnd
+        })
+        
+        current.setDate(current.getDate() + 7)
+        weekNumber++
+      }
+    } else if (groupingType === 'monthly') {
+      // Gerar meses
+      const current = new Date(start)
+      
+      while (current <= end) {
+        const monthLabel = current.toLocaleDateString('pt-BR', { month: 'short' })
+        const capitalizedLabel = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1)
+        
+        const monthStart = new Date(current.getFullYear(), current.getMonth(), 1)
+        const monthEnd = new Date(current.getFullYear(), current.getMonth() + 1, 0)
+        
+        periods.push({
+          label: capitalizedLabel,
+          date: current.toISOString().split('T')[0],
+          start: monthStart,
+          end: monthEnd > end ? end : monthEnd
+        })
+        
+        current.setMonth(current.getMonth() + 1)
+      }
+    }
+    
+    return periods
+  },
+  
+  /**
+   * Encontra o índice do período que contém a data da transação
+   */
+  findPeriodIndex(transactionDate, periods, groupingType) {
+    if (groupingType === 'daily') {
+      // Para diário, comparar apenas a data (sem hora)
+      const txDateStr = transactionDate.toISOString().split('T')[0]
+      return periods.findIndex(p => p.date === txDateStr)
+    } else {
+      // Para semanal/mensal, verificar se está no range
+      return periods.findIndex(p => 
+        transactionDate >= p.start && transactionDate <= p.end
+      )
+    }
+  },
+  
+  /**
+   * Retorna estrutura vazia do gráfico
+   */
+  getEmptyChartStructure() {
+    return {
+      labels: [],
+      datasets: [
+        {
+          label: 'Receitas',
+          data: [],
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          tension: 0.4,
+          fill: true
+        },
+        {
+          label: 'Despesas',
+          data: [],
+          borderColor: '#ef4444',
+          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          tension: 0.4,
+          fill: true
+        },
+        {
+          label: 'Saldo',
+          data: [],
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          tension: 0.4,
+          fill: true
+        }
+      ]
     }
   },
 

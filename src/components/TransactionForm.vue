@@ -491,6 +491,11 @@ const props = defineProps({
     type: String,
     default: 'create', // 'create' | 'edit' | 'view'
     validator: (value) => ['create', 'edit', 'view'].includes(value)
+  },
+  initialType: {
+    type: String,
+    default: 'income',
+    validator: (value) => ['income', 'expense'].includes(value)
   }
 })
 
@@ -570,9 +575,9 @@ const initializeForm = () => {
       paid: !!props.transaction.paid
     }
   } else {
-    
+    // Modo criação: usa initialType prop
     form.value = {
-      type: 'income',
+      type: props.initialType || 'income',
       amount: '',
       description: '',
       category: '',

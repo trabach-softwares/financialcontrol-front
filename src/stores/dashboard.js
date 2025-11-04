@@ -78,12 +78,12 @@ export const useDashboardStore = defineStore('dashboard', {
      */
     formattedStats: (state) => {
       return {
-        income: state.stats.totalIncome,
-        expense: state.stats.totalExpense,
-        balance: state.stats.balance,
-        transactionCount: state.stats.transactionCount,
-        incomeGrowth: state.growth.incomeGrowth,
-        expenseGrowth: state.growth.expenseGrowth
+        totalIncome: state.stats.totalIncome || 0,
+        totalExpense: state.stats.totalExpense || 0,
+        balance: state.stats.balance || 0,
+        transactionCount: state.stats.transactionCount || 0,
+        incomeGrowth: state.growth.incomeGrowth || 0,
+        expenseGrowth: state.growth.expenseGrowth || 0
       }
     },
 
@@ -163,19 +163,25 @@ export const useDashboardStore = defineStore('dashboard', {
       this.chartsError = null
       
       try {
-        // Carrega evolução mensal
+        console.log('📊 [STORE] Carregando dados dos gráficos...', options)
+        
+        // Carrega evolução mensal com o período correto
         const period = options.period || this.chartConfig.period
         const evolutionData = await dashboardService.getMonthlyEvolution(period)
+        
+        console.log('📈 [STORE] Dados de evolução recebidos:', evolutionData)
         this.monthlyEvolution = evolutionData
 
         // Carrega análise de categorias  
         const categoryData = await dashboardService.getCategoryAnalysis(options.dateRange)
+        console.log('🍩 [STORE] Dados de categorias recebidos:', categoryData)
         this.categoryAnalysis = categoryData
 
         // Atualiza configuração
         this.chartConfig.period = period
 
       } catch (error) {
+        console.error('❌ [STORE] Erro ao carregar gráficos:', error)
         this.chartsError = error.message
         
         // Define dados vazios em caso de erro
@@ -224,6 +230,7 @@ export const useDashboardStore = defineStore('dashboard', {
      * Atualiza período dos gráficos
      */
     async updateChartPeriod(period) {
+      console.log('🔄 [STORE] Atualizando período dos gráficos para:', period)
       
       this.chartConfig.period = period
       await this.fetchChartData({ period })
