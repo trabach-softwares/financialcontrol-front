@@ -428,6 +428,7 @@ onMounted(async () => {
         box-shadow: 0 8px 24px rgba(44, 95, 45, 0.25);
         position: relative;
         overflow: hidden;
+        z-index: 1;
         
         &::after {
           content: '';
@@ -438,6 +439,13 @@ onMounted(async () => {
           height: 200%;
           background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
           animation: rotate 8s linear infinite;
+          pointer-events: none;
+          z-index: 0;
+        }
+        
+        .q-card-section {
+          position: relative;
+          z-index: 2;
         }
         
         .q-btn {
@@ -445,6 +453,8 @@ onMounted(async () => {
           color: var(--sage-primary);
           font-weight: 600;
           transition: all 0.3s ease;
+          position: relative;
+          z-index: 3;
           
           &:hover {
             transform: scale(1.05);
