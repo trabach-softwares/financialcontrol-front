@@ -383,6 +383,13 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <!-- Payment Checkout Dialog (Asaas - PIX/Boleto/Cartão) -->
+    <PaymentCheckoutDialog
+      v-model="showPaymentDialog"
+      :plan="selectedPlanData"
+      @success="handlePaymentSuccess"
+    />
   </q-page>
 </template>
 
@@ -392,6 +399,7 @@ import { useAuthStore } from 'src/stores/auth'
 import { plansList } from 'src/apis/plans'
 import { userPlanUpdate } from 'src/apis/user'
 import { useNotifications } from 'src/composables/useNotifications'
+import PaymentCheckoutDialog from 'src/components/plans/PaymentCheckoutDialog.vue'
 
 // Stores & Composables
 const authStore = useAuthStore()
@@ -403,6 +411,7 @@ const loading = ref(false)
 const error = ref(null)
 const billingCycle = ref('monthly')
 const showUpgradeDialog = ref(false)
+const showPaymentDialog = ref(false)
 const selectedPlanData = ref(null)
 const processing = ref(false)
 
@@ -750,10 +759,15 @@ async function confirmUpgrade() {
     return
   }
   
-  processing.value = true
-  
+  // Fecha dialog de confirmação e abre dialog de pagamento
+  closeUpgradeDialog()
+  showPaymentDialog.value = true
+}
+
+// Callback quando pagamento é bem-sucedido
+async function handlePaymentSuccess() {
   try {
-    console.log('🔄 Atualizando plano do usuário...')
+    console.log('🔄 Atualizando plano após pagamento confirmado...')
     console.log('📦 Plano selecionado:', selectedPlanData.value.name, '| ID:', selectedPlanData.value.id)
     
     // Chama API para atualizar o plano do usuário
@@ -778,27 +792,28 @@ async function confirmUpgrade() {
       `Parabéns! Seu plano foi ${actionText} para ${selectedPlanData.value.name} com sucesso!`,
       {
         icon: 'celebration',
-        position: 'top'
+        position: 'top',
+        timeout: 5000
       }
     )
     
-    closeUpgradeDialog()
+    // Fecha dialogs
+    showPaymentDialog.value = false
+    selectedPlanData.value = null
     
     // Recarrega os planos para garantir dados atualizados
     await fetchPlans()
     
   } catch (err) {
-    console.error('❌ Erro ao processar upgrade:', err)
+    console.error('❌ Erro ao atualizar plano após pagamento:', err)
     
     const errorMessage = err?.message 
       || err?.response?.data?.message 
-      || 'Erro ao processar alteração de plano. Tente novamente.'
+      || 'Erro ao ativar plano. Entre em contato com o suporte.'
     
     notifyError(errorMessage, {
       timeout: 5000
     })
-  } finally {
-    processing.value = false
   }
 }
 

@@ -46,6 +46,14 @@ export const FINANCIAL_ROUTES = {
   plansUpdate: "/plans", // + /:id
   plansDelete: "/plans", // + /:id
 
+  // ========== PAYMENTS (Asaas Integration) ==========
+  paymentsCreate: "/payments",
+  paymentsStatus: "/payments", // + /:id
+  paymentsList: "/payments",
+  paymentsCancel: "/payments", // + /:id
+  paymentsPixQrCode: "/payments", // + /:id/pix
+  paymentsLink: "/payments", // + /:id/link
+
   // ========== DASHBOARD ==========
   dashboardStats: "/dashboard/stats",
   dashboardCharts: "/dashboard/charts",
