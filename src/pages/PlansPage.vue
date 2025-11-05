@@ -37,7 +37,7 @@
       <!-- Plans Grid -->
       <div v-else class="row q-col-gutter-lg justify-center">
         <div
-          v-for="plan in sortedByPrice"
+          v-for="plan in activePlansOnly"
           :key="plan.id"
           class="col-12 col-sm-6 col-md-4"
         >
@@ -51,7 +51,7 @@
       </div>
 
       <!-- No Plans -->
-      <div v-if="!loading && !error && plans.length === 0" class="text-center q-py-xl">
+      <div v-if="!loading && !error && activePlansOnly.length === 0" class="text-center q-py-xl">
         <q-icon name="inbox" size="64px" color="grey-5" />
         <div class="text-body1 text-grey-7 q-mt-md">
           Nenhum plano disponível no momento
@@ -59,7 +59,7 @@
       </div>
 
       <!-- FAQ Section -->
-      <div v-if="!loading && plans.length > 0" class="q-mt-xl q-pt-xl">
+      <div v-if="!loading && activePlansOnly.length > 0" class="q-mt-xl q-pt-xl">
         <q-separator class="q-mb-xl" />
         
         <div class="text-center q-mb-lg">
@@ -143,6 +143,11 @@ const {
 
 const selectedPlanId = ref(null);
 const processingPayment = ref(false);
+
+// Filtra apenas planos ativos e ordena por preço
+const activePlansOnly = computed(() => {
+  return sortedByPrice.value.filter(plan => plan.is_active === true);
+});
 
 // Verifica se é o plano atual do usuário
 const isCurrentPlan = (planId) => {

@@ -78,23 +78,18 @@
           <q-card flat bordered>
             <!-- PIX -->
             <template v-if="selectedMethod === 'PIX'">
-              <q-card-section v-if="!paymentCreated">
-                <div class="text-center q-py-lg">
-                  <q-btn
-                    label="Gerar QR Code PIX"
-                    icon="pix"
-                    color="primary"
-                    size="lg"
-                    unelevated
-                    no-caps
-                    :loading="creatingPayment"
-                    @click="createPixPayment"
-                  />
+              <!-- Loading -->
+              <q-card-section v-if="creatingPayment" class="text-center q-py-xl">
+                <q-spinner-dots size="64px" color="primary" />
+                <div class="text-h6 q-mt-md">Gerando QR Code PIX...</div>
+                <div class="text-body2 text-grey-7 q-mt-sm">
+                  Aguarde um momento
                 </div>
               </q-card-section>
 
+              <!-- QR Code -->
               <PixPayment
-                v-else
+                v-else-if="paymentCreated"
                 :payment="currentPayment"
                 @confirmed="handlePaymentConfirmed"
               />
@@ -102,23 +97,18 @@
 
             <!-- Boleto -->
             <template v-else-if="selectedMethod === 'BOLETO'">
-              <q-card-section v-if="!paymentCreated">
-                <div class="text-center q-py-lg">
-                  <q-btn
-                    label="Gerar Boleto"
-                    icon="receipt"
-                    color="primary"
-                    size="lg"
-                    unelevated
-                    no-caps
-                    :loading="creatingPayment"
-                    @click="createBoletoPayment"
-                  />
+              <!-- Loading -->
+              <q-card-section v-if="creatingPayment" class="text-center q-py-xl">
+                <q-spinner-dots size="64px" color="primary" />
+                <div class="text-h6 q-mt-md">Gerando Boleto...</div>
+                <div class="text-body2 text-grey-7 q-mt-sm">
+                  Aguarde um momento
                 </div>
               </q-card-section>
 
+              <!-- Boleto -->
               <BoletoPayment
-                v-else
+                v-else-if="paymentCreated"
                 :payment="currentPayment"
                 @confirmed="handlePaymentConfirmed"
               />
@@ -218,7 +208,7 @@ const goBack = () => {
   }
 };
 
-const goToPaymentForm = () => {
+const goToPaymentForm = async () => {
   if (!selectedMethod.value) {
     $q.notify({
       type: 'warning',
@@ -227,7 +217,15 @@ const goToPaymentForm = () => {
     });
     return;
   }
+  
   step.value = 2;
+  
+  // Gerar pagamento automaticamente para PIX e Boleto
+  if (selectedMethod.value === 'PIX') {
+    await createPixPayment();
+  } else if (selectedMethod.value === 'BOLETO') {
+    await createBoletoPayment();
+  }
 };
 
 const backToMethodSelection = () => {

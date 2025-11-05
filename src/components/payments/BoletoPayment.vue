@@ -1,203 +1,256 @@
 <template>
   <div class="boleto-payment">
-    <div class="text-center">
-      <q-icon name="receipt" size="48px" color="primary" />
-      <div class="text-h5 q-mt-md">Boleto Bancário</div>
-      <div class="text-body2 text-grey-7 q-mt-sm">
+    <!-- Header -->
+    <div class="boleto-payment__header">
+      <div class="boleto-icon-container">
+        <q-icon name="receipt_long" size="56px" color="info" />
+      </div>
+      <div class="text-h4 text-bold q-mt-md">💳 Boleto Bancário</div>
+      <div class="text-body1 text-grey-7 q-mt-sm">
         Pague em qualquer banco, lotérica ou internet banking
       </div>
-    </div>
-
-    <q-separator class="q-my-lg" />
-
-    <!-- Código de Barras -->
-    <div class="boleto-payment__barcode">
-      <div class="text-subtitle2 text-bold q-mb-md">
-        Código de Barras:
-      </div>
-      
-      <q-input
-        v-model="payment.boleto.barcode"
-        readonly
-        outlined
-        dense
-        class="q-mb-md"
+      <q-chip 
+        v-if="payment.boleto?.dueDate" 
+        color="orange" 
+        text-color="white" 
+        size="md"
+        class="q-mt-md"
       >
-        <template v-slot:append>
-          <q-btn
-            icon="content_copy"
-            flat
-            round
-            dense
-            color="primary"
-            @click="copyBarcode"
-          >
-            <q-tooltip>Copiar código</q-tooltip>
-          </q-btn>
-        </template>
-      </q-input>
-
-      <q-btn
-        :label="copied ? 'Código Copiado!' : 'Copiar Código de Barras'"
-        :icon="copied ? 'check' : 'content_copy'"
-        :color="copied ? 'positive' : 'primary'"
-        unelevated
-        no-caps
-        class="full-width"
-        @click="copyBarcode"
-      />
-    </div>
-
-    <q-separator class="q-my-lg" />
-
-    <!-- Instruções -->
-    <div class="boleto-payment__instructions">
-      <div class="text-subtitle2 text-bold q-mb-md">Como pagar:</div>
-      <q-list dense>
-        <q-item>
-          <q-item-section avatar>
-            <q-avatar color="primary" text-color="white" size="32px">1</q-avatar>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Acesse seu internet banking ou app do banco</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section avatar>
-            <q-avatar color="primary" text-color="white" size="32px">2</q-avatar>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Escolha pagar com código de barras</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section avatar>
-            <q-avatar color="primary" text-color="white" size="32px">3</q-avatar>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Cole o código de barras acima</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section avatar>
-            <q-avatar color="primary" text-color="white" size="32px">4</q-avatar>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Confirme o pagamento</q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </div>
-
-    <q-separator class="q-my-lg" />
-
-    <!-- Ações do Boleto -->
-    <div class="boleto-payment__actions">
-      <div class="text-subtitle2 text-bold q-mb-md">
-        Opções de pagamento:
-      </div>
-
-      <div class="q-gutter-md">
-        <!-- Baixar PDF -->
-        <q-btn
-          label="Baixar Boleto PDF"
-          icon="download"
-          color="primary"
-          unelevated
-          no-caps
-          class="full-width"
-          :href="payment.boleto.pdfUrl"
-          target="_blank"
-          rel="noopener noreferrer"
-        />
-
-        <!-- Abrir no navegador -->
-        <q-btn
-          label="Visualizar Boleto"
-          icon="open_in_new"
-          color="primary"
-          outline
-          no-caps
-          class="full-width"
-          :href="payment.invoice_url"
-          target="_blank"
-          rel="noopener noreferrer"
-        />
-      </div>
-    </div>
-
-    <q-separator class="q-my-lg" />
-
-    <!-- Informações importantes -->
-    <q-card flat bordered class="bg-warning text-white q-pa-md">
-      <div class="text-subtitle2 text-bold q-mb-sm">
-        ⚠️ Informações Importantes:
-      </div>
-      <ul class="q-pl-md q-mb-none">
-        <li>O pagamento pode levar até 3 dias úteis para ser confirmado</li>
-        <li>Após o pagamento, aguarde a confirmação bancária</li>
-        <li>Você receberá um email quando o pagamento for confirmado</li>
-        <li>Guarde o comprovante de pagamento</li>
-      </ul>
-    </q-card>
-
-    <!-- Data de Vencimento -->
-    <div class="text-center q-mt-md">
-      <q-chip color="info" text-color="white">
         <q-icon name="event" class="q-mr-xs" />
-        Vencimento: {{ formatDueDate(payment.due_date) }}
+        Vencimento: {{ formatDate(payment.boleto.dueDate) }}
       </q-chip>
     </div>
 
-    <!-- Status -->
-    <div class="boleto-payment__status text-center q-mt-lg">
-      <div v-if="status === 'PENDING'" class="text-warning">
-        <q-icon name="schedule" size="48px" color="warning" />
-        <div class="text-body1 q-mt-sm">
-          Aguardando pagamento
+    <q-separator class="q-my-xl" />
+
+    <!-- Código de Barras -->
+    <div class="boleto-payment__barcode-section">
+      <div class="text-center q-mb-md">
+        <div class="text-h6 text-bold">Código de Barras</div>
+        <div class="text-body2 text-grey-7 q-mt-xs">
+          Use este código para realizar o pagamento
         </div>
-        <div class="text-caption text-grey-6">
-          Pague o boleto para ativar seu plano
+      </div>
+      
+      <q-card flat bordered class="barcode-card">
+        <q-card-section>
+          <div class="text-caption text-grey-7 q-mb-sm">Código:</div>
+          <div class="barcode-container">
+            <code class="barcode-code">{{ payment.boleto.barcode }}</code>
+          </div>
+        </q-card-section>
+        <q-separator />
+        <q-card-section>
+          <q-btn
+            :label="copied ? '✓ Código Copiado!' : 'Copiar Código de Barras'"
+            :icon="copied ? 'check' : 'content_copy'"
+            :color="copied ? 'positive' : 'info'"
+            unelevated
+            no-caps
+            size="lg"
+            class="full-width"
+            @click="copyBarcode"
+          />
+        </q-card-section>
+      </q-card>
+    </div>
+
+    <q-separator class="q-my-xl" />
+
+    <!-- Instruções -->
+    <div class="boleto-payment__instructions">
+      <div class="text-center q-mb-lg">
+        <div class="text-h6 text-bold">Como pagar</div>
+        <div class="text-body2 text-grey-7 q-mt-xs">
+          Siga os passos abaixo
         </div>
       </div>
 
-      <div v-else-if="status === 'RECEIVED'" class="text-info">
-        <q-icon name="info" size="48px" color="info" />
-        <div class="text-body1 q-mt-sm">
-          Pagamento detectado!
+      <div class="row q-col-gutter-md">
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-card flat bordered class="instruction-card">
+            <q-card-section class="text-center">
+              <q-avatar color="info" text-color="white" size="56px" class="q-mb-md">
+                <div class="text-h5 text-bold">1</div>
+              </q-avatar>
+              <div class="text-subtitle1 text-bold">Acesse seu banco</div>
+              <div class="text-body2 text-grey-7 q-mt-sm">
+                Internet banking ou app 📱
+              </div>
+            </q-card-section>
+          </q-card>
         </div>
-        <div class="text-caption text-grey-6">
-          Aguardando confirmação bancária...
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-card flat bordered class="instruction-card">
+            <q-card-section class="text-center">
+              <q-avatar color="info" text-color="white" size="56px" class="q-mb-md">
+                <div class="text-h5 text-bold">2</div>
+              </q-avatar>
+              <div class="text-subtitle1 text-bold">Escolha pagamento</div>
+              <div class="text-body2 text-grey-7 q-mt-sm">
+                Código de barras 🔢
+              </div>
+            </q-card-section>
+          </q-card>
         </div>
-      </div>
-
-      <div v-else-if="status === 'CONFIRMED'" class="text-positive">
-        <q-icon name="check_circle" size="64px" color="positive" />
-        <div class="text-h6 q-mt-sm">
-          🎉 Pagamento Confirmado!
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-card flat bordered class="instruction-card">
+            <q-card-section class="text-center">
+              <q-avatar color="info" text-color="white" size="56px" class="q-mb-md">
+                <div class="text-h5 text-bold">3</div>
+              </q-avatar>
+              <div class="text-subtitle1 text-bold">Cole o código</div>
+              <div class="text-body2 text-grey-7 q-mt-sm">
+                Use o código acima 📋
+              </div>
+            </q-card-section>
+          </q-card>
         </div>
-        <div class="text-body2 q-mt-sm">
-          Seu plano foi ativado com sucesso
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-card flat bordered class="instruction-card">
+            <q-card-section class="text-center">
+              <q-avatar color="info" text-color="white" size="56px" class="q-mb-md">
+                <div class="text-h5 text-bold">4</div>
+              </q-avatar>
+              <div class="text-subtitle1 text-bold">Confirme</div>
+              <div class="text-body2 text-grey-7 q-mt-sm">
+                Revise e pague ✅
+              </div>
+            </q-card-section>
+          </q-card>
         </div>
       </div>
     </div>
 
-    <!-- Botão "Já Paguei" -->
-    <div v-if="status === 'PENDING'" class="text-center q-mt-lg">
+    <q-separator class="q-my-xl" />
+
+    <!-- Ações do Boleto -->
+    <div class="boleto-payment__actions">
+      <div class="text-center q-mb-md">
+        <div class="text-h6 text-bold">Baixe ou visualize seu boleto</div>
+      </div>
+
+      <div class="row q-col-gutter-md">
+        <!-- Baixar PDF -->
+        <div class="col-12 col-md-6">
+          <q-btn
+            label="📄 Baixar Boleto PDF"
+            icon="download"
+            color="info"
+            unelevated
+            no-caps
+            size="lg"
+            class="full-width"
+            :href="payment.boleto.pdfUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+          />
+        </div>
+
+        <!-- Abrir no navegador -->
+        <div class="col-12 col-md-6">
+          <q-btn
+            label="👁️ Visualizar Boleto"
+            icon="open_in_new"
+            color="info"
+            outline
+            no-caps
+            size="lg"
+            class="full-width"
+            :href="payment.invoice_url"
+            target="_blank"
+            rel="noopener noreferrer"
+          />
+        </div>
+      </div>
+    </div>
+
+    <q-separator class="q-my-xl" />
+
+    <!-- Informações importantes -->
+    <q-banner class="info-banner" rounded>
+      <template v-slot:avatar>
+        <q-icon name="info" color="warning" size="42px" />
+      </template>
+      <div class="text-subtitle1 text-bold q-mb-sm">
+        ⚠️ Informações Importantes
+      </div>
+      <div class="info-list">
+        <div class="info-item">
+          <q-icon name="schedule" color="warning" />
+          <span>O pagamento pode levar até <strong>3 dias úteis</strong> para ser confirmado</span>
+        </div>
+        <div class="info-item">
+          <q-icon name="notifications_active" color="warning" />
+          <span>Você receberá um <strong>email</strong> quando o pagamento for confirmado</span>
+        </div>
+        <div class="info-item">
+          <q-icon name="save" color="warning" />
+          <span>Guarde o <strong>comprovante</strong> de pagamento</span>
+        </div>
+      </div>
+    </q-banner>
+
+    <!-- Status -->
+    <div class="boleto-payment__status q-mt-lg">
+      <!-- Aguardando Pagamento -->
+      <q-banner v-if="status === 'PENDING'" 
+                class="status-banner status-banner--pending"
+                rounded>
+        <template v-slot:avatar>
+          <q-spinner-dots size="56px" color="warning" />
+        </template>
+        <div class="text-h6 text-bold">Aguardando pagamento...</div>
+        <div class="text-body2 q-mt-xs text-grey-7">
+          🕐 Pague até o vencimento para ativar seu plano
+        </div>
+      </q-banner>
+
+      <!-- Pagamento Confirmado -->
+      <q-banner v-else-if="status === 'CONFIRMED'" 
+                class="status-banner status-banner--confirmed"
+                rounded>
+        <template v-slot:avatar>
+          <q-icon name="check_circle" size="64px" color="positive" class="confirmed-icon" />
+        </template>
+        <div class="text-h5 text-bold">🎉 Pagamento Confirmado!</div>
+        <div class="text-body1 q-mt-sm">
+          Seu plano foi ativado com sucesso
+        </div>
+        <q-btn
+          label="Ver Meu Plano"
+          icon="arrow_forward"
+          color="positive"
+          unelevated
+          no-caps
+          class="q-mt-md"
+          @click="$router.push('/profile')"
+        />
+      </q-banner>
+
+    </div>
+
+    <!-- Verificação Manual -->
+    <div class="text-center q-mt-md">
       <q-btn
-        label="Já Paguei o Boleto"
-        color="positive"
+        label="Verificar Status Manualmente"
+        icon="refresh"
+        color="info"
         outline
         no-caps
+        size="md"
+        class="full-width"
+        :loading="checkingStatus"
         @click="checkPaymentStatus"
-        :loading="checking"
-      />
+      >
+        <q-tooltip>Atualizar status do pagamento</q-tooltip>
+      </q-btn>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { usePayment } from 'src/composables/usePayment';
 
@@ -215,24 +268,26 @@ const { checkStatus } = usePayment();
 
 const copied = ref(false);
 const status = ref(props.payment.status);
-const checking = ref(false);
+const checkingStatus = ref(false);
+
+const formatDate = (date) => {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString('pt-BR');
+};
 
 const copyBarcode = async () => {
   try {
     await navigator.clipboard.writeText(props.payment.boleto.barcode);
     copied.value = true;
-    
     $q.notify({
       type: 'positive',
       message: 'Código de barras copiado!',
       position: 'top',
-      timeout: 2000,
     });
-
     setTimeout(() => {
       copied.value = false;
-    }, 2000);
-  } catch (err) {
+    }, 3000);
+  } catch (error) {
     $q.notify({
       type: 'negative',
       message: 'Erro ao copiar código',
@@ -241,74 +296,191 @@ const copyBarcode = async () => {
   }
 };
 
-const formatDueDate = (dueDate) => {
-  return new Date(dueDate).toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-};
-
 const checkPaymentStatus = async () => {
-  checking.value = true;
-  
+  checkingStatus.value = true;
   try {
-    const payment = await checkStatus(props.payment.id);
-    status.value = payment.status;
+    const response = await checkStatus(props.payment.id);
+    status.value = response.status;
     
-    if (payment.status === 'CONFIRMED' || payment.status === 'RECEIVED') {
+    if (response.status === 'CONFIRMED') {
       $q.notify({
         type: 'positive',
         message: 'Pagamento confirmado!',
         position: 'top',
       });
-      emit('confirmed', payment);
+      emit('confirmed', response);
     } else {
       $q.notify({
         type: 'info',
-        message: 'Ainda não detectamos o pagamento. Pode levar até 3 dias úteis.',
+        message: 'Pagamento ainda pendente',
         position: 'top',
-        timeout: 4000,
       });
     }
-  } catch (err) {
+  } catch (error) {
     $q.notify({
       type: 'negative',
-      message: 'Erro ao verificar status do pagamento',
+      message: 'Erro ao verificar status',
       position: 'top',
     });
   } finally {
-    checking.value = false;
+    checkingStatus.value = false;
   }
 };
+
+onMounted(() => {
+  // Verificar status inicial
+  if (props.payment.status === 'PENDING') {
+    checkPaymentStatus();
+  }
+});
 </script>
 
 <style lang="scss" scoped>
 .boleto-payment {
-  max-width: 600px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 24px;
 
-  &__barcode {
-    background: rgba(0, 0, 0, 0.02);
-    padding: 16px;
-    border-radius: 8px;
+  // Header com animação
+  &__header {
+    text-align: center;
+    margin-bottom: 32px;
   }
+}
 
-  &__instructions {
-    background: rgba(0, 0, 0, 0.02);
-    padding: 16px;
-    border-radius: 8px;
+.boleto-icon-container {
+  display: inline-block;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
   }
-
-  &__actions {
-    background: rgba(0, 0, 0, 0.02);
-    padding: 16px;
-    border-radius: 8px;
+  50% {
+    transform: translateY(-10px);
   }
+}
 
-  &__status {
-    padding: 24px;
+// Seção do código de barras
+.boleto-payment__barcode-section {
+  margin-bottom: 32px;
+}
+
+.barcode-card {
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: var(--q-info);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.barcode-container {
+  background: #f5f5f5;
+  border: 1px dashed #bdbdbd;
+  border-radius: 8px;
+  padding: 16px;
+  max-height: 80px;
+  overflow-y: auto;
+}
+
+.barcode-code {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #424242;
+  word-break: break-all;
+  display: block;
+}
+
+// Cards de instrução
+.instruction-card {
+  transition: all 0.3s ease;
+  border: 2px solid #e0e0e0;
+  height: 100%;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-color: var(--q-info);
+  }
+}
+
+// Banner de informações
+.info-banner {
+  background: linear-gradient(135deg, #fff8e1 0%, #ffffff 100%);
+  border: 2px solid #ffd54f;
+  padding: 20px;
+}
+
+.info-list {
+  margin-top: 12px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  i {
+    flex-shrink: 0;
+  }
+  
+  span {
+    line-height: 1.5;
+  }
+}
+
+// Banners de status
+.status-banner {
+  padding: 24px;
+  border: 2px solid;
+  
+  &--pending {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffffff 100%);
+    border-color: #ffd54f;
+  }
+  
+  &--confirmed {
+    background: linear-gradient(135deg, #e8f5e9 0%, #ffffff 100%);
+    border-color: #81c784;
+    text-align: center;
+  }
+}
+
+.confirmed-icon {
+  animation: checkmark 0.6s ease-in-out;
+}
+
+@keyframes checkmark {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 1;
+  }
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .boleto-payment {
+    padding: 16px;
+  }
+  
+  .instruction-card {
+    margin-bottom: 12px;
   }
 }
 </style>
