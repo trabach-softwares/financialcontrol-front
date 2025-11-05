@@ -152,12 +152,38 @@ const routes = [
       {
         path: '/plans',
         name: 'plans',
-        component: () => import('pages/auth/plans/PlansPage.vue'),
+        component: () => import('pages/PlansPage.vue'),
         meta: {
           title: 'Planos',
           requiresAuth: false, // Permitir acesso sem login para visualizar planos
           icon: 'card_membership',
           description: 'Planos e assinaturas premium'
+        }
+      },
+
+      // Checkout de Planos
+      {
+        path: '/checkout/:planId',
+        name: 'checkout',
+        component: () => import('pages/CheckoutPage.vue'),
+        meta: {
+          title: 'Finalizar Assinatura',
+          requiresAuth: true,
+          icon: 'shopping_cart',
+          description: 'Finalizar assinatura de plano'
+        }
+      },
+
+      // Histórico de Pagamentos
+      {
+        path: '/payments',
+        name: 'payments-history',
+        component: () => import('pages/PaymentsHistoryPage.vue'),
+        meta: {
+          title: 'Histórico de Pagamentos',
+          requiresAuth: true,
+          icon: 'payment',
+          description: 'Visualizar histórico de pagamentos'
         }
       },
 
