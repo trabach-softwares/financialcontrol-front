@@ -609,19 +609,33 @@ const loadCategories = async () => {
   try {
     const resp = await categoriesList()
     const items = Array.isArray(resp?.data) ? resp.data : resp
-    // normaliza mantendo type ('default' | 'user')
+    
+    console.log('📂 Categorias carregadas:', items)
+    
+    // normaliza mantendo type ('income' | 'expense')
     availableCategories.value = (items || []).map(c => ({
       id: c.id,
       name: c.name || (typeof c === 'string' ? c : ''),
       icon: c.icon || 'category',
       color: c.color || 'blue-6',
-      type: c.type || 'user'
+      type: c.type || 'expense', // 'income' ou 'expense'
+      is_default: c.is_default || false
     })).filter(c => !!c.name)
+    
+    console.log('✅ Categorias normalizadas:', availableCategories.value)
+    
     filteredCategories.value = buildGroupedOptions('')
-  } catch (_) {
+  } catch (err) {
+    console.error('❌ Erro ao carregar categorias:', err)
     // fallback para store local se API indisponível
     if (transactionStore.categories?.length) {
-      availableCategories.value = transactionStore.categories.map(name => ({ name, icon: 'category', color: 'blue-6', type: 'user' }))
+      availableCategories.value = transactionStore.categories.map(name => ({ 
+        name, 
+        icon: 'category', 
+        color: 'blue-6', 
+        type: 'expense', // default para expense
+        is_default: false
+      }))
       filteredCategories.value = buildGroupedOptions('')
     } else {
       availableCategories.value = []
@@ -713,8 +727,20 @@ const deleteCategory = async (opt) => {
 
 function buildGroupedOptions(filterText) {
   const needle = (filterText || '').toLowerCase()
-  const def = availableCategories.value.filter(c => c.is_default === true && c.name.toLowerCase().includes(needle))
-  const usr = availableCategories.value.filter(c => c.is_default !== true && c.name.toLowerCase().includes(needle))
+  const currentType = form.value.type // 'income' ou 'expense'
+  
+  // Filtra categorias pelo tipo da transação E pelo texto de busca
+  const def = availableCategories.value.filter(c => 
+    c.is_default === true && 
+    c.type === currentType && 
+    c.name.toLowerCase().includes(needle)
+  )
+  const usr = availableCategories.value.filter(c => 
+    c.is_default !== true && 
+    c.type === currentType && 
+    c.name.toLowerCase().includes(needle)
+  )
+  
   const out = []
   if (def.length) {
     out.push({ header: 'Categorias padrão' })
@@ -889,11 +915,25 @@ watch(
 )
 
 /**
- * Observa mudanças no tipo para atualizar título
+ * Observa mudanças no tipo para refiltrar categorias
  */
 watch(
   () => form.value.type,
-  () => {}
+  (newType, oldType) => {
+    if (newType !== oldType) {
+      console.log(`🔄 Tipo mudou de ${oldType} para ${newType}, refiltrando categorias...`)
+      
+      // Refiltra as categorias disponíveis
+      filteredCategories.value = buildGroupedOptions('')
+      
+      // Se a categoria atual não pertence ao novo tipo, limpa
+      const currentCat = availableCategories.value.find(c => c.name === form.value.category)
+      if (currentCat && currentCat.type !== newType) {
+        console.log(`⚠️ Categoria atual "${form.value.category}" não é do tipo ${newType}, limpando...`)
+        form.value.category = ''
+      }
+    }
+  }
 )
 
 // ==========================================================================
