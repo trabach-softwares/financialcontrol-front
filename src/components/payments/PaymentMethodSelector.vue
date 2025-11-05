@@ -4,99 +4,101 @@
       Escolha a forma de pagamento
     </div>
 
-    <div class="row q-col-gutter-md">
-      <!-- PIX -->
-      <div class="col-12 col-md-4">
+    <div class="row q-col-gutter-md justify-center">
+      <!-- PIX - DESTAQUE -->
+      <div class="col-12 col-md-6 col-lg-5">
         <q-card 
-          class="payment-method-card cursor-pointer"
+          class="payment-method-card payment-method-card--highlight cursor-pointer"
           :class="{ 'payment-method-card--selected': modelValue === 'PIX' }"
           @click="selectMethod('PIX')"
+          flat
+          bordered
         >
-          <q-card-section class="text-center">
-            <q-icon name="pix" size="64px" :color="modelValue === 'PIX' ? 'primary' : 'grey-6'" />
+          <q-card-section class="text-center q-pa-lg">
+            <div class="pix-icon-wrapper">
+              <q-icon name="pix" size="80px" :color="modelValue === 'PIX' ? 'positive' : 'primary'" />
+            </div>
             
-            <div class="text-h6 q-mt-md">PIX</div>
+            <div class="text-h5 text-bold q-mt-md">PIX</div>
             
-            <q-chip color="positive" text-color="white" size="sm" class="q-mt-sm">
-              ⚡ Instantâneo
+            <q-chip color="positive" text-color="white" size="md" class="q-mt-sm">
+              ⚡ Instantâneo e Seguro
             </q-chip>
             
-            <div class="text-body2 text-grey-7 q-mt-md">
+            <div class="text-body1 text-grey-8 q-mt-lg">
               Pagamento aprovado em segundos
             </div>
             
-            <div class="text-caption text-grey-6 q-mt-sm">
-              Escaneie o QR Code ou use Copia e Cola
+            <div class="text-body2 text-grey-7 q-mt-sm">
+              📱 Escaneie o QR Code ou use Copia e Cola
+            </div>
+
+            <q-separator class="q-my-md" />
+
+            <div class="text-caption text-grey-6">
+              ✓ Disponível 24/7<br>
+              ✓ Confirmação instantânea<br>
+              ✓ Sem taxas adicionais
             </div>
           </q-card-section>
 
-          <q-card-section v-if="modelValue === 'PIX'" class="bg-primary text-white text-center">
-            <q-icon name="check_circle" size="24px" />
-            <span class="q-ml-sm">Selecionado</span>
+          <q-card-section v-if="modelValue === 'PIX'" class="bg-positive text-white text-center">
+            <q-icon name="check_circle" size="28px" />
+            <span class="q-ml-sm text-h6">Selecionado</span>
           </q-card-section>
         </q-card>
       </div>
 
-      <!-- Boleto -->
+      <!-- Boleto - DESABILITADO TEMPORARIAMENTE -->
       <div class="col-12 col-md-4">
         <q-card 
-          class="payment-method-card cursor-pointer"
-          :class="{ 'payment-method-card--selected': modelValue === 'BOLETO' }"
-          @click="selectMethod('BOLETO')"
+          class="payment-method-card payment-method-card--disabled"
+          flat
+          bordered
         >
           <q-card-section class="text-center">
-            <q-icon name="receipt" size="64px" :color="modelValue === 'BOLETO' ? 'primary' : 'grey-6'" />
+            <q-icon name="receipt" size="64px" color="grey-4" />
             
-            <div class="text-h6 q-mt-md">Boleto</div>
+            <div class="text-h6 q-mt-md text-grey-5">Boleto</div>
             
-            <q-chip color="info" text-color="white" size="sm" class="q-mt-sm">
-              📅 Até 3 dias úteis
+            <q-chip color="grey-4" text-color="grey-7" size="sm" class="q-mt-sm">
+              � Em breve
             </q-chip>
             
-            <div class="text-body2 text-grey-7 q-mt-md">
+            <div class="text-body2 text-grey-5 q-mt-md">
               Pague em qualquer banco ou lotérica
             </div>
             
-            <div class="text-caption text-grey-6 q-mt-sm">
+            <div class="text-caption text-grey-5 q-mt-sm">
               Código de barras ou PDF
             </div>
-          </q-card-section>
-
-          <q-card-section v-if="modelValue === 'BOLETO'" class="bg-primary text-white text-center">
-            <q-icon name="check_circle" size="24px" />
-            <span class="q-ml-sm">Selecionado</span>
           </q-card-section>
         </q-card>
       </div>
 
-      <!-- Cartão de Crédito -->
+      <!-- Cartão de Crédito - DESABILITADO TEMPORARIAMENTE -->
       <div class="col-12 col-md-4">
         <q-card 
-          class="payment-method-card cursor-pointer"
-          :class="{ 'payment-method-card--selected': modelValue === 'CREDIT_CARD' }"
-          @click="selectMethod('CREDIT_CARD')"
+          class="payment-method-card payment-method-card--disabled"
+          flat
+          bordered
         >
           <q-card-section class="text-center">
-            <q-icon name="credit_card" size="64px" :color="modelValue === 'CREDIT_CARD' ? 'primary' : 'grey-6'" />
+            <q-icon name="credit_card" size="64px" color="grey-4" />
             
-            <div class="text-h6 q-mt-md">Cartão de Crédito</div>
+            <div class="text-h6 q-mt-md text-grey-5">Cartão de Crédito</div>
             
-            <q-chip color="positive" text-color="white" size="sm" class="q-mt-sm">
-              ✅ Aprovação instantânea
+            <q-chip color="grey-4" text-color="grey-7" size="sm" class="q-mt-sm">
+              🚧 Em breve
             </q-chip>
             
-            <div class="text-body2 text-grey-7 q-mt-md">
+            <div class="text-body2 text-grey-5 q-mt-md">
               Liberação imediata após aprovação
             </div>
             
-            <div class="text-caption text-grey-6 q-mt-sm">
+            <div class="text-caption text-grey-5 q-mt-sm">
               Visa, Mastercard, Elo
             </div>
-          </q-card-section>
-
-          <q-card-section v-if="modelValue === 'CREDIT_CARD'" class="bg-primary text-white text-center">
-            <q-icon name="check_circle" size="24px" />
-            <span class="q-ml-sm">Selecionado</span>
           </q-card-section>
         </q-card>
       </div>
@@ -128,6 +130,8 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue';
+
 const props = defineProps({
   modelValue: {
     type: String,
@@ -140,6 +144,13 @@ const emit = defineEmits(['update:modelValue', 'continue']);
 const selectMethod = (method) => {
   emit('update:modelValue', method);
 };
+
+// Seleciona PIX automaticamente por ser a única opção ativa
+onMounted(() => {
+  if (!props.modelValue) {
+    selectMethod('PIX');
+  }
+});
 </script>
 
 <style lang="scss" scoped>
@@ -153,7 +164,7 @@ const selectMethod = (method) => {
   transition: all 0.3s;
   height: 100%;
 
-  &:hover {
+  &:hover:not(&--disabled) {
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   }
@@ -161,6 +172,44 @@ const selectMethod = (method) => {
   &--selected {
     border: 2px solid var(--q-primary);
     box-shadow: 0 8px 24px rgba(var(--q-primary-rgb), 0.3);
+  }
+
+  &--disabled {
+    opacity: 0.6;
+    cursor: not-allowed !important;
+    background: #fafafa;
+    
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  &--highlight {
+    border: 3px solid #e0e0e0;
+    
+    &:hover {
+      border-color: var(--q-positive);
+    }
+    
+    &.payment-method-card--selected {
+      border-color: var(--q-positive);
+      background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+    }
+  }
+}
+
+.pix-icon-wrapper {
+  display: inline-block;
+  animation: pulse-pix 2s ease-in-out infinite;
+}
+
+@keyframes pulse-pix {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
   }
 }
 </style>

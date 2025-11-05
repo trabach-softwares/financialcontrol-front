@@ -244,17 +244,31 @@ const formatExpirationTime = (expiresAt) => {
 };
 
 onMounted(() => {
-  // Inicia polling para verificar pagamento
-  startPolling(
-    props.payment.id,
-    (payment) => {
-      status.value = payment.status;
-      emit('confirmed', payment);
-    }
-  );
+  console.log('🔵 PixPayment montado');
+  console.log('Payment recebido:', props.payment);
+  console.log('Payment ID:', props.payment?.id);
+  
+  // Só inicia polling se tiver ID válido
+  if (props.payment?.id && status.value === 'PENDING') {
+    console.log('✅ Iniciando polling para payment ID:', props.payment.id);
+    startPolling(
+      props.payment.id,
+      (payment) => {
+        status.value = payment.status;
+        emit('confirmed', payment);
+      }
+    );
+  } else {
+    console.warn('⚠️ Não foi possível iniciar polling:', {
+      hasId: !!props.payment?.id,
+      id: props.payment?.id,
+      status: status.value
+    });
+  }
 });
 
 onUnmounted(() => {
+  console.log('🔴 PixPayment desmontado - parando polling');
   stopPolling();
 });
 </script>

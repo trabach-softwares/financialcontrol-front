@@ -89,10 +89,22 @@
 
               <!-- QR Code -->
               <PixPayment
-                v-else-if="paymentCreated"
+                v-else-if="paymentCreated && currentPayment"
                 :payment="currentPayment"
                 @confirmed="handlePaymentConfirmed"
               />
+
+              <!-- Fallback -->
+              <q-card-section v-else class="text-center q-py-xl">
+                <q-icon name="error_outline" size="64px" color="warning" />
+                <div class="text-h6 q-mt-md">Erro ao gerar PIX</div>
+                <q-btn 
+                  label="Tentar Novamente" 
+                  color="primary" 
+                  class="q-mt-md"
+                  @click="createPixPayment"
+                />
+              </q-card-section>
             </template>
 
             <!-- Boleto -->
@@ -108,10 +120,22 @@
 
               <!-- Boleto -->
               <BoletoPayment
-                v-else-if="paymentCreated"
+                v-else-if="paymentCreated && currentPayment"
                 :payment="currentPayment"
                 @confirmed="handlePaymentConfirmed"
               />
+
+              <!-- Fallback -->
+              <q-card-section v-else class="text-center q-py-xl">
+                <q-icon name="error_outline" size="64px" color="warning" />
+                <div class="text-h6 q-mt-md">Erro ao gerar Boleto</div>
+                <q-btn 
+                  label="Tentar Novamente" 
+                  color="primary" 
+                  class="q-mt-md"
+                  @click="createBoletoPayment"
+                />
+              </q-card-section>
             </template>
 
             <!-- Cartão de Crédito -->
@@ -235,26 +259,52 @@ const backToMethodSelection = () => {
 };
 
 const createPixPayment = async () => {
+  console.log('🔵 Iniciando criação de pagamento PIX...');
+  console.log('Plan ID:', currentPlan.value?.id);
+  
   try {
-    await createPayment({
+    const payment = await createPayment({
       planId: currentPlan.value.id,
       paymentMethod: 'PIX',
     });
+    
+    console.log('✅ Pagamento PIX criado:', payment);
+    console.log('currentPayment.value:', currentPayment.value);
+    
     paymentCreated.value = true;
+    console.log('paymentCreated.value agora é:', paymentCreated.value);
   } catch (err) {
-    console.error('Erro ao criar pagamento PIX:', err);
+    console.error('❌ Erro ao criar pagamento PIX:', err);
+    $q.notify({
+      type: 'negative',
+      message: 'Erro ao gerar PIX: ' + (err.message || 'Erro desconhecido'),
+      position: 'top',
+    });
   }
 };
 
 const createBoletoPayment = async () => {
+  console.log('🔵 Iniciando criação de pagamento Boleto...');
+  console.log('Plan ID:', currentPlan.value?.id);
+  
   try {
-    await createPayment({
+    const payment = await createPayment({
       planId: currentPlan.value.id,
       paymentMethod: 'BOLETO',
     });
+    
+    console.log('✅ Pagamento Boleto criado:', payment);
+    console.log('currentPayment.value:', currentPayment.value);
+    
     paymentCreated.value = true;
+    console.log('paymentCreated.value agora é:', paymentCreated.value);
   } catch (err) {
-    console.error('Erro ao criar pagamento Boleto:', err);
+    console.error('❌ Erro ao criar pagamento Boleto:', err);
+    $q.notify({
+      type: 'negative',
+      message: 'Erro ao gerar Boleto: ' + (err.message || 'Erro desconhecido'),
+      position: 'top',
+    });
   }
 };
 

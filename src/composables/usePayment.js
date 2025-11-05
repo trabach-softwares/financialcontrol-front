@@ -12,7 +12,7 @@ import { useNotifications } from './useNotifications';
  * Fornece funcionalidades para criar, consultar e gerenciar pagamentos
  */
 export function usePayment() {
-  const { showSuccess, showError } = useNotifications();
+  const { notifySuccess, notifyError } = useNotifications();
   
   const loading = ref(false);
   const error = ref(null);
@@ -33,20 +33,38 @@ export function usePayment() {
     error.value = null;
 
     try {
+      console.log('📤 Enviando requisição de pagamento:', params);
       const response = await createPayment(params);
-      currentPayment.value = response.data || response;
+      console.log('📥 Resposta da API recebida:', response);
+      
+      // Trata diferentes formatos de resposta
+      if (response.data && response.success !== false) {
+        currentPayment.value = response.data;
+      } else if (response.payment) {
+        currentPayment.value = response.payment;
+      } else if (response.id) {
+        // Se a resposta já é o pagamento diretamente
+        currentPayment.value = response;
+      } else {
+        console.error('❌ Formato de resposta inesperado:', response);
+        throw new Error('Formato de resposta inválido da API');
+      }
+      
+      console.log('✅ currentPayment.value definido:', currentPayment.value);
+      console.log('ID do pagamento:', currentPayment.value?.id);
       
       // Cartão de crédito pode ser aprovado instantaneamente
       if (currentPayment.value.status === 'CONFIRMED') {
-        showSuccess('Pagamento aprovado com sucesso!');
+        notifySuccess('Pagamento aprovado com sucesso!');
       } else {
-        showSuccess('Pagamento criado! Aguardando confirmação.');
+        notifySuccess('Pagamento criado! Aguardando confirmação.');
       }
       
       return currentPayment.value;
     } catch (err) {
+      console.error('❌ Erro ao criar pagamento:', err);
       error.value = err.message || 'Erro ao criar pagamento';
-      showError(error.value);
+      notifyError(error.value);
       throw err;
     } finally {
       loading.value = false;
@@ -96,7 +114,7 @@ export function usePayment() {
         // Verifica se foi confirmado ou recebido
         if (payment.status === 'CONFIRMED' || payment.status === 'RECEIVED') {
           stopPolling();
-          showSuccess('🎉 Pagamento confirmado!');
+          notifySuccess('🎉 Pagamento confirmado!');
           if (onConfirmed) {
             onConfirmed(payment);
           }
@@ -138,7 +156,7 @@ export function usePayment() {
       return paymentsList.value;
     } catch (err) {
       error.value = err.message || 'Erro ao listar pagamentos';
-      showError(error.value);
+      notifyError(error.value);
       throw err;
     } finally {
       loading.value = false;
@@ -156,11 +174,11 @@ export function usePayment() {
 
     try {
       const response = await cancelPayment(paymentId);
-      showSuccess('Pagamento cancelado com sucesso');
+      notifySuccess('Pagamento cancelado com sucesso');
       return response;
     } catch (err) {
       error.value = err.message || 'Erro ao cancelar pagamento';
-      showError(error.value);
+      notifyError(error.value);
       throw err;
     } finally {
       loading.value = false;
