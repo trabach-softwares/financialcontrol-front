@@ -322,7 +322,7 @@ Recursos: SSL badge, 2FA, validação em tempo real, notificações
                 type="submit"
                 color="primary"
                 size="lg"
-                class="full-width q-mt-md btn-primary-evolved"
+                class="q-mt-md btn-primary-evolved"
                 :disable="!isLoginFormValid || isLoading"
                 :loading="isLoading"
                 no-caps
@@ -502,7 +502,7 @@ Recursos: SSL badge, 2FA, validação em tempo real, notificações
                 label="Criar Conta"
                 color="primary"
                 size="lg"
-                class="q-mt-lg btn-primary-sage"
+                class="q-mt-md btn-primary-evolved"
                 :disable="!isRegisterFormValid"
                 no-caps
                 unelevated
@@ -539,7 +539,7 @@ Recursos: SSL badge, 2FA, validação em tempo real, notificações
           <!-- Rodapé -->
           <footer class="login-footer text-center" role="contentinfo">
             <p class="text-caption text-secondary">
-              © 2025 Trabach Softwares. Todos os direitos reservados.
+              © 2024 Trabach Softwares. Todos os direitos reservados.
             </p>
           </footer>
           
@@ -886,6 +886,7 @@ input:-moz-autofill {
   color: white;
   position: relative;
   overflow: hidden;
+  border-radius: 20px 0 0 20px;
   
   // Padrão de fundo elegante
   &::before {
@@ -931,6 +932,7 @@ input:-moz-autofill {
     radial-gradient(circle at 20% 80%, rgba(44, 95, 45, 0.05) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(151, 180, 152, 0.05) 0%, transparent 50%),
     linear-gradient(135deg, #f8fff9 0%, #f1f8f2 50%, #e8f5e8 100%);
+    border-radius: 0 20px 20px 0;
   
   .login-form-container {
     padding: var(--spacing-8);
@@ -1471,6 +1473,7 @@ input:-moz-autofill {
   position: relative;
   overflow: hidden;
   min-height: 56px;
+  left: 3%;
   
   // Sombras em camadas
   box-shadow: 
@@ -1551,11 +1554,11 @@ input:-moz-autofill {
 // Footer fixo no final
 .login-footer {
   padding: var(--spacing-4) var(--spacing-6);
-  background: rgba(255, 255, 255, 0.8);
+  // background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(15px);
-  border-top: 1px solid rgba(44, 95, 45, 0.1);
-  margin-top: auto; // Empurra para o final
-  flex-shrink: 0; // Não permite compressão
+  // border-top: 1px solid rgba(44, 95, 45, 0.1);
+  margin-top: auto; 
+  flex-shrink: 0;
   
   p {
     margin: 0;
