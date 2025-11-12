@@ -7,10 +7,10 @@ Destino: Dashboard, transações, relatórios, perfil
 Efeitos: Navegação completa e interface responsiva -->
 
 <template>
-  <q-layout view="lHh LpR lff" class="main-layout">
+  <q-layout view="lHh LpR lff" class="main-layout" :class="{ 'mobile-layout': $q.screen.lt.lg }">
     
     <!-- ==========================================================================
-    SIDEBAR DE NAVEGAÇÃO
+    SIDEBAR DE NAVEGAÇÃO - Desktop Only
     ========================================================================== -->
     <q-drawer
       v-model="leftDrawerOpen"
@@ -19,6 +19,7 @@ Efeitos: Navegação completa e interface responsiva -->
       :breakpoint="1024"
       bordered
       class="main-sidebar"
+      v-if="$q.screen.gt.md"
     >
       <!-- Logo e título -->
       <div class="sidebar-header q-pa-lg text-center">
@@ -126,9 +127,34 @@ Efeitos: Navegação completa e interface responsiva -->
     </q-drawer>
 
 
-    <q-page-container class="main-content">
+    <q-page-container class="main-content" :class="{ 'has-bottom-nav': $q.screen.lt.lg }">
       <router-view />
     </q-page-container>
+
+    <!-- ==========================================================================
+    BOTTOM NAVIGATION - Mobile Only
+    ========================================================================== -->
+    <BottomNavigation 
+      v-if="$q.screen.lt.lg" 
+      @open-transaction-dialog="openTransactionDialog"
+    />
+
+    <!-- ==========================================================================
+    DIALOG DE NOVA TRANSAÇÃO - Mobile
+    ========================================================================== -->
+    <q-dialog 
+      v-model="showAddTransactionDialog"
+      maximized 
+      transition-show="slide-up" 
+      transition-hide="slide-down"
+      class="transaction-dialog-mobile"
+    >
+      <TransactionForm
+        mode="create"
+        @cancelled="closeTransactionDialog"
+        @saved="handleTransactionSuccess"
+      />
+    </q-dialog>
 
     <!-- Dialog de Notificações -->
     <q-dialog v-model="showNotifications" position="right">
@@ -181,7 +207,10 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from 'src/stores/auth'
 import { useNotifications } from 'src/composables/useNotifications'
+import { useQuasar } from 'quasar'
 import SidebarFooter from 'src/components/SidebarFooter.vue'
+import BottomNavigation from 'src/components/BottomNavigation.vue'
+import TransactionForm from 'src/components/TransactionForm.vue'
 import { getMainMenuRoutes, getAdminMenuRoutes, getUserMenuRoutes } from 'src/router/routes'
 import SessionManager from 'src/components/SessionManager.vue'
 
@@ -192,12 +221,14 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 const { notifySuccess } = useNotifications()
+const $q = useQuasar()
 
 // ==========================================================================
 // ESTADO REATIVO
 // ==========================================================================
 const leftDrawerOpen = ref(false)
 const showNotifications = ref(false)
+const showAddTransactionDialog = ref(false)
 
 // Rotas do menu
 const mainMenuRoutes = getMainMenuRoutes()
@@ -292,6 +323,31 @@ const handleLogout = async () => {
     
   } catch (error) {
   }
+}
+
+/**
+ * Abre dialog de adicionar transação
+ */
+const openTransactionDialog = () => {
+  showAddTransactionDialog.value = true
+}
+
+/**
+ * Fecha dialog de transação
+ */
+const closeTransactionDialog = () => {
+  showAddTransactionDialog.value = false
+}
+
+/**
+ * Handler de sucesso ao salvar transação
+ */
+const handleTransactionSuccess = () => {
+  closeTransactionDialog()
+  notifySuccess('Transação criada com sucesso!')
+  
+  // Se estiver na página de dashboard ou transações, pode recarregar os dados
+  // Aqui você pode emitir um evento ou usar um event bus
 }
 
 // ==========================================================================
@@ -529,6 +585,26 @@ onMounted(async () => {
       max-width: 100%;
       overflow-x: hidden;
     }
+    
+    // Espaçamento para bottom navigation em mobile
+    &.has-bottom-nav {
+      // Adiciona espaço para o menu (56px) + safe area + margem
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+      min-height: 100vh;
+      
+      :deep(.q-page) {
+        // Padding adicional no conteúdo da página
+        padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+        min-height: calc(100vh - 56px);
+      }
+    }
+  }
+}
+
+// Mobile Layout ajustes
+.main-layout.mobile-layout {
+  .main-sidebar {
+    display: none;
   }
 }
 
@@ -591,6 +667,53 @@ onMounted(async () => {
     .q-avatar {
       width: 50px !important;
       height: 50px !important;
+    }
+  }
+}
+
+// ==========================================================================
+// DIALOG DE TRANSAÇÃO - MOBILE SCROLL FIX
+// ==========================================================================
+:deep(.transaction-dialog-mobile) {
+  @media (max-width: 599px) {
+    .q-dialog__backdrop {
+      background: rgba(0, 0, 0, 0.7) !important;
+    }
+    
+    .q-dialog__inner {
+      padding: 0 !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+      overscroll-behavior: contain !important;
+      
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      height: 100vh !important;
+      width: 100vw !important;
+      max-height: 100vh !important;
+      
+      > * {
+        height: auto !important;
+        min-height: 150vh !important;
+      }
+      
+      .transaction-form-card {
+        margin: 0 !important;
+        border-radius: 0 !important;
+        max-height: none !important;
+        height: auto !important;
+        min-height: 150vh !important;
+        overflow: visible !important;
+        
+        .q-card-section {
+          padding-bottom: calc(400px + env(safe-area-inset-bottom)) !important;
+          min-height: 100vh !important;
+        }
+      }
     }
   }
 }

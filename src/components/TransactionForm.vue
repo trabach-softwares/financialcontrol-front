@@ -942,7 +942,36 @@ watch(
 onMounted(() => {
   loadCategories()
   initializeForm()
+  
+  // Fix para scroll mobile quando teclado abre
+  if (window.innerWidth <= 768) {
+    setupMobileScrollFix()
+  }
 })
+
+/**
+ * Configura scroll automático quando campo recebe foco em mobile
+ */
+const setupMobileScrollFix = () => {
+  // Aguarda próximo tick para garantir que DOM está montado
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('.transaction-form-card input, .transaction-form-card textarea, .transaction-form-card select')
+    
+    inputs.forEach(input => {
+      input.addEventListener('focus', (e) => {
+        // Aguarda teclado abrir (300ms)
+        setTimeout(() => {
+          // Scroll suave até o campo
+          e.target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'nearest'
+          })
+        }, 300)
+      })
+    })
+  }, 100)
+}
 
 /**
  * Marca como pago no modo visualização, perguntando data
@@ -1166,12 +1195,58 @@ const onTogglePaidView = async (val) => {
 // Responsividade
 @media (max-width: 768px) {
   .transaction-form-card {
-    margin: 10% auto; // keep consistent vertical spacing on mobile
-    border-radius: 12px;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    min-height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
     
     .q-bar {
-      border-radius: 12px 12px 0 0;
+      border-radius: 0 !important;
+      flex-shrink: 0 !important;
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 100 !important;
+      background: var(--q-primary) !important;
     }
+    
+    .q-card-section {
+      flex: 1 !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+      padding: 1rem !important;
+      // ESPAÇO GIGANTE para garantir que campos fiquem visíveis com teclado
+      padding-bottom: calc(400px + env(safe-area-inset-bottom)) !important;
+      
+      // Força scroll mesmo com teclado aberto
+      overscroll-behavior: contain !important;
+      touch-action: pan-y !important;
+      
+      // Garante altura mínima para scroll
+      min-height: 150vh !important;
+    }
+    
+    .q-card-actions {
+      flex-shrink: 0 !important;
+      position: sticky !important;
+      bottom: 0 !important;
+      background: var(--q-background, white) !important;
+      border-top: 1px solid rgba(0, 0, 0, 0.12) !important;
+      padding: 1rem !important;
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
+      z-index: 100 !important;
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1) !important;
+    }
+  }
+  
+  // Dark mode fix para card-actions
+  body.body--dark .transaction-form-card .q-card-actions {
+    background: var(--q-dark, #1e1e1e) !important;
+    border-top-color: rgba(255, 255, 255, 0.12) !important;
   }
 }
 </style>

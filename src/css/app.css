@@ -3,6 +3,120 @@
 @import './typography.scss'; /* Typography */
 @import './themes.scss'; /* Theme System (Light/Dark Mode) */
 
+/* ==========================================================================
+   RESPONSIVE BREAKPOINTS & UTILITIES
+   ========================================================================== */
+
+/* Breakpoints (seguindo Quasar Framework)
+   xs: 0-599px (mobile portrait)
+   sm: 600-1023px (mobile landscape / tablet portrait)
+   md: 1024-1439px (tablet landscape / desktop small)
+   lg: 1440-1919px (desktop)
+   xl: 1920px+ (desktop large)
+*/
+
+:root {
+  /* Touch targets (WCAG 2.1 Level AAA) */
+  --touch-target-min: 44px;
+  --touch-target-ideal: 48px;
+  
+  /* Spacing scale mobile-first */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+  
+  /* Font sizes responsive */
+  --font-xs: 0.75rem;   /* 12px */
+  --font-sm: 0.875rem;  /* 14px */
+  --font-base: 1rem;    /* 16px */
+  --font-lg: 1.125rem;  /* 18px */
+  --font-xl: 1.25rem;   /* 20px */
+  --font-2xl: 1.5rem;   /* 24px */
+  --font-3xl: 1.875rem; /* 30px */
+  --font-4xl: 2.25rem;  /* 36px */
+  
+  /* Border radius responsive */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+  
+  /* Container widths */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1536px;
+}
+
+/* Mobile-first padding adjustments */
+.q-page {
+  padding: var(--spacing-md);
+}
+
+@media (min-width: 600px) {
+  .q-page {
+    padding: var(--spacing-lg);
+  }
+}
+
+@media (min-width: 1024px) {
+  .q-page {
+    padding: var(--spacing-xl);
+  }
+}
+
+/* Container responsive */
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--spacing-md);
+  padding-right: var(--spacing-md);
+}
+
+@media (min-width: 640px) {
+  .container { max-width: var(--container-sm); }
+}
+
+@media (min-width: 768px) {
+  .container { max-width: var(--container-md); }
+}
+
+@media (min-width: 1024px) {
+  .container { 
+    max-width: var(--container-lg);
+    padding-left: var(--spacing-lg);
+    padding-right: var(--spacing-lg);
+  }
+}
+
+@media (min-width: 1280px) {
+  .container { max-width: var(--container-xl); }
+}
+
+@media (min-width: 1536px) {
+  .container { max-width: var(--container-2xl); }
+}
+
+/* Touch-friendly elements */
+.touch-target {
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.touch-target-ideal {
+  min-width: var(--touch-target-ideal);
+  min-height: var(--touch-target-ideal);
+}
+
 /* Utility classes for financial colors */
 .text-income { color: var(--income) !important; }
 .text-expense { color: var(--expense) !important; }
@@ -77,15 +191,141 @@
 }
 
 /* Responsive utilities */
-@media (max-width: 599px) {
+.hide-on-mobile {
+  display: none !important;
+}
+
+@media (min-width: 600px) {
   .hide-on-mobile {
+    display: block !important;
+  }
+  
+  .hide-on-tablet-up {
     display: none !important;
   }
 }
 
-@media (min-width: 600px) {
+@media (min-width: 1024px) {
   .hide-on-desktop {
     display: none !important;
+  }
+  
+  .show-on-desktop {
+    display: block !important;
+  }
+}
+
+.mobile-only {
+  display: block !important;
+}
+
+@media (min-width: 1024px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+.desktop-only {
+  display: none !important;
+}
+
+@media (min-width: 1024px) {
+  .desktop-only {
+    display: block !important;
+  }
+}
+
+/* Text alignment responsive */
+.text-center-mobile {
+  text-align: center;
+}
+
+@media (min-width: 600px) {
+  .text-center-mobile {
+    text-align: left;
+  }
+}
+
+/* Spacing responsive */
+.p-mobile {
+  padding: var(--spacing-md);
+}
+
+@media (min-width: 600px) {
+  .p-mobile {
+    padding: var(--spacing-lg);
+  }
+}
+
+.m-mobile {
+  margin: var(--spacing-md);
+}
+
+@media (min-width: 600px) {
+  .m-mobile {
+    margin: var(--spacing-lg);
+  }
+}
+
+/* Grid responsive adjustments */
+.q-col-gutter-responsive {
+  margin: calc(-1 * var(--spacing-sm));
+}
+
+.q-col-gutter-responsive > * {
+  padding: var(--spacing-sm);
+}
+
+@media (min-width: 600px) {
+  .q-col-gutter-responsive {
+    margin: calc(-1 * var(--spacing-md));
+  }
+  
+  .q-col-gutter-responsive > * {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (min-width: 1024px) {
+  .q-col-gutter-responsive {
+    margin: calc(-1 * var(--spacing-lg));
+  }
+  
+  .q-col-gutter-responsive > * {
+    padding: var(--spacing-lg);
+  }
+}
+
+/* Font size responsive */
+.text-responsive-lg {
+  font-size: var(--font-xl);
+}
+
+@media (min-width: 600px) {
+  .text-responsive-lg {
+    font-size: var(--font-2xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .text-responsive-lg {
+    font-size: var(--font-3xl);
+  }
+}
+
+.text-responsive-xl {
+  font-size: var(--font-2xl);
+}
+
+@media (min-width: 600px) {
+  .text-responsive-xl {
+    font-size: var(--font-3xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .text-responsive-xl {
+    font-size: var(--font-4xl);
   }
 }
 
@@ -105,6 +345,76 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+/* ==========================================================================
+   BOTTOM NAVIGATION SPACING - Mobile Only
+   ========================================================================== */
+
+/* Garante que páginas com bottom nav tenham espaço suficiente */
+@media (max-width: 1023px) {
+  /* Todas as páginas q-page em mobile recebem padding-bottom extra 
+     Espaço para: bottom nav (56px) + safe area + margem (24px)
+     Total: ~80px */
+  .q-page {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+    min-height: 100vh;
+  }
+  
+  /* Container de conteúdo com bottom nav */
+  .q-page-container.has-bottom-nav {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+  
+  /* Última seção/card em uma página não deve ficar atrás do menu */
+  .q-page > *:last-child {
+    margin-bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Landscape mobile - reduz um pouco o padding */
+@media (max-width: 1023px) and (orientation: landscape) and (max-height: 500px) {
+  .q-page {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* ==========================================================================
+   MOBILE KEYBOARD FIX - Permite scroll quando teclado está aberto
+   ========================================================================== */
+@media (max-width: 599px) {
+  /* Fix para iOS e Android - permite scroll quando teclado virtual abre */
+  html {
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  body {
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  #q-app {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    position: relative;
+  }
+  
+  /* Garante que dialogs possam fazer scroll */
+  .q-dialog__inner {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    height: 100% !important;
+  }
+  
+  /* Inputs devem ter scroll quando focados */
+  input, textarea, select {
+    font-size: 16px !important; /* Previne zoom no iOS */
+  }
 }
 
 /* Print styles */

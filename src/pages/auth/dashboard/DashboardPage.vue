@@ -1,25 +1,32 @@
 <template>
   <q-page class="modern-dashboard">
-    <div class="dashboard-wrapper q-pa-md">
+    <div class="dashboard-wrapper">
       
       <!-- ==========================================================================
       CABEÇALHO ULTRA-MODERNO
       ========================================================================== -->
-      <div class="hero-header q-mb-lg">
+      <div class="hero-header">
         <div class="hero-content">
-          <div class="hero-left">
-            <div class="greeting-badge q-mb-sm">
+          <!-- Linha superior: Olá à esquerda, Boa noite à direita -->
+          <div class="hero-top-row">
+            <h1 class="hero-title">
+              Olá, <span class="name-highlight">{{ authStore.userDisplayName }}</span>! 👋
+            </h1>
+            
+            <div class="greeting-badge">
               <q-icon name="wb_sunny" size="1.2rem" class="q-mr-xs" />
               {{ getCurrentGreeting() }}
             </div>
-            <h1 class="hero-title q-mb-xs">
-              Olá, <span class="name-highlight">{{ authStore.userDisplayName }}</span>! 👋
-            </h1>
+          </div>
+          
+          <!-- Linha inferior: Data/Subtítulo -->
+          <div class="hero-bottom-row">
             <p class="hero-subtitle">
               {{ getCurrentDate() }} • Seu controle financeiro em tempo real
             </p>
           </div>
           
+          <!-- Botões de ação -->
           <div class="hero-actions">
             <q-btn
               icon="add_circle_outline"
@@ -51,7 +58,7 @@
       <!-- ==========================================================================
       CARDS DE MÉTRICAS PREMIUM
       ========================================================================== -->
-      <div class="row q-col-gutter-lg q-mb-xl">
+      <div class="row q-col-gutter-sm metrics-row">
         
         <!-- Card de Receitas Premium -->
         <div class="col-12 col-sm-6 col-lg-3">
@@ -149,7 +156,7 @@
       <!-- ==========================================================================
       SEÇÃO SECUNDÁRIA - ANÁLISES E AÇÕES
       ========================================================================== -->
-      <div class="row q-col-gutter-lg q-mb-lg">
+      <div class="row q-col-gutter-sm secondary-section">
         
         <!-- Gráfico de Categorias Melhorado -->
         <div class="col-12 col-md-5">
@@ -243,7 +250,7 @@
       <!-- ==========================================================================
       TRANSAÇÕES RECENTES
       ========================================================================== -->
-      <div class="row q-col-gutter-md">
+      <div class="row transactions-section">
         
         <!-- Lista de Transações Recentes -->
         <div class="col-12">
@@ -336,7 +343,7 @@
       <!-- ==========================================================================
       GRÁFICO DE EVOLUÇÃO FINANCEIRA - ANÁLISE DETALHADA
       ========================================================================== -->
-      <div class="row q-mt-xl q-mb-lg">
+      <div class="row chart-evolution-section">
         <div class="col-12">
           <div class="main-chart-card">
             <div class="chart-header">
@@ -421,6 +428,7 @@
       maximized 
       transition-show="slide-up" 
       transition-hide="slide-down"
+      class="transaction-dialog-mobile"
     >
       <TransactionForm
         mode="create"
@@ -984,13 +992,43 @@ onMounted(async () => {
   initLineChart()
   initDoughnutChart()
   
+  // Exibe notificação de upgrade para usuários do plano gratuito
+  const freePlans = ['free', 'gratuito', 'gratis', 'trial']
+  const userPlan = authStore.userPlan?.toLowerCase() || ''
+  
+  if (freePlans.includes(userPlan)) {
+    setTimeout(() => {
+      $q.notify({
+        type: 'info',
+        message: 'Upgrade para Premium',
+        caption: 'Desbloqueie recursos ilimitados e tenha acesso completo ao sistema!',
+        icon: 'star',
+        position: 'top',
+        timeout: 5000,
+        actions: [
+          {
+            label: 'Ver Planos',
+            color: 'white',
+            handler: () => {
+              router.push('/plans')
+            }
+          },
+          {
+            label: 'Fechar',
+            color: 'white'
+          }
+        ]
+      })
+    }, 1500)
+  }
+  
   // Verifica se o perfil está incompleto e solicita completar
   if (authStore.isProfileIncomplete) {
     console.log('📝 [DASHBOARD] Perfil incompleto detectado, solicitando completar dados')
     // Pequeno delay para garantir que o dashboard carregou visualmente
     setTimeout(() => {
       showCompleteProfileDialog.value = true
-    }, 1000)
+    }, 2500) // Aumentado de 1000 para 2500 para dar tempo da notificação aparecer primeiro
   }
 })
 </script>
@@ -1003,12 +1041,46 @@ onMounted(async () => {
 .modern-dashboard {
   background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
   min-height: 100vh;
-  padding-bottom: 3rem;
+  // Padding bottom padrão - será sobrescrito em mobile
+  padding-bottom: 4rem;
 }
 
 .dashboard-wrapper {
   max-width: 1400px;
   margin: 0 auto;
+  /* Mobile: sem padding lateral, usa padding nas seções */
+  padding: 0;
+}
+
+/* Seções com padding controlado */
+.hero-header,
+.metrics-row,
+.secondary-section,
+.transactions-section,
+.chart-evolution-section {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.hero-header {
+  margin-bottom: 0.75rem;
+}
+
+.metrics-row {
+  margin-bottom: 0.75rem;
+}
+
+.secondary-section {
+  margin-bottom: 0.75rem;
+}
+
+.transactions-section {
+  margin-bottom: 0.75rem;
+}
+
+.chart-evolution-section {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
 // ==========================================================================
@@ -1017,7 +1089,7 @@ onMounted(async () => {
 .hero-header {
   background: linear-gradient(135deg, #2c5f2d 0%, #3a7541 50%, #2c5f2d 100%);
   border-radius: 20px;
-  padding: 2rem 2.5rem;
+  padding: 1.5rem 2.5rem; // Reduzido de 2rem para trazer conteúdo mais para cima
   color: white;
   position: relative;
   overflow: hidden;
@@ -1053,15 +1125,22 @@ onMounted(async () => {
   position: relative;
   z-index: 1;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 2rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.5rem; // Reduzido de 1rem para trazer conteúdo mais junto
 }
 
-.hero-left {
-  flex: 1;
-  min-width: 300px;
+.hero-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; // Mudado de center para flex-start
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.25rem; // Pequeno espaço entre top row e bottom row
+}
+
+.hero-bottom-row {
+  margin-bottom: 0.5rem;
+  margin-top: 0; // Remove margem superior extra
 }
 
 .greeting-badge {
@@ -1075,22 +1154,37 @@ onMounted(async () => {
   font-weight: 600;
   letter-spacing: 0.3px;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  animation: slideInLeft 0.6s ease;
+  animation: slideInRight 0.6s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
 }
 
 .hero-title {
   font-size: 2.25rem;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.3;
   margin: 0;
   animation: slideInLeft 0.7s ease;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  min-width: 0;
+  
+  // Permite quebra de linha se nome for muito grande
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
   
   .name-highlight {
     color: #fff;
     font-weight: 800;
     position: relative;
+    display: inline;
+    
+    // Permite quebra de linha no nome
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
     
     &::after {
       content: '';
@@ -1117,7 +1211,8 @@ onMounted(async () => {
 .hero-actions {
   display: flex;
   gap: 1rem;
-  animation: slideInRight 0.8s ease;
+  animation: slideInUp 0.8s ease;
+  flex-wrap: wrap;
 }
 
 .hero-btn {
@@ -1302,8 +1397,8 @@ onMounted(async () => {
 // ==========================================================================
 .main-chart-card {
   background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-  border-radius: 24px;
-  padding: 2.5rem;
+  border-radius: 16px;
+  padding: 1rem;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
   border: 1px solid #e2e8f0;
   transition: all 0.3s ease;
@@ -1424,10 +1519,10 @@ onMounted(async () => {
 .chart-body {
   min-height: 380px;
   position: relative;
-  padding: 1rem;
+  padding: 0.5rem;
   background: #f8fafc;
-  border-radius: 16px;
-  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
 }
 
 .main-chart-canvas {
@@ -1527,8 +1622,8 @@ onMounted(async () => {
 // ==========================================================================
 .category-chart-card {
   background: white;
-  border-radius: 20px;
-  padding: 1.75rem;
+  border-radius: 16px;
+  padding: 1rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   height: 100%;
   transition: all 0.3s ease;
@@ -1560,11 +1655,13 @@ onMounted(async () => {
 }
 
 .category-chart-body {
-  min-height: 300px;
+  /* Mobile: altura maior para melhor visualização */
+  min-height: 320px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 0.5rem;
+  position: relative;
 }
 
 .category-chart-canvas {
@@ -1866,147 +1963,565 @@ onMounted(async () => {
 }
 
 // ==========================================================================
-// RESPONSIVE DESIGN
+// RESPONSIVE DESIGN - MOBILE FIRST - MÁXIMO USO DA TELA
 // ==========================================================================
-@media (max-width: 1024px) {
-  .hero-content {
-    flex-direction: column;
-    align-items: flex-start;
+
+/* Mobile Portrait (320px - 599px) - MÁXIMO APROVEITAMENTO */
+@media (max-width: 599px) {
+  .modern-dashboard {
+    // Espaço para bottom nav (56px) + safe area + margem
+    padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+    min-height: 100vh;
   }
   
-  .hero-actions {
-    width: 100%;
-    
-    .hero-btn {
-      flex: 1;
-    }
-  }
-}
-
-@media (max-width: 768px) {
   .dashboard-wrapper {
-    padding: 1rem;
+    padding: 0; /* Remove padding wrapper */
+  }
+  
+  /* Seções com padding mínimo */
+  .hero-header,
+  .metrics-row,
+  .secondary-section,
+  .transactions-section,
+  .chart-evolution-section {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
   }
   
   .hero-header {
-    padding: 1.5rem;
-    border-radius: 16px;
+    padding: 0.875rem !important; // Padding uniforme reduzido
+    border-radius: 10px;
+    margin-bottom: 0.625rem !important;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+  
+  /* Layout mobile para hero top row */
+  .hero-top-row {
+    flex-direction: row; // Mantém em linha horizontal
+    align-items: center; // Centraliza verticalmente
+    justify-content: space-between; // Nome à esquerda, badge à direita
+    gap: 0.5rem;
+    margin-bottom: 0.5rem; // Espaço antes da subtitle
+    flex-wrap: wrap; // Permite quebra se nome for muito grande
+  }
+  
+  .greeting-badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.875rem;
+    flex-shrink: 0; // Não encolhe
+    white-space: nowrap; // Não quebra o texto do badge
+    order: 2; // Move para a direita (depois do título)
   }
   
   .hero-title {
-    font-size: 1.75rem;
+    font-size: 1.375rem; // Aumentado de 1.25rem
+    line-height: 1.3;
+    order: 1; // Mantém à esquerda (antes do badge)
+    margin-bottom: 0.25rem; // Pequeno espaço abaixo do título
+    flex: 1; // Ocupa espaço disponível
+    
+    // Garante quebra de linha em nomes longos
+    max-width: 100%;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  .hero-bottom-row {
+    margin-bottom: 0.5rem;
+    margin-top: 0;
   }
   
   .hero-subtitle {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
   }
   
   .hero-actions {
-    flex-direction: column;
-    gap: 0.75rem;
-    
-    .hero-btn {
-      width: 100%;
-      padding: 1rem;
-    }
-  }
-  
-  .metric-card {
-    padding: 1.25rem;
-    
-    &:hover {
-      transform: translateY(-4px);
-    }
-  }
-  
-  .metric-value {
-    font-size: 1.5rem;
-  }
-  
-  .metric-icon-wrapper {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .chart-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-  
-  .chart-period-selector {
     width: 100%;
-    overflow-x: auto;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+  }
+  
+  .hero-btn {
+    flex: 1;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.8125rem;
     
-    .period-toggle {
-      width: 100%;
-      flex-wrap: nowrap;
+    .q-icon {
+      font-size: 1rem;
+    }
+  }
+  
+  .metrics-row,
+  .secondary-section,
+  .transactions-section,
+  .chart-evolution-section {
+    margin-bottom: 0.625rem !important;
+  }
+  
+  /* Cards de Métricas - Compactos e empilhados */
+  .metric-card {
+    padding: 0.875rem;
+    margin-bottom: 0.5rem;
+    border-radius: 10px;
+    
+    .metric-icon-wrapper {
+      width: 40px;
+      height: 40px;
       
-      :deep(.q-btn) {
-        flex: 1;
-        padding: 0.5rem 0.625rem;
-        font-size: 0.7rem;
-        min-width: auto;
+      .q-icon {
+        font-size: 1.375rem;
+      }
+    }
+    
+    .metric-value {
+      font-size: 1.25rem;
+      margin-top: 0.375rem;
+    }
+    
+    .metric-label {
+      font-size: 0.7rem;
+    }
+    
+    .metric-badge {
+      font-size: 0.625rem;
+      padding: 0.1875rem 0.4375rem;
+    }
+    
+    /* Remover hover effects em mobile (melhor performance) */
+    &:hover {
+      transform: none;
+    }
+  }
+  
+  /* Gráficos otimizados para mobile - ALTURA MAIOR */
+  .category-chart-card,
+  .quick-actions-modern {
+    margin-bottom: 0.625rem;
+    padding: 0.875rem;
+    border-radius: 12px;
+  }
+  
+  .chart-header-simple {
+    padding: 0.625rem 0;
+    margin-bottom: 0.75rem;
+    
+    .chart-title-small {
+      font-size: 0.875rem;
+    }
+    
+    .chart-subtitle-small {
+      font-size: 0.6875rem;
+    }
+    
+    .chart-icon-wrapper {
+      width: 32px;
+      height: 32px;
+      
+      .q-icon {
+        font-size: 0.875rem;
+      }
+    }
+  }
+  
+  /* GRÁFICO DE CATEGORIAS - MAIOR EM MOBILE */
+  .category-chart-body {
+    min-height: 340px !important;
+    padding: 0.375rem;
+  }
+  
+  .category-chart-canvas {
+    max-height: 340px !important;
+  }
+  
+  /* Ações Rápidas - Mobile */
+  .actions-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .action-card {
+    padding: 0.75rem;
+    border-radius: 10px;
+    
+    .action-icon {
+      width: 40px;
+      height: 40px;
+      
+      .q-icon {
+        font-size: 1.375rem;
+      }
+    }
+    
+    .action-title {
+      font-size: 0.8125rem;
+    }
+    
+    .action-description {
+      font-size: 0.6875rem;
+    }
+  }
+  
+  /* Gráfico Principal Mobile - ALTURA MUITO MAIOR */
+  .main-chart-card {
+    padding: 0.875rem;
+    border-radius: 12px;
+    
+    .chart-header {
+      padding: 0.5rem 0;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+    
+    .chart-title {
+      font-size: 0.9375rem;
+    }
+    
+    .chart-subtitle {
+      font-size: 0.6875rem;
+    }
+    
+    .chart-period-selector {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-top: 0.625rem;
+      
+      .period-toggle {
+        flex-wrap: nowrap;
+        padding: 2px;
         
-        .q-btn__content {
-          flex-direction: column;
-          gap: 0.125rem;
-        }
-        
-        .q-icon {
-          font-size: 0.875rem;
-          margin: 0;
+        :deep(.q-btn) {
+          min-width: 52px;
+          padding: 0.4375rem 0.5rem;
+          font-size: 0.625rem;
+          white-space: nowrap;
+          
+          .q-icon {
+            display: none; /* Esconde ícones em telas muito pequenas */
+          }
         }
       }
     }
   }
   
-  .chart-body,
-  .category-chart-body {
-    min-height: 280px;
+  /* GRÁFICO DE EVOLUÇÃO - MUITO MAIOR EM MOBILE */
+  .chart-body {
+    min-height: 380px !important;
+    padding: 0.375rem;
+    margin-bottom: 0.75rem;
+    border-radius: 10px;
+  }
+  
+  .main-chart-canvas {
+    max-height: 380px !important;
   }
   
   .chart-legend {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
+    padding: 0.625rem;
+    gap: 0.5rem;
+    
+    .legend-item {
+      width: 100%;
+      justify-content: space-between;
+    }
+    
+    .legend-value {
+      font-size: 0.8125rem;
+      font-weight: 600;
+    }
+    
+    .legend-label {
+      font-size: 0.6875rem;
+    }
   }
   
-  .actions-grid {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-  
-  .action-card {
-    padding: 1rem;
+  /* Transações Recentes Mobile */
+  .recent-transactions-card {
+    border-radius: 12px;
+    
+    .q-card-section {
+      padding: 0.875rem;
+      
+      h6 {
+        font-size: 0.875rem;
+      }
+      
+      .text-caption {
+        font-size: 0.6875rem;
+      }
+      
+      .q-btn {
+        font-size: 0.6875rem;
+        padding: 0.3125rem 0.625rem;
+      }
+    }
   }
   
   .transaction-item {
-    padding: 1rem;
+    padding: 0.75rem;
+    margin: 0.3125rem 0;
+    border-radius: 8px;
     
+    .q-avatar {
+      width: 36px;
+      height: 36px;
+    }
+    
+    .q-item-label {
+      font-size: 0.8125rem;
+      
+      &.caption {
+        font-size: 0.6875rem;
+      }
+    }
+    
+    .q-item-section.side {
+      .q-item-label {
+        font-size: 0.875rem;
+      }
+    }
+    
+    /* Remover hover em mobile */
     &:hover {
-      transform: translateX(4px);
+      transform: none;
+      box-shadow: none;
+    }
+  }
+  
+  /* Row gutters menores */
+  .row {
+    margin: -0.25rem;
+    
+    > div {
+      padding: 0.25rem;
     }
   }
 }
 
-@media (max-width: 480px) {
-  .greeting-badge {
-    font-size: 0.75rem;
-    padding: 0.375rem 0.75rem;
+/* Mobile Landscape e Small Tablets (600px - 1023px) */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .dashboard-wrapper {
+    padding: 0.5rem;
   }
   
-  .hero-title {
-    font-size: 1.5rem;
+  .hero-header {
+    padding: 1.25rem;
+    border-radius: 14px;
   }
   
-  .metric-value {
-    font-size: 1.25rem;
+  /* Cards de Métricas - 2 colunas em tablets */
+  .metric-card {
+    padding: 1.125rem;
   }
   
-  .metric-badge {
-    font-size: 0.7rem;
-    padding: 0.25rem 0.5rem;
+  /* Gráficos otimizados para tablet */
+  .category-chart-card,
+  .quick-actions-modern {
+    margin-bottom: 1rem;
+  }
+  
+  .category-chart-body {
+    min-height: 280px;
+    padding: 0.875rem;
+  }
+  
+  /* Ações Rápidas - 2 colunas em tablet */
+  .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  /* Gráfico Principal Tablet */
+  .main-chart-card {
+    .chart-header {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+  
+  .chart-body {
+    min-height: 320px;
+    padding: 0.875rem;
+  }
+  
+  /* Row gutters médios */
+  .row {
+    margin: -0.375rem;
+    
+    > div {
+      padding: 0.375rem;
+    }
+  }
+}
+
+/* Tablets Médios (1024px - 1439px) */
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .dashboard-wrapper {
+    padding: 1rem;
+  }
+  
+  /* 3 colunas para métricas em tablets médios */
+  .metrics-row {
+    .row > div {
+      max-width: 33.333%;
+    }
+  }
+  
+  /* 2 colunas para ações */
+  .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+/* Desktops Grandes (1440px - 1919px) */
+@media (min-width: 1440px) and (max-width: 1919px) {
+  .dashboard-wrapper {
+    padding: 1.5rem;
+  }
+  
+  /* 4 colunas para métricas */
+  .metrics-row {
+    .row > div {
+      max-width: 25%;
+    }
+  }
+  
+  /* 3 colunas para ações */
+  .actions-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Ultra Wide (1920px+) */
+@media (min-width: 1920px) {
+  .dashboard-wrapper {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  /* 4 colunas para métricas */
+  .metrics-row {
+    .row > div {
+      max-width: 25%;
+    }
+  }
+  
+  /* 3 colunas para ações */
+  .actions-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  /* Limitar altura dos gráficos em telas muito grandes */
+  .category-chart-body {
+    max-height: 400px;
+  }
+  
+  .chart-body {
+    max-height: 500px;
+  }
+}
+
+// ==========================================================================
+// ACESSIBILIDADE & INTERAÇÕES
+// ==========================================================================
+
+/* Reduzir animações para usuários com preferência */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Modo de Alto Contraste */
+@media (prefers-contrast: high) {
+  .metric-card,
+  .category-chart-card,
+  .quick-actions-modern,
+  .main-chart-card,
+  .recent-transactions-card {
+    border-width: 2px;
+  }
+  
+  .hero-btn,
+  .action-card,
+  .transaction-item {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Orientação Landscape em Mobile */
+@media (max-width: 899px) and (orientation: landscape) {
+  .hero-header {
+    padding: 0.75rem;
+  }
+  
+  .metrics-row {
+    .row > div {
+      max-width: 50%; /* 2 colunas em landscape */
+    }
+  }
+  
+  .chart-body {
+    min-height: 240px; /* Reduz altura em landscape */
+  }
+}
+
+// ==========================================================================
+// DIALOG DE TRANSAÇÃO - MOBILE SCROLL FIX
+// ==========================================================================
+:deep(.transaction-dialog-mobile) {
+  @media (max-width: 599px) {
+    // Remove backdrop para melhor performance
+    .q-dialog__backdrop {
+      background: rgba(0, 0, 0, 0.7) !important;
+    }
+    
+    .q-dialog__inner {
+      padding: 0 !important;
+      // Garante scroll no mobile mesmo com teclado
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+      overscroll-behavior: contain !important;
+      
+      // Fix para iOS - permite scroll quando teclado está aberto
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      height: 100vh !important;
+      width: 100vw !important;
+      max-height: 100vh !important;
+      
+      // Força área scrollável
+      > * {
+        height: auto !important;
+        min-height: 150vh !important;
+      }
+      
+      .transaction-form-card {
+        margin: 0 !important;
+        border-radius: 0 !important;
+        max-height: none !important;
+        height: auto !important;
+        min-height: 150vh !important;
+        overflow: visible !important;
+        
+        .q-card-section {
+          // Extra padding quando teclado abre
+          padding-bottom: calc(400px + env(safe-area-inset-bottom)) !important;
+          min-height: 100vh !important;
+        }
+      }
+    }
   }
 }
 </style>

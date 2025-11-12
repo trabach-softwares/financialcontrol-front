@@ -906,11 +906,36 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 // ==========================================================================
-// ESTILOS DA PÁGINA DE TRANSAÇÕES
+// ESTILOS DA PÁGINA DE TRANSAÇÕES - MOBILE FIRST
 // ==========================================================================
+
+.transactions-page {
+  /* Mobile-first: padding menor */
+  padding: 0.75rem;
+  /* Espaço para bottom nav + upgrade banner em mobile */
+  min-height: 100vh;
+  padding-bottom: calc(140px + env(safe-area-inset-bottom));
+}
 
 .page-header {
   padding: 1rem 0;
+  margin-bottom: 1rem;
+  
+  h1 {
+    font-size: 1.5rem;
+    margin: 0;
+  }
+  
+  p {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+  
+  /* Em mobile, botão ocupa largura total */
+  .q-btn {
+    width: 100%;
+    min-height: var(--touch-target-ideal);
+  }
 }
 
 // Cards
@@ -919,49 +944,361 @@ onMounted(() => {
 .transactions-card {
   border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
+/* Filtros em mobile - Design colapsável */
+.filters-card {
+  margin-bottom: 1rem;
+  
+  .q-card-section {
+    padding: 0.875rem;
+  }
+  
+  /* Inputs com altura adequada para toque */
+  :deep(.q-field) {
+    margin-bottom: 0.5rem;
+    
+    .q-field__control {
+      min-height: var(--touch-target-ideal);
+    }
+    
+    input, .q-field__native {
+      font-size: 0.9375rem; /* 15px - ideal para mobile */
+    }
+  }
+}
+
+/* Cards de Estatísticas */
 .stat-card {
   transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  }
-}
-
-.stat-value {
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-// Lista de transações
-.transaction-item {
   padding: 1rem;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background-color: rgba(25, 118, 210, 0.02);
-    transform: translateX(4px);
-  }
-}
-
-// Responsividade
-@media (max-width: 768px) {
-  .page-header .text-right {
-    text-align: left;
-  }
   
   .stat-value {
-    font-size: 1.2rem;
+    font-size: 1.375rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  
+  .stat-label {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    opacity: 0.7;
+  }
+  
+  /* Remover hover em mobile */
+  &:hover {
+    transform: none;
   }
 }
 
-.div-clear-filters {
-  margin-bottom: var(--spacing-2);
+/* Lista de transações - Otimizada para mobile */
+.transactions-card {
+  .q-card-section {
+    padding: 1rem 0.875rem;
+    
+    h6 {
+      font-size: 1rem;
+      margin: 0;
+    }
+    
+    .q-btn {
+      font-size: 0.75rem;
+      padding: 0.375rem 0.75rem;
+    }
+  }
 }
 
-.btn-clear-filters {
-  height: 2.5rem;
+.transaction-item {
+  padding: 0.875rem;
+  margin: 0.375rem 0;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  min-height: var(--touch-target-ideal);
+  
+  /* Avatar menor em mobile */
+  .q-avatar {
+    width: 40px;
+    height: 40px;
+    
+    .q-icon {
+      font-size: 1.25rem;
+    }
+  }
+  
+  .q-item-label {
+    font-size: 0.875rem;
+    
+    &.caption {
+      font-size: 0.75rem;
+    }
+  }
+  
+  /* Chips menores */
+  :deep(.q-chip) {
+    font-size: 0.65rem;
+    height: 20px;
+    padding: 0 6px;
+  }
+  
+  /* Valor em destaque */
+  .q-item-section.side {
+    .text-h6 {
+      font-size: 1rem;
+    }
+    
+    .text-caption {
+      font-size: 0.7rem;
+    }
+  }
+  
+  /* Toggle mais fácil de tocar */
+  :deep(.q-toggle) {
+    min-width: var(--touch-target-min);
+    
+    .q-toggle__label {
+      font-size: 0.75rem;
+    }
+  }
+  
+  /* Botão de ações com área de toque adequada */
+  .q-btn {
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+  }
+  
+  /* Remover hover em touch devices */
+  &:hover {
+    background-color: rgba(25, 118, 210, 0.02);
+  }
+  
+  /* Active state para feedback tátil */
+  &:active {
+    background-color: rgba(25, 118, 210, 0.05);
+  }
+}
+
+/* Paginação mobile */
+.q-pagination {
+  :deep(.q-btn) {
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    font-size: 0.875rem;
+  }
+}
+
+/* Empty States */
+.text-center {
+  .q-icon {
+    opacity: 0.4;
+  }
+  
+  h6 {
+    font-size: 1rem;
+  }
+  
+  .q-btn {
+    min-height: var(--touch-target-ideal);
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+/* Botão de limpar filtros */
+.div-clear-filters {
+  display: flex;
+  align-items: flex-end;
+  
+  .btn-clear-filters {
+    width: 100%;
+    min-height: var(--touch-target-ideal);
+  }
+}
+
+// ==========================================================================
+// TABLET PORTRAIT (600px - 1023px)
+// ==========================================================================
+@media (min-width: 600px) {
+  .transactions-page {
+    padding: 1rem;
+  }
+  
+  .page-header {
+    .q-btn {
+      width: auto;
+      min-width: 180px;
+    }
+  }
+  
+  .filters-card {
+    .q-card-section {
+      padding: 1.25rem;
+    }
+  }
+  
+  .stat-card {
+    padding: 1.25rem;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  .transaction-item {
+    padding: 1rem;
+    
+    .q-avatar {
+      width: 48px;
+      height: 48px;
+    }
+    
+    .q-item-label {
+      font-size: 0.9375rem;
+    }
+    
+    .q-item-section.side {
+      .text-h6 {
+        font-size: 1.125rem;
+      }
+    }
+  }
+}
+
+// ==========================================================================
+// TABLET LANDSCAPE / DESKTOP (1024px+)
+// ==========================================================================
+@media (min-width: 1024px) {
+  .transactions-page {
+    padding: 1.5rem;
+  }
+  
+  .page-header {
+    padding: 1.5rem 0;
+    
+    h1 {
+      font-size: 2rem;
+    }
+    
+    p {
+      font-size: 1rem;
+    }
+  }
+  
+  .filters-card {
+    .q-card-section {
+      padding: 1.5rem;
+    }
+    
+    :deep(.q-field) {
+      margin-bottom: 0;
+    }
+  }
+  
+  .stat-card {
+    padding: 1.5rem;
+    
+    .stat-value {
+      font-size: 1.5rem;
+    }
+  }
+  
+  .transaction-item {
+    padding: 1.25rem;
+    
+    &:hover {
+      transform: translateX(4px);
+    }
+    
+    .q-avatar {
+      width: 56px;
+      height: 56px;
+    }
+    
+    .q-item-label {
+      font-size: 1rem;
+      
+      &.caption {
+        font-size: 0.875rem;
+      }
+    }
+    
+    :deep(.q-chip) {
+      font-size: 0.75rem;
+      height: 24px;
+    }
+    
+    .q-item-section.side {
+      .text-h6 {
+        font-size: 1.25rem;
+      }
+    }
+  }
+  
+  .div-clear-filters {
+    .btn-clear-filters {
+      width: auto;
+    }
+  }
+}
+
+// ==========================================================================
+// LANDSCAPE MODE (altura baixa)
+// ==========================================================================
+@media (max-height: 600px) and (orientation: landscape) {
+  .page-header {
+    padding: 0.5rem 0;
+    margin-bottom: 0.5rem;
+    
+    h1 {
+      font-size: 1.25rem;
+    }
+  }
+  
+  .filters-card,
+  .stat-card {
+    margin-bottom: 0.5rem;
+  }
+  
+  .transaction-item {
+    padding: 0.625rem;
+  }
+}
+
+// ==========================================================================
+// DARK MODE SUPPORT
+// ==========================================================================
+:global(.body--dark) {
+  .filters-card,
+  .stat-card,
+  .transactions-card {
+    background: #1e1e2e;
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .transaction-item {
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+    
+    &:active {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+}
+
+// ==========================================================================
+// PRINT STYLES
+// ==========================================================================
+@media print {
+  .page-header .q-btn,
+  .filters-card,
+  .q-item-section.side .q-btn,
+  .q-pagination {
+    display: none !important;
+  }
+  
+  .transaction-item {
+    break-inside: avoid;
+  }
 }
 </style>
