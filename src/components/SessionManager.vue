@@ -136,13 +136,13 @@ async function refreshToken() {
     const data = await authService.refresh()
 
     if (data && data.token) {
-      // Persistir novo token e (opcional) usuário mínimo
-      sessionStorage.setItem('auth_token', data.token)
+      // Persistir novo token no localStorage (persistência permanente)
+      localStorage.setItem('auth_token', data.token)
       if (data.user) {
         // Mesclar com usuário existente para não perder informações (ex.: plan_name)
         const current = authStore.user || {}
         const mergedMin = { ...current, ...data.user }
-        sessionStorage.setItem('auth_user', JSON.stringify(mergedMin))
+        localStorage.setItem('auth_user', JSON.stringify(mergedMin))
         authStore.user = mergedMin
       }
 
@@ -163,7 +163,7 @@ async function refreshToken() {
             } : {})
           }
           authStore.user = normalized
-          sessionStorage.setItem('auth_user', JSON.stringify(normalized))
+          localStorage.setItem('auth_user', JSON.stringify(normalized))
         }
       } catch (_) {
         // ignore

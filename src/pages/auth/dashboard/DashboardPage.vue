@@ -2258,36 +2258,81 @@ onMounted(async () => {
         padding: 0.3125rem 0.625rem;
       }
     }
-  }
-  
-  .transaction-item {
-    padding: 0.75rem;
-    margin: 0.3125rem 0;
-    border-radius: 8px;
     
-    .q-avatar {
-      width: 36px;
-      height: 36px;
+    /* Otimização da lista de transações */
+    .q-list {
+      padding: 0;
     }
     
-    .q-item-label {
-      font-size: 0.8125rem;
+    .transaction-item {
+      padding: 1rem 0.75rem !important;
+      min-height: unset;
       
-      &.caption {
-        font-size: 0.6875rem;
+      /* Layout em coluna para mobile */
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 0.625rem;
+      
+      /* Avatar e descrição na primeira linha */
+      .q-item-section.avatar {
+        align-self: flex-start;
+        width: 100%;
+        flex-direction: row !important;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0 !important;
+        
+        .q-avatar {
+          width: 40px;
+          height: 40px;
+          font-size: 1.125rem;
+          flex-shrink: 0;
+        }
       }
-    }
-    
-    .q-item-section.side {
-      .q-item-label {
-        font-size: 0.875rem;
+      
+      /* Seção principal (descrição e categoria) */
+      .q-item-section:not(.avatar):not(.side) {
+        width: 100%;
+        padding: 0 !important;
+        margin-left: 52px; /* Alinha com texto acima (40px avatar + 12px gap) */
+        
+        .q-item-label {
+          font-size: 0.9375rem;
+          line-height: 1.4;
+          font-weight: 500;
+          
+          &:not(.caption) {
+            margin-bottom: 0.25rem;
+          }
+          
+          &.caption {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 0.125rem;
+          }
+        }
       }
-    }
-    
-    /* Remover hover em mobile */
-    &:hover {
-      transform: none;
-      box-shadow: none;
+      
+      /* Valor - Destaque em linha separada */
+      .q-item-section.side {
+        width: 100%;
+        align-items: flex-start !important;
+        margin-left: 52px; /* Alinha com descrição */
+        padding: 0.5rem 0 0 0 !important;
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
+        
+        .q-item-label {
+          font-size: 1.125rem !important; /* 18px - BEM maior */
+          font-weight: 700;
+          letter-spacing: -0.01em;
+        }
+      }
+      
+      /* Hover desativado em mobile */
+      &:hover {
+        transform: none;
+        box-shadow: none;
+      }
     }
   }
   

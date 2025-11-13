@@ -8,7 +8,7 @@
 
 import { boot } from 'quasar/wrappers'
 import axios from 'axios'
-import { Notify, SessionStorage } from 'quasar'
+import { Notify, LocalStorage } from 'quasar'
 import { useGlobalLoading } from 'src/composables/useGlobalLoading'
 
 // Instanciar loading global
@@ -75,9 +75,9 @@ api.interceptors.request.use(
     // Iniciar loading global
     startLoading('Carregando...')
     
-    // Buscar token da sessionStorage
+    // Buscar token do localStorage
     const tokenKey = process.env.VITE_TOKEN_STORAGE_KEY || 'auth_token'
-    const token = SessionStorage.getItem(tokenKey)
+    const token = LocalStorage.getItem(tokenKey)
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
@@ -135,8 +135,8 @@ api.interceptors.response.use(
         case 401: {
           // Token expirado ou inválido - fazer logout
           const tokenKey = process.env.VITE_TOKEN_STORAGE_KEY || 'auth_token'
-          SessionStorage.remove(tokenKey)
-          SessionStorage.remove('auth_user')
+          LocalStorage.remove(tokenKey)
+          LocalStorage.remove('auth_user')
 
           // Notificar usuário
           Notify.create({

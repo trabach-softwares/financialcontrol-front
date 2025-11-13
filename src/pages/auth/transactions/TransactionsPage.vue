@@ -910,25 +910,24 @@ onMounted(() => {
 // ==========================================================================
 
 .transactions-page {
-  /* Mobile-first: padding menor */
-  padding: 0.75rem;
-  /* Espaço para bottom nav + upgrade banner em mobile */
+  /* Mobile-first: padding ULTRA reduzido */
+  padding: 0.375rem; /* Muito menor */
   min-height: 100vh;
-  padding-bottom: calc(140px + env(safe-area-inset-bottom));
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
 }
 
 .page-header {
-  padding: 1rem 0;
-  margin-bottom: 1rem;
+  padding: 0.5rem 0.125rem; /* Padding menor */
+  margin-bottom: 0.5rem;
   
   h1 {
-    font-size: 1.5rem;
+    font-size: 1.25rem; /* Título menor */
     margin: 0;
   }
   
   p {
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    margin-top: 0.125rem;
   }
   
   /* Em mobile, botão ocupa largura total */
@@ -938,13 +937,18 @@ onMounted(() => {
   }
 }
 
-// Cards
+// Cards ultra compactos
 .filters-card,
 .stat-card,
 .transactions-card {
-  border-radius: 12px;
+  border-radius: 8px; /* Border menor */
   border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04); /* Sombra menor */
+  margin-bottom: 0.5rem; /* Margem menor entre cards */
+  
+  :deep(.q-card__section) {
+    padding: 0.5rem; /* Padding muito reduzido */
+  }
 }
 
 /* Filtros em mobile - Design colapsável */
@@ -1282,6 +1286,181 @@ onMounted(() => {
     
     &:active {
       background-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+}
+
+// ==========================================================================
+// MOBILE OPTIMIZATIONS - LAYOUT ULTRA COMPACTO
+// ==========================================================================
+@media (max-width: 599px) {
+  .transaction-item {
+    /* Layout ultra compacto */
+    padding: 0.5rem 0.5rem !important;
+    margin: 0 !important;
+    min-height: unset !important;
+    
+    /* LINHA 1: Avatar + Descrição + Menu (tudo junto) */
+    display: grid !important;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto auto;
+    gap: 0.375rem 0.5rem;
+    align-items: start;
+    
+    /* Avatar (grid: linha 1, coluna 1) */
+    .q-item-section.avatar {
+      grid-row: 1 / 2;
+      grid-column: 1 / 2;
+      padding: 0 !important;
+      min-width: unset !important;
+      
+      .q-avatar {
+        width: 36px !important;
+        height: 36px !important;
+        
+        .q-icon {
+          font-size: 1rem !important;
+        }
+      }
+    }
+    
+    /* Descrição + Chips (grid: linha 1-2, coluna 2) */
+    .q-item-section:not(.avatar):not(.side) {
+      grid-row: 1 / 3;
+      grid-column: 2 / 3;
+      padding: 0 !important;
+      min-width: 0;
+      
+      .q-item-label {
+        font-size: 0.875rem !important;
+        line-height: 1.3;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        
+        &.caption {
+          font-size: 0.6875rem !important;
+          opacity: 0.75;
+          margin-top: 0.125rem;
+          line-height: 1.2;
+          
+          .row {
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            margin: 0 !important;
+            
+            .q-chip {
+              font-size: 0.5625rem !important; /* 9px */
+              height: 16px !important;
+              padding: 0 5px !important;
+              margin: 0 !important;
+            }
+            
+            span {
+              font-size: 0.6875rem !important;
+            }
+          }
+        }
+      }
+    }
+    
+    /* Valor + Tipo (grid: linha 3, coluna 1-2) */
+    .q-item-section.side:first-of-type {
+      grid-row: 3 / 4;
+      grid-column: 1 / 3;
+      padding: 0.375rem 0 0 0 !important;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+      margin-left: 0 !important;
+      
+      > div {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        gap: 0.5rem;
+        
+        /* Container do valor */
+        > div:first-child {
+          display: flex;
+          flex-direction: row;
+          align-items: baseline;
+          gap: 0.375rem;
+          
+          /* Valor */
+          div:first-child {
+            font-size: 1rem !important; /* 16px */
+            font-weight: 700 !important;
+            line-height: 1;
+          }
+          
+          /* Tipo (Receita/Despesa) */
+          .text-caption {
+            font-size: 0.6875rem !important;
+            opacity: 0.7;
+            line-height: 1;
+          }
+        }
+        
+        /* Toggle compacto */
+        > div:last-child {
+          .q-toggle {
+            margin: 0 !important;
+            
+            :deep(.q-toggle__label) {
+              font-size: 0.6875rem !important;
+              padding-left: 0.25rem;
+            }
+            
+            :deep(.q-toggle__inner) {
+              font-size: 0.75rem;
+              width: 32px;
+              min-width: 32px;
+            }
+          }
+        }
+      }
+    }
+    
+    /* Menu (grid: linha 1, coluna 3) */
+    .q-item-section.side:last-of-type {
+      grid-row: 1 / 2;
+      grid-column: 3 / 4;
+      padding: 0 !important;
+      align-self: start;
+      
+      .q-btn {
+        min-width: 36px !important;
+        min-height: 36px !important;
+        padding: 0.25rem !important;
+      }
+    }
+    
+    /* Remove hover em mobile */
+    &:hover {
+      transform: none !important;
+      box-shadow: none !important;
+      background-color: transparent !important;
+    }
+    
+    &:active {
+      background-color: rgba(25, 118, 210, 0.04) !important;
+    }
+  }
+  
+  /* Card e lista ultra compactos */
+  .transactions-card {
+    padding: 0 !important;
+    
+    :deep(.q-card__section) {
+      padding: 0.5rem !important;
+    }
+  }
+  
+  .q-list {
+    padding: 0 !important;
+    
+    .q-separator {
+      margin: 0 !important;
     }
   }
 }

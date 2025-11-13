@@ -109,7 +109,7 @@ function startTokenCountdown() {
   // Define quando o token vai expirar: prioriza exp do JWT se existir
   try {
     const key = 'auth_token'
-    const token = (typeof window !== 'undefined' && window.sessionStorage) ? window.sessionStorage.getItem(key) : null
+    const token = (typeof window !== 'undefined' && window.localStorage) ? window.localStorage.getItem(key) : null
     if (token && token.split('.').length === 3) {
       const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
       const payloadJson = atob(base64)

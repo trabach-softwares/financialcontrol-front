@@ -1,47 +1,110 @@
 <template>
-  <q-page class="q-pa-md">
-    <!-- Header -->
-    <div class="row items-center q-mb-lg">
-      <div class="col">
-        <h4 :class="['text-h4','q-ma-none','text-weight-bold', headingTextClass]">
-          <q-icon name="person" class="q-mr-sm" color="primary" />
-          Meu Perfil
-        </h4>
-        <p :class="['text-subtitle1','q-ma-none','q-mt-xs', subtitleTextClass]">
-          Gerencie suas informações pessoais e configurações da conta
-        </p>
-      </div>
-      <div class="col-auto">
-        <q-btn 
-          color="primary" 
-          icon="save" 
-          label="Salvar Alterações"
-          @click="handleSaveProfile"
-          :disable="!hasChanges"
-        />
+  <q-page class="q-pa-md profile-page">
+    <!-- Header com Avatar e Nome -->
+    <div class="profile-header q-mb-lg">
+      <div class="row items-center q-col-gutter-md">
+        <!-- Avatar e Info Básica -->
+        <div class="col-12 col-md-auto text-center text-md-left">
+          <q-avatar size="100px" class="profile-avatar shadow-8">
+            <img 
+              v-if="profileForm.avatar" 
+              :src="profileForm.avatar" 
+              alt="Avatar"
+            />
+            <q-icon 
+              v-else 
+              name="person" 
+              size="50px" 
+              color="grey-5"
+            />
+            <q-btn
+              round
+              dense
+              size="sm"
+              color="primary"
+              icon="photo_camera"
+              class="avatar-edit-btn"
+              @click="handleUploadAvatar"
+            >
+              <q-tooltip>Alterar foto</q-tooltip>
+            </q-btn>
+          </q-avatar>
+          <input
+            ref="fileInput"
+            type="file"
+            accept="image/*"
+            style="display: none"
+            @change="handleFileSelect"
+          />
+        </div>
+
+        <div class="col">
+          <h4 :class="['text-h4','q-ma-none','text-weight-bold', headingTextClass]">
+            {{ profileForm.name || 'Seu Nome' }}
+          </h4>
+          <p :class="['text-subtitle1','q-ma-none','q-mt-xs', subtitleTextClass]">
+            {{ profileForm.email || 'seu@email.com' }}
+          </p>
+          <div class="q-mt-sm">
+            <q-chip 
+              :color="authStore.userPlan === 'PREMIUM' ? 'positive' : authStore.userPlan === 'PRO' ? 'warning' : 'info'"
+              text-color="white"
+              icon="workspace_premium"
+              :label="`Plano ${authStore.userPlan}`"
+              class="q-mr-sm"
+            />
+            <q-chip 
+              color="positive" 
+              text-color="white"
+              icon="verified"
+              label="Conta Ativa"
+            />
+          </div>
+        </div>
+
+        <div class="col-12 col-md-auto">
+          <q-btn 
+            color="primary" 
+            icon="save" 
+            label="Salvar Alterações"
+            size="lg"
+            @click="handleSaveProfile"
+            :disable="!hasChanges"
+            class="full-width"
+          />
+        </div>
       </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="row q-col-gutter-lg">
-      <!-- Profile Info Card -->
-      <div class="col-12 col-md-8">
+    <!-- Tabs de Navegação -->
+    <q-tabs
+      v-model="activeTab"
+      align="left"
+      class="text-grey-7 q-mb-md"
+      active-color="primary"
+      indicator-color="primary"
+      narrow-indicator
+    >
+      <q-tab name="personal" icon="person" label="Dados Pessoais" />
+      <q-tab name="professional" icon="work" label="Dados Profissionais" />
+      <q-tab name="account" icon="settings" label="Conta e Segurança" />
+    </q-tabs>
+
+    <!-- Tab Panels -->
+    <q-tab-panels v-model="activeTab" animated>
+      <!-- Dados Pessoais -->
+      <q-tab-panel name="personal" class="q-pa-none">
         <q-card class="shadow-2">
-          <q-card-section class="bg-primary text-white">
-            <div class="text-h6">
-              <q-icon name="person_outline" class="q-mr-sm" />
+          <q-card-section>
+            <div class="text-h6 q-mb-md">
+              <q-icon name="person_outline" color="primary" class="q-mr-sm" />
               Informações Pessoais
             </div>
-            <div class="text-subtitle2 opacity-80">
-              Atualize seus dados pessoais
-            </div>
-          </q-card-section>
-
-          <q-card-section>
-            <q-form ref="profileFormRef" @submit.prevent="handleSaveProfile">
+            
+            <q-form ref="profileFormRef">
               <div class="row q-col-gutter-md">
                 <!-- Nome -->
-                <div class="col-12 col-sm-6">
+                <div class="col-12 col-md-6">
                   <q-input
                     v-model="profileForm.name"
                     label="Nome Completo *"
@@ -49,13 +112,13 @@
                     :rules="[val => !!val || 'Nome é obrigatório']"
                   >
                     <template v-slot:prepend>
-                      <q-icon name="person" />
+                      <q-icon name="person" color="primary" />
                     </template>
                   </q-input>
                 </div>
 
                 <!-- Email -->
-                <div class="col-12 col-sm-6">
+                <div class="col-12 col-md-6">
                   <q-input
                     v-model="profileForm.email"
                     label="Email *"
@@ -67,38 +130,40 @@
                     ]"
                   >
                     <template v-slot:prepend>
-                      <q-icon name="mail" />
+                      <q-icon name="mail" color="primary" />
                     </template>
                   </q-input>
                 </div>
 
                 <!-- Telefone -->
-                <div class="col-12 col-sm-6">
+                <div class="col-12 col-md-6">
                   <q-input
                     v-model="profileForm.phone"
                     label="Telefone"
                     filled
                     mask="(##) #####-####"
+                    hint="Opcional"
                   >
                     <template v-slot:prepend>
-                      <q-icon name="phone" />
+                      <q-icon name="phone" color="primary" />
                     </template>
                   </q-input>
                 </div>
 
                 <!-- Data de Nascimento -->
-                <div class="col-12 col-sm-6">
+                <div class="col-12 col-md-6">
                   <q-input
                     v-model="profileForm.birthDate"
                     label="Data de Nascimento"
                     filled
                     mask="##/##/####"
+                    hint="Opcional"
                   >
                     <template v-slot:prepend>
-                      <q-icon name="cake" />
+                      <q-icon name="cake" color="primary" />
                     </template>
                     <template v-slot:append>
-                      <q-icon name="event" class="cursor-pointer">
+                      <q-icon name="event" class="cursor-pointer" color="primary">
                         <q-popup-proxy cover transition-show="scale" transition-hide="scale">
                           <q-date v-model="profileForm.birthDate" mask="DD/MM/YYYY">
                             <div class="row items-center justify-end">
@@ -112,41 +177,16 @@
                 </div>
 
                 <!-- CPF -->
-                <div class="col-12 col-sm-6">
+                <div class="col-12 col-md-6">
                   <q-input
                     v-model="profileForm.cpf"
                     label="CPF"
                     filled
                     mask="###.###.###-##"
+                    hint="Opcional"
                   >
                     <template v-slot:prepend>
-                      <q-icon name="badge" />
-                    </template>
-                  </q-input>
-                </div>
-
-                <!-- Empresa -->
-                <div class="col-12 col-sm-6">
-                  <q-input
-                    v-model="profileForm.company"
-                    label="Empresa"
-                    filled
-                  >
-                    <template v-slot:prepend>
-                      <q-icon name="business" />
-                    </template>
-                  </q-input>
-                </div>
-
-                <!-- Cargo -->
-                <div class="col-12">
-                  <q-input
-                    v-model="profileForm.position"
-                    label="Cargo/Função"
-                    filled
-                  >
-                    <template v-slot:prepend>
-                      <q-icon name="work" />
+                      <q-icon name="badge" color="primary" />
                     </template>
                   </q-input>
                 </div>
@@ -158,11 +198,13 @@
                     label="Sobre você"
                     type="textarea"
                     filled
-                    rows="3"
+                    rows="4"
                     hint="Conte um pouco sobre você (opcional)"
+                    counter
+                    maxlength="500"
                   >
                     <template v-slot:prepend>
-                      <q-icon name="info" />
+                      <q-icon name="description" color="primary" />
                     </template>
                   </q-input>
                 </div>
@@ -170,155 +212,166 @@
             </q-form>
           </q-card-section>
         </q-card>
-      </div>
+      </q-tab-panel>
 
-      <!-- Profile Avatar & Settings -->
-      <div class="col-12 col-md-4">
-        <!-- Avatar Card -->
-        <q-card class="shadow-2 q-mb-lg">
-          <q-card-section class="text-center">
-            <div class="text-h6 q-mb-md">Foto do Perfil</div>
-            
-            <div class="q-mb-md">
-              <q-avatar size="120px" class="shadow-4">
-                <img 
-                  v-if="profileForm.avatar" 
-                  :src="profileForm.avatar" 
-                  alt="Avatar"
-                />
-                <q-icon 
-                  v-else 
-                  name="person" 
-                  size="60px" 
-                  color="grey-5"
-                />
-              </q-avatar>
-            </div>
-
-            <div class="q-gutter-sm">
-              <q-btn
-                color="primary"
-                icon="upload"
-                label="Enviar Foto"
-                size="sm"
-                @click="handleUploadAvatar"
-              />
-              <q-btn
-                v-if="profileForm.avatar"
-                color="negative"
-                icon="delete"
-                label="Remover"
-                size="sm"
-                flat
-                @click="handleRemoveAvatar"
-              />
-            </div>
-
-            <!-- Upload Input -->
-            <input
-              ref="fileInput"
-              type="file"
-              accept="image/*"
-              style="display: none"
-              @change="handleFileSelect"
-            />
-          </q-card-section>
-        </q-card>
-
-        <!-- Account Info -->
-        <q-card class="shadow-2 q-mb-lg">
-          <q-card-section class="bg-secondary text-white">
-            <div class="text-h6">
-              <q-icon name="info" class="q-mr-sm" />
-              Informações da Conta
-            </div>
-          </q-card-section>
-          
-          <q-card-section>
-            <div class="q-gutter-sm">
-              <div class="row items-center">
-                <div class="col text-body2-7">Plano Atual:</div>
-                <div class="col-auto">
-                  <q-chip 
-                    :color="authStore.userPlan === 'PREMIUM' ? 'positive' : authStore.userPlan === 'PRO' ? 'warning' : 'info'"
-                    text-color="white"
-                    :label="authStore.userPlan"
-                  />
-                </div>
-              </div>
-
-              <div class="row items-center">
-                <div class="col text-body2-7">Membro desde:</div>
-                <div class="col-auto text-body2">
-                  {{ formatDate(userCreatedAt) }}
-                </div>
-              </div>
-
-              <div class="row items-center">
-                <div class="col text-body2-7">Último login:</div>
-                <div class="col-auto text-body2">
-                  {{ formatDate(userLastLogin) }}
-                </div>
-              </div>
-
-              <div class="row items-center">
-                <div class="col text-body2-7">Status:</div>
-                <div class="col-auto">
-                  <q-chip 
-                    color="positive" 
-                    text-color="white"
-                    icon="verified"
-                    label="ATIVO"
-                  />
-                </div>
-              </div>
-            </div>
-          </q-card-section>
-
-          <q-card-actions v-if="!authStore.isAdmin">
-            <q-btn 
-              color="primary" 
-              icon="upgrade" 
-              label="Upgrade do Plano"
-              flat
-              class="full-width"
-              @click="$router.push('/plans')"
-            />
-          </q-card-actions>
-        </q-card>
-
-        <!-- Security Actions -->
+      <!-- Dados Profissionais -->
+      <q-tab-panel name="professional" class="q-pa-none">
         <q-card class="shadow-2">
-          <q-card-section class="bg-orange text-white">
-            <div class="text-h6">
-              <q-icon name="security" class="q-mr-sm" />
-              Segurança
-            </div>
-          </q-card-section>
-
           <q-card-section>
-            <div class="q-gutter-sm">
-              <q-btn
-                color="warning"
-                icon="lock"
-                label="Alterar Senha"
-                class="full-width"
-                @click="showChangePassword = true"
-              />
-              
-              <q-btn
-                color="negative"
-                icon="logout"
-                label="Fazer Logout"
-                class="full-width"
-                outline
-                @click="handleLogout"
-              />
+            <div class="text-h6 q-mb-md">
+              <q-icon name="work_outline" color="primary" class="q-mr-sm" />
+              Informações Profissionais
+            </div>
+            
+            <div class="row q-col-gutter-md">
+              <!-- Empresa -->
+              <div class="col-12 col-md-6">
+                <q-input
+                  v-model="profileForm.company"
+                  label="Empresa"
+                  filled
+                  hint="Opcional"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="business" color="primary" />
+                  </template>
+                </q-input>
+              </div>
+
+              <!-- Cargo -->
+              <div class="col-12 col-md-6">
+                <q-input
+                  v-model="profileForm.position"
+                  label="Cargo/Função"
+                  filled
+                  hint="Opcional"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="badge" color="primary" />
+                  </template>
+                </q-input>
+              </div>
             </div>
           </q-card-section>
         </q-card>
-      </div>
-    </div>
+      </q-tab-panel>
+
+      <!-- Conta e Segurança -->
+      <q-tab-panel name="account" class="q-pa-none">
+        <div class="row q-col-gutter-md">
+          <!-- Informações da Conta -->
+          <div class="col-12 col-md-6">
+            <q-card class="shadow-2">
+              <q-card-section>
+                <div class="text-h6 q-mb-md">
+                  <q-icon name="info" color="primary" class="q-mr-sm" />
+                  Informações da Conta
+                </div>
+                
+                <q-list separator>
+                  <q-item>
+                    <q-item-section avatar>
+                      <q-icon name="workspace_premium" color="primary" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label caption>Plano Atual</q-item-label>
+                      <q-item-label>{{ authStore.userPlan }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+
+                  <q-item>
+                    <q-item-section avatar>
+                      <q-icon name="event" color="primary" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label caption>Membro desde</q-item-label>
+                      <q-item-label>{{ formatDate(userCreatedAt) }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+
+                  <q-item>
+                    <q-item-section avatar>
+                      <q-icon name="login" color="primary" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label caption>Último login</q-item-label>
+                      <q-item-label>{{ formatDate(userLastLogin) }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+
+                  <q-item>
+                    <q-item-section avatar>
+                      <q-icon name="verified" color="positive" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label caption>Status</q-item-label>
+                      <q-item-label class="text-positive">Conta Ativa</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+
+                <q-card-actions v-if="!authStore.isAdmin" class="q-px-none q-pt-md">
+                  <q-btn 
+                    color="primary" 
+                    icon="upgrade" 
+                    label="Fazer Upgrade"
+                    unelevated
+                    class="full-width"
+                    @click="$router.push('/plans')"
+                  />
+                </q-card-actions>
+              </q-card-section>
+            </q-card>
+          </div>
+
+          <!-- Segurança -->
+          <div class="col-12 col-md-6">
+            <q-card class="shadow-2">
+              <q-card-section>
+                <div class="text-h6 q-mb-md">
+                  <q-icon name="security" color="primary" class="q-mr-sm" />
+                  Segurança
+                </div>
+                
+                <div class="q-gutter-md">
+                  <q-btn
+                    color="warning"
+                    icon="lock"
+                    label="Alterar Senha"
+                    unelevated
+                    class="full-width"
+                    @click="showChangePassword = true"
+                  />
+
+                  <q-separator />
+
+                  <div class="text-caption text-grey-7 q-mb-sm">
+                    <q-icon name="info" size="18px" class="q-mr-xs" />
+                    Gerenciamento de Sessão
+                  </div>
+                  
+                  <q-btn
+                    color="negative"
+                    icon="logout"
+                    label="Fazer Logout"
+                    outline
+                    class="full-width"
+                    @click="handleLogout"
+                  />
+
+                  <q-separator />
+
+                  <div class="text-caption text-grey-7">
+                    <q-icon name="shield" size="18px" class="q-mr-xs" />
+                    Suas informações estão protegidas e criptografadas
+                  </div>
+                </div>
+              </q-card-section>
+            </q-card>
+          </div>
+        </div>
+      </q-tab-panel>
+    </q-tab-panels>
 
     <!-- Change Password Dialog -->
     <q-dialog v-model="showChangePassword" persistent>
@@ -421,6 +474,7 @@ const fileInput = ref(null)
 const profileFormRef = ref(null)
 const passwordFormRef = ref(null)
 const showChangePassword = ref(false)
+const activeTab = ref('personal') // Tab ativa
 
 // User data
 const user = computed(() => authStore.user)
@@ -720,4 +774,342 @@ onMounted(async () => {
 :deep(.q-field__messages) {
   display: none !important;
 }
+
+/* ==========================================================================
+   MOBILE OPTIMIZATIONS - PROFILE PAGE
+   ========================================================================== */
+@media (max-width: 599px) {
+  /* Página ultra compacta */
+  :deep(.q-page) {
+    padding: 0.5rem !important;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+  }
+  
+  /* Header compacto */
+  :deep(.row.items-center.q-mb-lg) {
+    margin-bottom: 0.75rem !important;
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 0.5rem;
+    
+    /* Título menor */
+    .text-h4 {
+      font-size: 1.375rem !important;
+      line-height: 1.3;
+      
+      .q-icon {
+        font-size: 1.5rem !important;
+      }
+    }
+    
+    .text-subtitle1 {
+      font-size: 0.8125rem !important;
+      line-height: 1.4;
+      margin-top: 0.25rem !important;
+    }
+    
+    /* Botão full width em mobile */
+    .col-auto {
+      width: 100%;
+      
+      .q-btn {
+        width: 100%;
+        padding: 0.75rem 1rem !important;
+        font-size: 0.875rem !important;
+        
+        .q-icon {
+          font-size: 1.125rem !important;
+        }
+      }
+    }
+  }
+  
+  /* Cards compactos */
+  :deep(.q-card) {
+    border-radius: 8px !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) !important;
+    margin-bottom: 0.75rem !important;
+    
+    /* Header do card */
+    .q-card-section.bg-primary {
+      padding: 0.75rem !important;
+      
+      .text-h6 {
+        font-size: 1rem !important;
+        line-height: 1.3;
+        
+        .q-icon {
+          font-size: 1.125rem !important;
+        }
+      }
+      
+      .text-subtitle2 {
+        font-size: 0.75rem !important;
+        margin-top: 0.125rem;
+      }
+    }
+    
+    /* Conteúdo do card */
+    .q-card-section:not(.bg-primary) {
+      padding: 0.75rem !important;
+    }
+  }
+  
+  /* Grid sem gaps grandes */
+  :deep(.row.q-col-gutter-lg) {
+    margin: -0.375rem !important;
+    
+    > div {
+      padding: 0.375rem !important;
+    }
+  }
+  
+  :deep(.row.q-col-gutter-md) {
+    margin: -0.375rem !important;
+    
+    > div {
+      padding: 0.375rem !important;
+    }
+  }
+  
+  /* Inputs compactos */
+  :deep(.q-input),
+  :deep(.q-select) {
+    .q-field__control {
+      min-height: 48px !important;
+      padding: 0 0.75rem !important;
+    }
+    
+    .q-field__label {
+      font-size: 0.875rem !important;
+    }
+    
+    .q-field__native,
+    input {
+      font-size: 0.875rem !important;
+      padding: 0.5rem 0 !important;
+    }
+    
+    .q-field__prepend {
+      padding-right: 0.5rem !important;
+      
+      .q-icon {
+        font-size: 1.125rem !important;
+      }
+    }
+    
+    .q-field__append {
+      padding-left: 0.5rem !important;
+      
+      .q-icon {
+        font-size: 1.125rem !important;
+      }
+    }
+  }
+  
+  /* Botões em cards */
+  :deep(.q-card-actions) {
+    padding: 0.75rem !important;
+    
+    .q-btn {
+      font-size: 0.8125rem !important;
+      padding: 0.5rem 1rem !important;
+      min-height: 40px !important;
+    }
+  }
+  
+  /* Lista de itens compacta */
+  :deep(.q-item) {
+    min-height: 48px !important;
+    padding: 0.625rem 0.75rem !important;
+    
+    .q-item__label {
+      font-size: 0.875rem !important;
+      line-height: 1.4;
+    }
+    
+    .q-item__label--caption {
+      font-size: 0.75rem !important;
+    }
+  }
+  
+  /* Separadores mais sutis */
+  :deep(.q-separator) {
+    margin: 0.5rem 0 !important;
+  }
+  
+  /* Tabs compactos se houver */
+  :deep(.q-tabs) {
+    .q-tab {
+      padding: 0.5rem 0.75rem !important;
+      min-height: 44px !important;
+      font-size: 0.8125rem !important;
+    }
+  }
+  
+  /* Expansão panels compactos */
+  :deep(.q-expansion-item) {
+    .q-expansion-item__container {
+      .q-item {
+        padding: 0.75rem !important;
+      }
+    }
+  }
+  
+  /* Avatar/Badge compactos */
+  :deep(.q-avatar) {
+    width: 56px !important;
+    height: 56px !important;
+    font-size: 1.5rem !important;
+  }
+  
+  /* Chips menores */
+  :deep(.q-chip) {
+    font-size: 0.75rem !important;
+    height: 24px !important;
+    padding: 0 0.5rem !important;
+  }
+}
+
+/* Mobile landscape e tablets */
+@media (min-width: 600px) and (max-width: 1023px) {
+  :deep(.q-page) {
+    padding: 1rem !important;
+  }
+  
+  :deep(.q-card) {
+    border-radius: 10px !important;
+  }
+  
+  :deep(.text-h4) {
+    font-size: 1.75rem !important;
+  }
+}
+
+/* Estilos para a nova UI/UX */
+.profile-page {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.profile-header {
+  background: linear-gradient(135deg, var(--q-primary) 0%, var(--q-secondary) 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  color: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  
+  @media (max-width: 599px) {
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
+  }
+}
+
+.profile-avatar {
+  position: relative;
+  border: 4px solid white;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+  
+  .avatar-edit-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Tabs customizados */
+:deep(.q-tabs) {
+  background: transparent;
+  
+  .q-tab {
+    font-weight: 500;
+    text-transform: none;
+    
+    @media (max-width: 599px) {
+      min-width: auto;
+      padding: 0.5rem 0.75rem;
+      
+      .q-tab__label {
+        font-size: 0.75rem;
+      }
+    }
+  }
+  
+  .q-tab--active {
+    font-weight: 600;
+  }
+}
+
+/* Cards com melhor espaçamento */
+:deep(.q-card) {
+  border-radius: 12px;
+  overflow: hidden;
+  
+  .q-card-section {
+    &:first-child {
+      padding-bottom: 1.5rem;
+    }
+  }
+}
+
+/* Lista com visual melhorado */
+:deep(.q-list) {
+  .q-item {
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+    
+    .q-item__label--caption {
+      color: var(--q-grey-7);
+      font-size: 0.75rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .q-item__label {
+      font-weight: 500;
+      color: var(--q-dark);
+    }
+  }
+}
+
+/* Dark mode adjustments */
+.body--dark {
+  .profile-header {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5f6f 100%);
+  }
+  
+  :deep(.q-list) {
+    .q-item {
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+      
+      .q-item__label {
+        color: var(--q-grey-3);
+      }
+    }
+  }
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.q-tab-panel {
+  animation: fadeIn 0.3s ease-out;
+}
+
 </style>

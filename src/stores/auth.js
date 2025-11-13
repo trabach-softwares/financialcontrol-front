@@ -14,8 +14,9 @@ export const useAuthStore = defineStore('auth', {
   // ==========================================================================
   state: () => ({
     // Dados do usuário logado
-    user: JSON.parse(sessionStorage.getItem('auth_user') || 'null'),  // Objeto com dados completos do usuário (persistido na sessão)
-    token: sessionStorage.getItem('auth_token') || null, // JWT token
+    // 🔐 Usando localStorage para persistir mesmo após fechar o navegador
+    user: JSON.parse(localStorage.getItem('auth_user') || 'null'),  // Objeto com dados completos do usuário (persistido)
+    token: localStorage.getItem('auth_token') || null, // JWT token (persistido)
     
     // Estados de loading
     isLoading: false,              // Loading geral de auth
@@ -150,13 +151,13 @@ export const useAuthStore = defineStore('auth', {
           throw new Error('Dados do usuário não encontrados na resposta da API')
         }
         
-        // Armazena o token
+        // Armazena o token no localStorage (persiste após fechar navegador)
         this.token = token
-        sessionStorage.setItem('auth_token', token)
+        localStorage.setItem('auth_token', token)
         
-        // Persistir usuário retornado pelo login na sessão e no estado
+        // Persistir usuário retornado pelo login no localStorage e no estado
         this.user = userData
-        sessionStorage.setItem('auth_user', JSON.stringify(this.user))
+        localStorage.setItem('auth_user', JSON.stringify(this.user))
         
         // Buscar dados completos (inclui plano) e normalizar plan_name/plan_type
         try {
@@ -171,7 +172,7 @@ export const useAuthStore = defineStore('auth', {
               } : {})
             }
             this.user = normalized
-            sessionStorage.setItem('auth_user', JSON.stringify(this.user))
+            localStorage.setItem('auth_user', JSON.stringify(this.user))
           } else {
             await this.enrichUserPlan()
           }
@@ -221,9 +222,9 @@ export const useAuthStore = defineStore('auth', {
         // Chama o serviço de registro
         const response = await authService.register(registerPayload)
         
-        // Armazena o token (login automático após registro)
+        // Armazena o token no localStorage (login automático após registro)
         this.token = response.token
-        sessionStorage.setItem('auth_token', response.token)
+        localStorage.setItem('auth_token', response.token)
         
         // Carrega dados do usuário
         await this.fetchUser()
@@ -282,7 +283,7 @@ export const useAuthStore = defineStore('auth', {
             plan_name: freePlan.name,
             plan_type: freePlan.type || 'FREE'
           }
-          sessionStorage.setItem('auth_user', JSON.stringify(this.user))
+          localStorage.setItem('auth_user', JSON.stringify(this.user))
           console.log('✅ [AUTH] Plano FREE atribuído com sucesso')
         } else {
           console.warn('[AUTH] Nenhum plano FREE encontrado na base de dados')
@@ -321,12 +322,12 @@ export const useAuthStore = defineStore('auth', {
           }
           
           this.user = updatedUser
-          sessionStorage.setItem('auth_user', JSON.stringify(this.user))
+          localStorage.setItem('auth_user', JSON.stringify(this.user))
           
           console.log('✅ [AUTH] Dados do usuário atualizados:', this.user)
         } else {
-          // Fallback: tentar ler do sessionStorage
-          const raw = sessionStorage.getItem('auth_user')
+          // Fallback: tentar ler do localStorage
+          const raw = localStorage.getItem('auth_user')
           this.user = raw ? JSON.parse(raw) : null
           
           // Se temos plan_id mas faltam plan_name/plan_type, enriquecer
@@ -341,8 +342,8 @@ export const useAuthStore = defineStore('auth', {
       } catch (error) {
         console.error('❌ [AUTH] Erro ao buscar dados do usuário:', error)
         
-        // Fallback: tentar ler do sessionStorage
-        const raw = sessionStorage.getItem('auth_user')
+        // Fallback: tentar ler do localStorage
+        const raw = localStorage.getItem('auth_user')
         if (raw) {
           this.user = JSON.parse(raw)
         } else {
@@ -382,8 +383,8 @@ export const useAuthStore = defineStore('auth', {
             plan_price: userPlan.price,
             plan_features: userPlan.features
           }
-          // Persistir dados atualizados
-          sessionStorage.setItem('auth_user', JSON.stringify(this.user))
+          // Persistir dados atualizados no localStorage
+          localStorage.setItem('auth_user', JSON.stringify(this.user))
           
         } else {
           
@@ -426,9 +427,9 @@ export const useAuthStore = defineStore('auth', {
       this.loginError = null
       this.registerError = null
       
-      // Remove da sessionStorage
-      sessionStorage.removeItem('auth_token')
-      sessionStorage.removeItem('auth_user')
+      // Remove do localStorage (persistência permanente)
+      localStorage.removeItem('auth_token')
+      localStorage.removeItem('auth_user')
       
     },
 
@@ -445,7 +446,7 @@ export const useAuthStore = defineStore('auth', {
       this.isLoading = true
 
       try {
-        // Se há token na sessionStorage, tenta restaurar sessão
+        // Se há token no localStorage, tenta restaurar sessão
         if (this.token) {
           await this.fetchUser()
         } else {
@@ -493,8 +494,8 @@ export const useAuthStore = defineStore('auth', {
           merged.plan_type = merged.plan.type || merged.plan_name || merged.plan_type
         }
         this.user = merged
-        // Persistir dados atualizados na sessão
-        sessionStorage.setItem('auth_user', JSON.stringify(this.user))
+        // Persistir dados atualizados no localStorage
+        localStorage.setItem('auth_user', JSON.stringify(this.user))
         
       }
     },
