@@ -4,104 +4,98 @@
       Escolha a forma de pagamento
     </div>
 
-    <div class="row q-col-gutter-md justify-center">
+    <div class="payment-methods-grid">
       <!-- PIX - DESTAQUE -->
-      <div class="col-12 col-md-6 col-lg-5">
-        <q-card 
-          class="payment-method-card payment-method-card--highlight cursor-pointer"
-          :class="{ 'payment-method-card--selected': modelValue === 'PIX' }"
-          @click="selectMethod('PIX')"
-          flat
-          bordered
-        >
-          <q-card-section class="text-center q-pa-lg">
-            <div class="pix-icon-wrapper">
-              <q-icon name="pix" size="80px" :color="modelValue === 'PIX' ? 'positive' : 'primary'" />
-            </div>
-            
-            <div class="text-h5 text-bold q-mt-md">PIX</div>
-            
-            <q-chip color="positive" text-color="white" size="md" class="q-mt-sm">
-              ⚡ Instantâneo e Seguro
-            </q-chip>
-            
-            <div class="text-body1 text-grey-8 q-mt-lg">
-              Pagamento aprovado em segundos
-            </div>
-            
-            <div class="text-body2 text-grey-7 q-mt-sm">
-              📱 Escaneie o QR Code ou use Copia e Cola
-            </div>
+      <q-card 
+        class="payment-method-card payment-method-card--highlight cursor-pointer"
+        :class="{ 'payment-method-card--selected': modelValue === 'PIX' }"
+        @click="selectMethod('PIX')"
+        flat
+        bordered
+      >
+        <q-card-section class="text-center q-pa-lg">
+          <div class="pix-icon-wrapper">
+            <q-icon name="pix" size="80px" :color="modelValue === 'PIX' ? 'positive' : 'primary'" />
+          </div>
+          
+          <div class="text-h5 text-bold q-mt-md">PIX</div>
+          
+          <q-chip color="positive" text-color="white" size="md" class="q-mt-sm">
+            ⚡ Instantâneo e Seguro
+          </q-chip>
+          
+          <div class="text-body1 text-grey-8 q-mt-lg">
+            Pagamento aprovado em segundos
+          </div>
+          
+          <div class="text-body2 text-grey-7 q-mt-sm">
+            📱 Escaneie o QR Code ou use Copia e Cola
+          </div>
 
-            <q-separator class="q-my-md" />
+          <q-separator class="q-my-md" />
 
-            <div class="text-caption text-grey-6">
-              ✓ Disponível 24/7<br>
-              ✓ Confirmação instantânea<br>
-              ✓ Sem taxas adicionais
-            </div>
-          </q-card-section>
+          <div class="text-caption text-grey-6">
+            ✓ Disponível 24/7<br>
+            ✓ Confirmação instantânea<br>
+            ✓ Sem taxas adicionais
+          </div>
+        </q-card-section>
 
-          <q-card-section v-if="modelValue === 'PIX'" class="bg-positive text-white text-center">
-            <q-icon name="check_circle" size="28px" />
-            <span class="q-ml-sm text-h6">Selecionado</span>
-          </q-card-section>
-        </q-card>
-      </div>
+        <q-card-section v-if="modelValue === 'PIX'" class="bg-positive text-white text-center">
+          <q-icon name="check_circle" size="28px" />
+          <span class="q-ml-sm text-h6">Selecionado</span>
+        </q-card-section>
+      </q-card>
 
       <!-- Boleto - DESABILITADO TEMPORARIAMENTE -->
-      <div class="col-12 col-md-4">
-        <q-card 
-          class="payment-method-card payment-method-card--disabled"
-          flat
-          bordered
-        >
-          <q-card-section class="text-center">
-            <q-icon name="receipt" size="64px" color="grey-4" />
-            
-            <div class="text-h6 q-mt-md text-grey-5">Boleto</div>
-            
-            <q-chip color="grey-4" text-color="grey-7" size="sm" class="q-mt-sm">
-              � Em breve
-            </q-chip>
-            
-            <div class="text-body2 text-grey-5 q-mt-md">
-              Pague em qualquer banco ou lotérica
-            </div>
-            
-            <div class="text-caption text-grey-5 q-mt-sm">
-              Código de barras ou PDF
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
+      <q-card 
+        class="payment-method-card payment-method-card--disabled"
+        flat
+        bordered
+      >
+        <q-card-section class="text-center">
+          <q-icon name="receipt" size="64px" color="grey-4" />
+          
+          <div class="text-h6 q-mt-md text-grey-5">Boleto</div>
+          
+          <q-chip color="grey-4" text-color="grey-7" size="sm" class="q-mt-sm">
+            � Em breve
+          </q-chip>
+          
+          <div class="text-body2 text-grey-5 q-mt-md">
+            Pague em qualquer banco ou lotérica
+          </div>
+          
+          <div class="text-caption text-grey-5 q-mt-sm">
+            Código de barras ou PDF
+          </div>
+        </q-card-section>
+      </q-card>
 
       <!-- Cartão de Crédito - DESABILITADO TEMPORARIAMENTE -->
-      <div class="col-12 col-md-4">
-        <q-card 
-          class="payment-method-card payment-method-card--disabled"
-          flat
-          bordered
-        >
-          <q-card-section class="text-center">
-            <q-icon name="credit_card" size="64px" color="grey-4" />
-            
-            <div class="text-h6 q-mt-md text-grey-5">Cartão de Crédito</div>
-            
-            <q-chip color="grey-4" text-color="grey-7" size="sm" class="q-mt-sm">
-              🚧 Em breve
-            </q-chip>
-            
-            <div class="text-body2 text-grey-5 q-mt-md">
-              Liberação imediata após aprovação
-            </div>
-            
-            <div class="text-caption text-grey-5 q-mt-sm">
-              Visa, Mastercard, Elo
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
+      <q-card 
+        class="payment-method-card payment-method-card--disabled"
+        flat
+        bordered
+      >
+        <q-card-section class="text-center">
+          <q-icon name="credit_card" size="64px" color="grey-4" />
+          
+          <div class="text-h6 q-mt-md text-grey-5">Cartão de Crédito</div>
+          
+          <q-chip color="grey-4" text-color="grey-7" size="sm" class="q-mt-sm">
+            🚧 Em breve
+          </q-chip>
+          
+          <div class="text-body2 text-grey-5 q-mt-md">
+            Liberação imediata após aprovação
+          </div>
+          
+          <div class="text-caption text-grey-5 q-mt-sm">
+            Visa, Mastercard, Elo
+          </div>
+        </q-card-section>
+      </q-card>
     </div>
 
     <!-- Botão de continuar -->
@@ -158,6 +152,20 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
+}
+
+// CSS GRID para garantir 3 colunas em linha
+.payment-methods-grid {
+  display: grid;
+  gap: 1rem;
+  
+  // Mobile: 1 coluna
+  grid-template-columns: 1fr;
+  
+  // Desktop: 3 colunas SEMPRE
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .payment-method-card {

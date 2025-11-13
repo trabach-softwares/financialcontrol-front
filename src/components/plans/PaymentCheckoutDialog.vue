@@ -4,8 +4,9 @@
     persistent 
     transition-show="slide-up"
     transition-hide="slide-down"
+    :maximized="$q.screen.lt.md"
   >
-    <q-card style="min-width: 500px; max-width: 600px;">
+    <q-card class="payment-dialog-card">
       <!-- Header -->
       <q-card-section class="bg-primary text-white">
         <div class="row items-center">
@@ -33,81 +34,75 @@
             Escolha a forma de pagamento:
           </div>
 
-          <div class="row q-col-gutter-md q-mb-lg">
+          <div class="payment-methods-grid q-mb-lg">
             <!-- PIX -->
-            <div class="col-12 col-sm-6">
-              <q-card 
-                flat
-                bordered
-                :class="selectedMethod === 'PIX' ? 'method-card-selected' : 'method-card'"
-                class="cursor-pointer"
-                @click="selectMethod('PIX')"
-              >
-                <q-card-section class="text-center q-pa-md">
-                  <q-icon name="pix" size="48px" :color="selectedMethod === 'PIX' ? 'primary' : 'grey-7'" />
-                  <div class="text-h6 q-mt-sm">PIX</div>
-                  <div class="text-caption text-grey-7">Aprovação instantânea</div>
-                  <q-chip 
-                    color="positive" 
-                    text-color="white" 
-                    size="sm"
-                    class="q-mt-sm"
-                  >
-                    Taxa: 0.99%
-                  </q-chip>
-                </q-card-section>
-              </q-card>
-            </div>
+            <q-card 
+              flat
+              bordered
+              :class="selectedMethod === 'PIX' ? 'method-card-selected' : 'method-card'"
+              class="cursor-pointer"
+              @click="selectMethod('PIX')"
+            >
+              <q-card-section class="text-center q-pa-md">
+                <q-icon name="pix" size="48px" :color="selectedMethod === 'PIX' ? 'primary' : 'grey-7'" />
+                <div class="text-h6 q-mt-sm">PIX</div>
+                <div class="text-caption text-grey-7">Aprovação instantânea</div>
+                <q-chip 
+                  color="positive" 
+                  text-color="white" 
+                  size="sm"
+                  class="q-mt-sm"
+                >
+                  Taxa: 0.99%
+                </q-chip>
+              </q-card-section>
+            </q-card>
 
             <!-- Boleto -->
-            <div class="col-12 col-sm-6">
-              <q-card 
-                flat
-                bordered
-                :class="selectedMethod === 'BOLETO' ? 'method-card-selected' : 'method-card'"
-                class="cursor-pointer"
-                @click="selectMethod('BOLETO')"
-              >
-                <q-card-section class="text-center q-pa-md">
-                  <q-icon name="receipt_long" size="48px" :color="selectedMethod === 'BOLETO' ? 'primary' : 'grey-7'" />
-                  <div class="text-h6 q-mt-sm">Boleto</div>
-                  <div class="text-caption text-grey-7">Vence em 3 dias úteis</div>
-                  <q-chip 
-                    color="info" 
-                    text-color="white" 
-                    size="sm"
-                    class="q-mt-sm"
-                  >
-                    Taxa: R$ 3,49
-                  </q-chip>
-                </q-card-section>
-              </q-card>
-            </div>
+            <q-card 
+              flat
+              bordered
+              :class="selectedMethod === 'BOLETO' ? 'method-card-selected' : 'method-card'"
+              class="cursor-pointer"
+              @click="selectMethod('BOLETO')"
+            >
+              <q-card-section class="text-center q-pa-md">
+                <q-icon name="receipt_long" size="48px" :color="selectedMethod === 'BOLETO' ? 'primary' : 'grey-7'" />
+                <div class="text-h6 q-mt-sm">Boleto</div>
+                <div class="text-caption text-grey-7">Vence em 3 dias úteis</div>
+                <q-chip 
+                  color="info" 
+                  text-color="white" 
+                  size="sm"
+                  class="q-mt-sm"
+                >
+                  Taxa: R$ 3,49
+                </q-chip>
+              </q-card-section>
+            </q-card>
 
             <!-- Cartão de Crédito -->
-            <div class="col-12">
-              <q-card 
-                flat
-                bordered
-                :class="selectedMethod === 'CREDIT_CARD' ? 'method-card-selected' : 'method-card'"
-                class="cursor-pointer"
-                @click="selectMethod('CREDIT_CARD')"
-              >
-                <q-card-section class="text-center q-pa-md">
-                  <q-icon name="credit_card" size="48px" :color="selectedMethod === 'CREDIT_CARD' ? 'primary' : 'grey-7'" />
-                  <div class="text-h6 q-mt-sm">Cartão de Crédito</div>
-                  <div class="text-caption text-grey-7">Aprovação automática</div>
-                  <q-chip 
-                    color="warning" 
-                    text-color="white" 
-                    size="sm"
-                    class="q-mt-sm"
-                  >
-                    Taxa: 3.99%
-                  </q-chip>
-                </q-card-section>
-              </q-card>
-            </div>
+            <q-card 
+              flat
+              bordered
+              :class="selectedMethod === 'CREDIT_CARD' ? 'method-card-selected' : 'method-card'"
+              class="cursor-pointer"
+              @click="selectMethod('CREDIT_CARD')"
+            >
+              <q-card-section class="text-center q-pa-md">
+                <q-icon name="credit_card" size="48px" :color="selectedMethod === 'CREDIT_CARD' ? 'primary' : 'grey-7'" />
+                <div class="text-h6 q-mt-sm">Cartão de Crédito</div>
+                <div class="text-caption text-grey-7">Aprovação automática</div>
+                <q-chip 
+                  color="warning" 
+                  text-color="white" 
+                  size="sm"
+                  class="q-mt-sm"
+                >
+                  Taxa: 3.99%
+                </q-chip>
+              </q-card-section>
+            </q-card>
           </div>
 
           <!-- Resumo do Pedido -->
@@ -610,9 +605,48 @@ watch(() => show.value, (newVal) => {
 </script>
 
 <style lang="scss" scoped>
+.payment-dialog-card {
+  min-width: 500px;
+  max-width: 1000px;
+  width: 100%;
+  
+  @media (min-width: 600px) {
+    min-width: 920px;
+  }
+  
+  @media (max-width: 599px) {
+    min-width: 100%;
+  }
+}
+
+// CSS GRID para 3 colunas fixas
+.payment-methods-grid {
+  display: grid;
+  gap: 1rem;
+  
+  // Mobile: 1 coluna
+  grid-template-columns: 1fr;
+  
+  // Desktop/Tablet: 3 colunas SEMPRE
+  @media (min-width: 600px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 .method-card {
   transition: all 0.3s ease;
   border: 2px solid var(--color-border, #e0e0e0);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  
+  .q-card-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 200px;
+  }
   
   &:hover {
     border-color: var(--q-primary);
@@ -625,6 +659,17 @@ watch(() => show.value, (newVal) => {
   border: 2px solid var(--q-primary);
   background: rgba(var(--q-primary-rgb), 0.05);
   box-shadow: 0 4px 12px rgba(var(--q-primary-rgb), 0.2);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  
+  .q-card-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 200px;
+  }
 }
 
 .summary-row {

@@ -3,18 +3,26 @@
     class="plan-card" 
     :class="{ 
       'plan-card--popular': plan.is_popular,
-      'plan-card--current': isCurrentPlan 
+      'plan-card--current': isCurrentPlan,
+      'plan-card--coming-soon': comingSoon
     }"
   >
+    <!-- Badge de em breve -->
+    <div v-if="comingSoon" class="plan-card__badge">
+      <q-badge color="orange" class="text-bold">
+        🚀 Em Breve
+      </q-badge>
+    </div>
+
     <!-- Badge de plano popular -->
-    <div v-if="plan.is_popular" class="plan-card__badge">
+    <div v-else-if="plan.is_popular" class="plan-card__badge">
       <q-badge color="primary" class="text-bold">
         ⭐ Mais Popular
       </q-badge>
     </div>
 
     <!-- Badge de plano atual -->
-    <div v-if="isCurrentPlan" class="plan-card__badge">
+    <div v-else-if="isCurrentPlan" class="plan-card__badge">
       <q-badge color="positive" class="text-bold">
         ✓ Plano Atual
       </q-badge>
@@ -79,7 +87,18 @@
     <!-- Botão de ação -->
     <q-card-section>
       <q-btn
-        v-if="!isCurrentPlan"
+        v-if="comingSoon"
+        label="Em Breve"
+        color="orange"
+        outline
+        rounded
+        no-caps
+        class="full-width"
+        size="md"
+        disable
+      />
+      <q-btn
+        v-else-if="!isCurrentPlan"
         :label="buttonLabel"
         color="primary"
         unelevated
@@ -126,6 +145,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  comingSoon: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 defineEmits(['select']);
@@ -152,6 +175,11 @@ const { formatPrice, getBillingCycleLabel, calculateDiscount } = usePlans();
 
   &--current {
     border: 2px solid var(--q-positive);
+  }
+
+  &--coming-soon {
+    opacity: 0.85;
+    border: 2px solid var(--q-orange);
   }
 
   &__badge {

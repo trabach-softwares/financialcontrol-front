@@ -45,6 +45,7 @@
             :plan="plan"
             :is-current-plan="isCurrentPlan(plan.id)"
             :loading="selectedPlanId === plan.id && processingPayment"
+            :coming-soon="isPremiumPlan(plan)"
             @select="selectPlan"
           />
         </div>
@@ -154,8 +155,24 @@ const isCurrentPlan = (planId) => {
   return authStore.user?.plan_id === planId;
 };
 
+// Verifica se é o plano Premium (pode ser por nome ou ID específico)
+const isPremiumPlan = (plan) => {
+  // Verifica se o nome do plano contém "Premium" (case insensitive)
+  return plan.name?.toLowerCase().includes('premium');
+};
+
 // Seleciona um plano e redireciona para checkout
 const selectPlan = (plan) => {
+  // Impede a seleção de planos "em breve"
+  if (isPremiumPlan(plan)) {
+    $q.notify({
+      type: 'info',
+      message: 'Este plano estará disponível em breve!',
+      position: 'top',
+    });
+    return;
+  }
+
   if (isCurrentPlan(plan.id)) {
     $q.notify({
       type: 'info',
