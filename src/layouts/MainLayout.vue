@@ -10,16 +10,60 @@ Efeitos: Navegação completa e interface responsiva -->
   <q-layout view="lHh LpR lff" class="main-layout" :class="{ 'mobile-layout': $q.screen.lt.lg }">
     
     <!-- ==========================================================================
-    SIDEBAR DE NAVEGAÇÃO - Desktop Only
+    HEADER MOBILE - Mobile Only (com botão hamburguer)
+    ========================================================================== -->
+    <q-header 
+      v-if="$q.screen.lt.lg" 
+      elevated 
+      class="mobile-header bg-primary text-white"
+    >
+      <q-toolbar>
+        <!-- Botão Menu Hamburguer -->
+        <q-btn
+          flat
+          dense
+          round
+          icon="menu"
+          @click="toggleLeftDrawer"
+          aria-label="Abrir menu"
+        />
+        
+        <!-- Título da Página -->
+        <q-toolbar-title class="text-center">
+          {{ getCurrentPageTitle() }}
+        </q-toolbar-title>
+        
+        <!-- Botão de Notificações -->
+        <q-btn
+          flat
+          dense
+          round
+          icon="notifications"
+          @click="showNotifications = true"
+          aria-label="Notificações"
+        >
+          <q-badge 
+            v-if="notificationCount > 0"
+            color="red"
+            floating
+          >
+            {{ notificationCount > 99 ? '99+' : notificationCount }}
+          </q-badge>
+        </q-btn>
+      </q-toolbar>
+    </q-header>
+
+    <!-- ==========================================================================
+    SIDEBAR DE NAVEGAÇÃO - Desktop + Mobile
     ========================================================================== -->
     <q-drawer
       v-model="leftDrawerOpen"
-      show-if-above
+      :show-if-above="$q.screen.gt.md"
       :width="280"
       :breakpoint="1024"
       bordered
+      :overlay="$q.screen.lt.lg"
       class="main-sidebar"
-      v-if="$q.screen.gt.md"
     >
       <!-- Logo e título -->
       <div class="sidebar-header q-pa-lg text-center">
@@ -36,31 +80,109 @@ Efeitos: Navegação completa e interface responsiva -->
 
       <q-separator />
 
-      <!-- Navegação principal -->
+      <!-- ==========================================================================
+      NAVEGAÇÃO - Desktop: Menu completo | Mobile: Apenas secundários
+      ========================================================================== -->
       <q-list class="sidebar-menu">
-        <q-item-label header class="text-weight-medium q-px-lg">
-          MENU PRINCIPAL
-        </q-item-label>
+        <!-- DESKTOP: Menu Principal Completo -->
+        <template v-if="$q.screen.gt.md">
+          <q-item-label header class="text-weight-medium q-px-lg">
+            MENU PRINCIPAL
+          </q-item-label>
 
-        <q-item
-          v-for="route in filteredMainMenuRoutes"
-          :key="route.name"
-          :to="route.path"
-          clickable
-          v-ripple
-          class="sidebar-item"
-          active-class="sidebar-item-active"
-          v-if="!(authStore.isAdmin && route.path === '/plans')"
-        >
-          <q-item-section avatar>
-            <q-icon :name="route.icon" />
-          </q-item-section>
-          
-          <q-item-section>
-            <q-item-label>{{ route.title }}</q-item-label>
-            <q-item-label caption>{{ route.description }}</q-item-label>
-          </q-item-section>
-        </q-item>
+          <q-item
+            v-for="route in filteredMainMenuRoutes"
+            :key="route.name"
+            :to="canAccessRoute(route) ? route.path : null"
+            @click="handleRouteClick(route, $event)"
+            clickable
+            v-ripple
+            class="sidebar-item"
+            :class="{ 'route-locked': isRouteLocked(route) }"
+            active-class="sidebar-item-active"
+            v-if="!(authStore.isAdmin && route.path === '/plans')"
+          >
+            <q-item-section avatar>
+              <q-icon :name="route.icon" />
+              <!-- Ícone de cadeado para rotas bloqueadas -->
+              <q-icon 
+                v-if="isRouteLocked(route)" 
+                name="lock" 
+                size="xs" 
+                class="lock-badge" 
+                color="amber"
+              />
+            </q-item-section>
+            
+            <q-item-section>
+              <q-item-label>
+                {{ route.title }}
+                <!-- Badge Premium -->
+                <q-chip
+                  v-if="isRouteLocked(route)"
+                  dense
+                  color="deep-purple"
+                  text-color="white"
+                  size="sm"
+                  class="q-ml-xs"
+                >
+                  PREMIUM
+                </q-chip>
+              </q-item-label>
+              <q-item-label caption>{{ route.description }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </template>
+
+        <!-- MOBILE: Apenas Recursos Avançados (não duplica bottom nav) -->
+        <template v-else>
+          <q-item-label header class="text-weight-medium q-px-lg">
+            RECURSOS AVANÇADOS
+          </q-item-label>
+
+          <q-item
+            v-for="route in drawerMenuRoutes"
+            :key="route.name"
+            :to="canAccessRoute(route) ? route.path : null"
+            @click="handleRouteClick(route, $event)"
+            clickable
+            v-ripple
+            class="sidebar-item"
+            :class="{ 'route-locked': isRouteLocked(route) }"
+            active-class="sidebar-item-active"
+            v-if="!(authStore.isAdmin && route.path === '/plans')"
+          >
+            <q-item-section avatar>
+              <q-icon :name="route.icon" />
+              <!-- Ícone de cadeado para rotas bloqueadas -->
+              <q-icon 
+                v-if="isRouteLocked(route)" 
+                name="lock" 
+                size="xs" 
+                class="lock-badge" 
+                color="amber"
+              />
+            </q-item-section>
+            
+            <q-item-section>
+              <q-item-label>
+                {{ route.title }}
+                <!-- Badge Premium -->
+                <q-chip
+                  v-if="isRouteLocked(route)"
+                  dense
+                  color="deep-purple"
+                  text-color="white"
+                  size="sm"
+                  class="q-ml-xs"
+                >
+                  PREMIUM
+                </q-chip>
+              </q-item-label>
+              <q-item-label caption>{{ route.description }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </template>
 
         <!-- Separador para área administrativa -->
         <template v-if="authStore.isAdmin">
@@ -197,6 +319,25 @@ Efeitos: Navegação completa e interface responsiva -->
       </q-card>
     </q-dialog>
 
+    <!-- ==========================================================================
+    DIALOG DE UPGRADE PREMIUM - Bloqueio de Features
+    ========================================================================== -->
+    <PremiumFeatureDialog 
+      v-model="showPremiumDialog"
+      title="🏦 Contas Bancárias"
+      subtitle="Recurso Exclusivo Premium"
+      message="Gerencie todas as suas contas bancárias, cartões de crédito e investimentos em um só lugar."
+      :features="[
+        'Gestão completa de contas bancárias',
+        'Conciliação bancária automática',
+        'Extratos detalhados por conta',
+        'Múltiplas contas ilimitadas',
+        'Relatórios consolidados'
+      ]"
+      required-plan="PREMIUM"
+      :current-plan="authStore.user?.plan"
+    />
+
     <!-- Session Manager - Gerenciamento de Timeout de Sessão -->
     <SessionManager />
   </q-layout>
@@ -207,11 +348,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from 'src/stores/auth'
 import { useNotifications } from 'src/composables/useNotifications'
+import { useFeaturePermissions } from 'src/composables/useFeaturePermissions'
 import { useQuasar } from 'quasar'
 import SidebarFooter from 'src/components/SidebarFooter.vue'
 import BottomNavigation from 'src/components/BottomNavigation.vue'
 import TransactionForm from 'src/components/TransactionForm.vue'
-import { getMainMenuRoutes, getAdminMenuRoutes, getUserMenuRoutes } from 'src/router/routes'
+import PremiumFeatureDialog from 'src/components/PremiumFeatureDialog.vue'
+import { getMainMenuRoutes, getAdminMenuRoutes, getUserMenuRoutes, getDrawerMenuRoutes } from 'src/router/routes'
 import SessionManager from 'src/components/SessionManager.vue'
 
 // ==========================================================================
@@ -221,6 +364,7 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 const { notifySuccess } = useNotifications()
+const { canAccessBankAccounts } = useFeaturePermissions()
 const $q = useQuasar()
 
 // ==========================================================================
@@ -229,9 +373,11 @@ const $q = useQuasar()
 const leftDrawerOpen = ref(false)
 const showNotifications = ref(false)
 const showAddTransactionDialog = ref(false)
+const showPremiumDialog = ref(false)
 
-// Rotas do menu
+// Rotas do menu (Desktop: completo | Mobile drawer: apenas secundários)
 const mainMenuRoutes = getMainMenuRoutes()
+const drawerMenuRoutes = getDrawerMenuRoutes()
 const adminMenuRoutes = getAdminMenuRoutes()
 const userMenuRoutes = getUserMenuRoutes()
 
@@ -295,6 +441,45 @@ const navigateToPlans = () => {
   }).catch(error => {
     console.error('❌ [NAVIGATION] Erro na navegação:', error)
   })
+}
+
+/**
+ * Verifica se o usuário pode acessar uma rota
+ */
+const canAccessRoute = (routeItem) => {
+  // Se a rota requer plano premium, verifica permissão
+  if (routeItem.meta?.requiresPremium) {
+    return canAccessBankAccounts.value
+  }
+  return true
+}
+
+/**
+ * Verifica se uma rota está bloqueada (requer premium mas usuário não tem)
+ */
+const isRouteLocked = (routeItem) => {
+  return routeItem.meta?.requiresPremium && !canAccessBankAccounts.value
+}
+
+/**
+ * Intercepta clique em rotas premium bloqueadas
+ */
+const handleRouteClick = (routeItem, event) => {
+  if (isRouteLocked(routeItem)) {
+    event.preventDefault()
+    event.stopPropagation()
+    console.log('🔒 [PREMIUM] Acesso bloqueado à rota:', routeItem.path)
+    showPremiumDialog.value = true
+    return
+  }
+  
+  // Fecha drawer no mobile após navegação bem-sucedida
+  if ($q.screen.lt.lg) {
+    // Pequeno delay para melhor UX (animação de clique)
+    setTimeout(() => {
+      leftDrawerOpen.value = false
+    }, 150)
+  }
 }
 
 /**
@@ -364,7 +549,36 @@ onMounted(async () => {
 <style lang="scss" scoped>
 
 .main-layout {
-  // Sidebar
+  // ==========================================================================
+  // MOBILE HEADER
+  // ==========================================================================
+  .mobile-header {
+    .q-toolbar {
+      min-height: 56px;
+      padding: 0 8px;
+      
+      .q-btn {
+        color: white;
+        
+        .q-badge {
+          font-size: 10px;
+          font-weight: 600;
+          min-width: 18px;
+          min-height: 18px;
+        }
+      }
+      
+      .q-toolbar-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+      }
+    }
+  }
+  
+  // ==========================================================================
+  // SIDEBAR
+  // ==========================================================================
   .main-sidebar {
     border-right: 1px solid rgba(44, 95, 45, 0.1);
     z-index: 100;
@@ -580,6 +794,10 @@ onMounted(async () => {
     z-index: 1;
     overflow-x: hidden;
     
+    // Espaçamento para bottom navigation (mobile)
+    &.has-bottom-nav {
+      padding-bottom: 70px;
+    }
     // Garante que o conteúdo não vaze sobre o sidebar
     :deep(.q-page) {
       max-width: 100%;
@@ -601,10 +819,16 @@ onMounted(async () => {
   }
 }
 
-// Mobile Layout ajustes
+// ==========================================================================
+// MOBILE LAYOUT
+// ==========================================================================
 .main-layout.mobile-layout {
-  .main-sidebar {
-    display: none;
+  // Remove a condição de esconder o sidebar - agora ele abre via hamburguer
+  // .main-sidebar é controlado por v-model="leftDrawerOpen"
+  
+  .main-content {
+    // Adiciona espaço para o header mobile (56px)
+    padding-top: 56px;
   }
 }
 
@@ -651,6 +875,49 @@ onMounted(async () => {
       position: relative;
       margin-top: 2rem;
     }
+  }
+}
+
+// ==========================================================================
+// PREMIUM FEATURE INDICATORS - Rotas Bloqueadas
+// ==========================================================================
+.route-locked {
+  opacity: 0.7;
+  position: relative;
+  cursor: not-allowed !important;
+  
+  &:hover {
+    background-color: rgba(255, 193, 7, 0.05) !important;
+  }
+  
+  .lock-badge {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: #ffc107;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  
+  .premium-chip {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 2px 8px;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
   }
 }
 

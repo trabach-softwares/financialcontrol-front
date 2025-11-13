@@ -91,6 +91,7 @@ const routes = [
         meta: {
           title: 'Contas bancárias',
           requiresAuth: true,
+          requiresPremium: true, // 🔒 REQUER PLANO PREMIUM
           icon: 'account_balance',
           description: 'Administrar contas cadastradas e saldos'
         }
@@ -104,6 +105,7 @@ const routes = [
         meta: {
           title: 'Extrato da conta',
           requiresAuth: true,
+          requiresPremium: true, // 🔒 REQUER PLANO PREMIUM
           icon: 'summarize',
           description: 'Histórico consolidado de movimentações da conta'
         }
@@ -117,6 +119,7 @@ const routes = [
         meta: {
           title: 'Conciliação bancária',
           requiresAuth: true,
+          requiresPremium: true, // 🔒 REQUER PLANO PREMIUM
           icon: 'compare_arrows',
           description: 'Importar extratos e conciliar lançamentos da conta'
         }
@@ -196,7 +199,19 @@ const routes = [
           title: 'Configurações',
           requiresAuth: true,
           icon: 'settings',
-          description: 'Configurações do sistema'
+          description: 'Configurações da conta'
+        }
+      },
+
+      // 🔒 Página de Feature Bloqueada (Plano Insuficiente)
+      {
+        path: '/forbidden',
+        name: 'feature-forbidden',
+        component: () => import('pages/auth/FeatureForbiddenPage.vue'),
+        meta: {
+          title: 'Feature Bloqueada',
+          requiresAuth: true,
+          description: 'Acesso a feature requer plano superior'
         }
       }
     ]
@@ -310,6 +325,11 @@ export default routes
  * Obtém rotas do menu principal (autenticadas, não admin)
  * Usado para gerar navegação sidebar
  */
+/**
+ * Obtém rotas do menu principal (SIDEBAR DESKTOP)
+ * Para mobile, usar getDrawerMenuRoutes() para itens secundários
+ * Bottom Nav mobile usa: Dashboard, Transações, Adicionar, Relatórios, Perfil
+ */
 export const getMainMenuRoutes = () => {
   return [
     {
@@ -317,35 +337,106 @@ export const getMainMenuRoutes = () => {
       name: 'dashboard',
       title: 'Dashboard',
       icon: 'dashboard',
-      description: 'Visão geral das finanças'
-    },
-    {
-      path: '/accounts',
-      name: 'accounts-admin',
-      title: 'Contas bancárias',
-      icon: 'account_balance',
-      description: 'Gerenciar contas bancárias e saldos'
+      description: 'Visão geral das finanças',
+      meta: { requiresAuth: true }
     },
     {
       path: '/transactions',
       name: 'transactions',
       title: 'Transações',
       icon: 'receipt_long',
-      description: 'Gerenciar transações'
+      description: 'Gerenciar transações',
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/accounts',
+      name: 'accounts-admin',
+      title: 'Contas bancárias',
+      icon: 'account_balance',
+      description: 'Gerenciar contas bancárias e saldos',
+      meta: { requiresAuth: true, requiresPremium: true }
     },
     {
       path: '/reports',
       name: 'reports',
       title: 'Relatórios',
       icon: 'assessment',
-      description: 'Análises e relatórios'
+      description: 'Análises e relatórios',
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/payment-methods',
+      name: 'payment-methods',
+      title: 'Métodos de Pagamento',
+      icon: 'credit_card',
+      description: 'Gerenciar métodos de pagamento',
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/categories',
+      name: 'categories',
+      title: 'Categorias',
+      icon: 'label',
+      description: 'Gerenciar categorias',
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      title: 'Perfil',
+      icon: 'person',
+      description: 'Meu perfil e configurações',
+      meta: { requiresAuth: true }
     },
     {
       path: '/plans',
       name: 'plans',
       title: 'Planos',
       icon: 'card_membership',
-      description: 'Planos e assinaturas'
+      description: 'Planos e assinaturas',
+      meta: { requiresAuth: false }
+    }
+  ]
+}
+
+/**
+ * Obtém rotas do DRAWER MOBILE (itens secundários/avançados)
+ * Usado apenas no mobile quando usuário clica no hamburguer
+ * Não inclui itens já presentes no Bottom Navigation
+ */
+export const getDrawerMenuRoutes = () => {
+  return [
+    {
+      path: '/accounts',
+      name: 'accounts-admin',
+      title: 'Contas bancárias',
+      icon: 'account_balance',
+      description: 'Gerenciar contas bancárias e saldos',
+      meta: { requiresAuth: true, requiresPremium: true }
+    },
+    {
+      path: '/payment-methods',
+      name: 'payment-methods',
+      title: 'Métodos de Pagamento',
+      icon: 'credit_card',
+      description: 'Gerenciar métodos de pagamento',
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/categories',
+      name: 'categories',
+      title: 'Categorias',
+      icon: 'label',
+      description: 'Gerenciar categorias',
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/plans',
+      name: 'plans',
+      title: 'Planos',
+      icon: 'card_membership',
+      description: 'Planos e assinaturas',
+      meta: { requiresAuth: false }
     }
   ]
 }

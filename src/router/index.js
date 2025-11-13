@@ -41,7 +41,9 @@ export default route(function (/* { store, ssrContext } */) {
     
     // Importa store dinamicamente para evitar problemas de dependência circular
     const { useAuthStore } = await import('src/stores/auth')
+    const { useFeaturePermissions } = await import('src/composables/useFeaturePermissions')
     const authStore = useAuthStore()
+    const { isPremiumPlan } = useFeaturePermissions()
     
     // Inicializa auth store se necessário
     if (!authStore.isInitialized) {
@@ -72,6 +74,24 @@ export default route(function (/* { store, ssrContext } */) {
     // Verifica permissões de admin
     if (to.meta.requiresAdmin && !authStore.isAdmin) {
       next('/dashboard')
+      return
+    }
+    
+    // 🔒 VERIFICAÇÃO DE PLANO PREMIUM
+    // Bloqueia acesso a features que requerem plano Premium
+    const requiresPremium = to.matched.some(record => record.meta.requiresPremium)
+    if (requiresPremium && !isPremiumPlan.value) {
+      console.warn('🔒 Acesso negado: Feature requer plano Premium')
+      
+      // Redireciona para erro de permissão com informação da feature
+      next({
+        path: '/forbidden',
+        query: { 
+          feature: 'bank-accounts',
+          requiredPlan: 'PREMIUM',
+          redirect: to.fullPath
+        }
+      })
       return
     }
     
