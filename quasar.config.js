@@ -80,8 +80,8 @@ export default configure(function (/* ctx */) {
       
       // Variáveis para o template HTML
       htmlVariables: {
-        productName: 'Financial Control Pro',
-        productDescription: 'Sistema completo de Financial Control pessoal e empresarial com relatórios avançados'
+        productName: 'Financial Control',
+        productDescription: 'Sistema completo de gestão financeira pessoal e empresarial com relatórios avançados'
       },
       
       // rawDefine: {}

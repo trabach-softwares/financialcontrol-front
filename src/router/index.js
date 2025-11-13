@@ -85,10 +85,8 @@ export default route(function (/* { store, ssrContext } */) {
    */
   Router.afterEach((to, from) => {
     
-    // Atualizar título da página
-    document.title = to.meta.title ? 
-      `${to.meta.title} - Financial Control` : 
-      'Financial Control'
+    // Título da página sempre fixo
+    document.title = 'Financial Control'
     
     // Analytics ou tracking (implementar se necessário)
     if (process.env.NODE_ENV === 'production') {
