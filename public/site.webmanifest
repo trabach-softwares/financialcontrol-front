@@ -1,6 +1,6 @@
 {
   "name": "Financial Control",
-  "short_name": "FinControl",
+  "short_name": "Financial Control",
   "description": "Sistema completo de gestão financeira pessoal e empresarial com relatórios avançados",
   "start_url": "/",
   "display": "standalone",
