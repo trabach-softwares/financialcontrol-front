@@ -329,6 +329,7 @@ export default routes
  * Obtém rotas do menu principal (SIDEBAR DESKTOP)
  * Para mobile, usar getDrawerMenuRoutes() para itens secundários
  * Bottom Nav mobile usa: Dashboard, Transações, Adicionar, Relatórios, Perfil
+ * Menu simplificado: principais features + upgrade path
  */
 export const getMainMenuRoutes = () => {
   return [
@@ -365,22 +366,6 @@ export const getMainMenuRoutes = () => {
       meta: { requiresAuth: true }
     },
     {
-      path: '/payment-methods',
-      name: 'payment-methods',
-      title: 'Métodos de Pagamento',
-      icon: 'credit_card',
-      description: 'Gerenciar métodos de pagamento',
-      meta: { requiresAuth: true }
-    },
-    {
-      path: '/categories',
-      name: 'categories',
-      title: 'Categorias',
-      icon: 'label',
-      description: 'Gerenciar categorias',
-      meta: { requiresAuth: true }
-    },
-    {
       path: '/profile',
       name: 'profile',
       title: 'Perfil',
@@ -403,6 +388,7 @@ export const getMainMenuRoutes = () => {
  * Obtém rotas do DRAWER MOBILE (itens secundários/avançados)
  * Usado apenas no mobile quando usuário clica no hamburguer
  * Não inclui itens já presentes no Bottom Navigation
+ * Mantém apenas: Contas Bancárias (premium) e Planos (upgrade)
  */
 export const getDrawerMenuRoutes = () => {
   return [
@@ -413,22 +399,6 @@ export const getDrawerMenuRoutes = () => {
       icon: 'account_balance',
       description: 'Gerenciar contas bancárias e saldos',
       meta: { requiresAuth: true, requiresPremium: true }
-    },
-    {
-      path: '/payment-methods',
-      name: 'payment-methods',
-      title: 'Métodos de Pagamento',
-      icon: 'credit_card',
-      description: 'Gerenciar métodos de pagamento',
-      meta: { requiresAuth: true }
-    },
-    {
-      path: '/categories',
-      name: 'categories',
-      title: 'Categorias',
-      icon: 'label',
-      description: 'Gerenciar categorias',
-      meta: { requiresAuth: true }
     },
     {
       path: '/plans',
