@@ -56,6 +56,79 @@
       </div>
 
       <!-- ==========================================================================
+      NAVEGAÇÃO DE PERÍODO - DESIGN MELHORADO
+      ========================================================================== -->
+      <div class="period-filter-section q-mb-lg q-px-md">
+        <div class="row q-col-gutter-md">
+          
+          <!-- Navegador de Mês (sempre visível) -->
+          <div class="col-12 col-md-4">
+            <MonthNavigator 
+              @change="handleMonthChange"
+              :loading="isLoadingStats"
+              storage-key="dashboard-month"
+            />
+          </div>
+
+          <!-- Filtros Avançados (colapsável melhorado) -->
+          <div class="col-12 col-md-8">
+            <q-expansion-item
+              icon="filter_alt"
+              label="Filtros Avançados"
+              caption="Períodos personalizados"
+              dense-toggle
+              expand-separator
+              class="advanced-filter-expansion"
+              header-class="advanced-filter-header"
+            >
+              <template v-slot:header>
+                <q-item-section avatar>
+                  <q-avatar color="primary" text-color="white" size="40px">
+                    <q-icon name="filter_alt" />
+                  </q-avatar>
+                </q-item-section>
+
+                <q-item-section>
+                  <q-item-label class="text-weight-medium">Filtros Avançados</q-item-label>
+                  <q-item-label caption class="text-grey-7">
+                    Últimos 3/6/12 meses, personalizado...
+                  </q-item-label>
+                </q-item-section>
+              </template>
+
+              <q-card flat bordered class="advanced-filter-card">
+                <q-card-section class="q-pa-md">
+                  <PeriodFilter 
+                    @change="handleAdvancedPeriodChange"
+                    storage-key="dashboard-advanced-period"
+                  />
+                </q-card-section>
+              </q-card>
+            </q-expansion-item>
+          </div>
+        </div>
+      </div>
+
+      <!-- Banner informativo se estiver em mês futuro -->
+      <div v-if="isFutureMonth" class="row q-mb-lg q-px-md">
+        <div class="col-12">
+          <q-banner class="future-month-banner" rounded>
+            <template v-slot:avatar>
+              <q-avatar color="orange" text-color="white" size="48px">
+                <q-icon name="schedule" size="24px" />
+              </q-avatar>
+            </template>
+            <div class="text-weight-medium text-h6">
+              🔮 Visualizando lançamentos futuros
+            </div>
+            <div class="text-body2 q-mt-xs opacity-80">
+              As transações marcadas como "Pendente" ainda não foram pagas ou recebidas.
+            </div>
+          </q-banner>
+        </div>
+      </div>
+
+      <!-- ==========================================================================
       CARDS DE MÉTRICAS PREMIUM
       ========================================================================== -->
       <div class="row q-col-gutter-sm metrics-row">
@@ -175,12 +248,51 @@
               <div v-if="isLoadingCharts" class="chart-loading-small">
                 <q-spinner-dots color="primary" size="2em" />
               </div>
-              <canvas 
-                v-else
-                ref="doughnutChartRef" 
-                id="doughnutChart"
-                class="category-chart-canvas"
-              ></canvas>
+              
+              <!-- Estado Vazio: Sem dados de categorias -->
+              <div 
+                v-else-if="!dashboardStore.categoryAnalysis.labels || dashboardStore.categoryAnalysis.labels.length === 0"
+                class="category-empty-state"
+              >
+                <div class="empty-icon-wrapper">
+                  <q-icon name="donut_large" size="3.5rem" color="grey-5" />
+                </div>
+                <h6 class="empty-title">Nenhuma despesa registrada</h6>
+                <p class="empty-subtitle">
+                  Adicione despesas para visualizar<br>
+                  como seu dinheiro está sendo gasto
+                </p>
+                <q-btn
+                  unelevated
+                  color="primary"
+                  label="Adicionar Despesa"
+                  icon="add"
+                  size="sm"
+                  class="q-mt-md"
+                  @click="openTransactionDialog('expense')"
+                />
+              </div>
+              
+              <!-- Gráfico com dados -->
+              <div v-else class="category-chart-wrapper">
+                <canvas 
+                  ref="doughnutChartRef" 
+                  id="doughnutChart"
+                  class="category-chart-canvas"
+                ></canvas>
+                
+                <!-- Informações Adicionais -->
+                <div class="category-insights">
+                  <div class="insight-item">
+                    <q-icon name="category" size="1rem" color="primary" />
+                    <span class="insight-label">{{ categoryCount }} categorias</span>
+                  </div>
+                  <div class="insight-item">
+                    <q-icon name="trending_up" size="1rem" color="orange" />
+                    <span class="insight-label">Maior: {{ topCategory }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -381,6 +493,38 @@
                 <q-spinner-dots color="primary" size="3em" />
                 <p>Carregando dados...</p>
               </div>
+              
+              <!-- Estado Vazio: Sem dados de evolução -->
+              <div 
+                v-else-if="!dashboardStore.monthlyEvolution.labels || dashboardStore.monthlyEvolution.labels.length === 0"
+                class="evolution-empty-state"
+              >
+                <div class="empty-icon-wrapper-large">
+                  <q-icon name="show_chart" size="4rem" color="grey-5" />
+                </div>
+                <h5 class="empty-title-large">Nenhuma transação no período</h5>
+                <p class="empty-subtitle-large">
+                  Comece adicionando receitas e despesas<br>
+                  para visualizar a evolução das suas finanças
+                </p>
+                <div class="empty-actions">
+                  <q-btn
+                    unelevated
+                    color="positive"
+                    label="Adicionar Receita"
+                    icon="add_circle"
+                    @click="openTransactionDialog('income')"
+                  />
+                  <q-btn
+                    unelevated
+                    color="negative"
+                    label="Adicionar Despesa"
+                    icon="remove_circle"
+                    @click="openTransactionDialog('expense')"
+                  />
+                </div>
+              </div>
+              
               <canvas 
                 v-else
                 ref="lineChartRef" 
@@ -459,8 +603,11 @@ import { useDashboardStore } from 'src/stores/dashboard'
 import { useCurrency } from 'src/composables/useCurrency'
 import { useDate } from 'src/composables/useDate'
 import { Chart, registerables } from 'chart.js'
+import { startOfMonth, endOfMonth, isAfter, format as formatDateFns } from 'date-fns'
 import TransactionForm from 'src/components/TransactionForm.vue'
 import CompleteProfileDialog from 'src/components/CompleteProfileDialog.vue'
+import PeriodFilter from 'src/components/PeriodFilter.vue'
+import MonthNavigator from 'src/components/MonthNavigator.vue'
 
 // Registrar componentes do Chart.js
 Chart.register(...registerables)
@@ -483,6 +630,9 @@ const showAddTransactionDialog = ref(false)
 const newTransactionType = ref('income')
 const chartPeriod = ref('current-month') // Inicia com o mês atual
 const showCompleteProfileDialog = ref(false)
+const currentPeriodRange = ref({ startDate: null, endDate: null })
+const currentMonth = ref(new Date()) // Mês atual sendo visualizado no MonthNavigator
+const isUsingAdvancedFilter = ref(false) // Flag para indicar se está usando filtro avançado
 
 // Referências dos gráficos
 const lineChartRef = ref(null)
@@ -493,6 +643,17 @@ let doughnutChart = null
 // ==========================================================================
 // COMPUTED PROPERTIES
 // ==========================================================================
+
+/**
+ * Verifica se o mês atual sendo visualizado é futuro
+ */
+const isFutureMonth = computed(() => {
+  if (!currentMonth.value) return false
+  const now = new Date()
+  const currentStart = startOfMonth(currentMonth.value)
+  const nowStart = startOfMonth(now)
+  return isAfter(currentStart, nowStart)
+})
 
 /**
  * Estatísticas das transações com valores padrão seguros
@@ -570,6 +731,48 @@ const chartPeriodTotals = computed(() => {
   }
 })
 
+/**
+ * Número de categorias com despesas
+ */
+const categoryCount = computed(() => {
+  const categoryData = dashboardStore.categoryAnalysis
+  return categoryData?.labels?.length || 0
+})
+
+/**
+ * Categoria com maior gasto
+ */
+const topCategory = computed(() => {
+  const categoryData = dashboardStore.categoryAnalysis
+  
+  if (!categoryData?.labels?.length || !categoryData?.datasets?.[0]?.data?.length) {
+    return '-'
+  }
+  
+  const values = categoryData.datasets[0].data
+  const maxValue = Math.max(...values)
+  const maxIndex = values.indexOf(maxValue)
+  
+  return categoryData.labels[maxIndex] || '-'
+})
+
+/**
+ * Percentual da categoria principal
+ */
+const topCategoryPercentage = computed(() => {
+  const categoryData = dashboardStore.categoryAnalysis
+  
+  if (!categoryData?.datasets?.[0]?.data?.length) {
+    return 0
+  }
+  
+  const values = categoryData.datasets[0].data
+  const total = values.reduce((sum, val) => sum + (val || 0), 0)
+  const maxValue = Math.max(...values)
+  
+  return total > 0 ? ((maxValue / total) * 100).toFixed(1) : 0
+})
+
 // ==========================================================================
 // MÉTODOS
 // ==========================================================================
@@ -577,14 +780,25 @@ const chartPeriodTotals = computed(() => {
 /**
  * Carrega dados iniciais do dashboard
  */
-const loadDashboardData = async () => {
-  console.log('📊 [DASHBOARD] Carregando dados iniciais')
+const loadDashboardData = async (periodRange = null) => {
+  console.log('📊 [DASHBOARD] Carregando dados iniciais', periodRange)
   
   try {
+    // Prepara o dateRange com os filtros de período
+    const dateRange = {};
+    if (periodRange && periodRange.startDate) {
+      dateRange.startDate = periodRange.startDate;
+    }
+    if (periodRange && periodRange.endDate) {
+      dateRange.endDate = periodRange.endDate;
+    }
+    
+    console.log('🔍 [DASHBOARD] dateRange preparado:', dateRange)
+    
     // Carrega todos os dados do dashboard usando a nova store
     await dashboardStore.loadDashboard({
       period: chartPeriod.value, // Inclui o período atual dos gráficos
-      dateRange: {}, 
+      dateRange, 
       recentLimit: 5
     })
     
@@ -627,6 +841,59 @@ const getCurrentDate = () => {
   }
   
   return new Date().toLocaleDateString('pt-BR', options)
+}
+
+/**
+ * Handler para mudança de mês no MonthNavigator
+ */
+const handleMonthChange = async (range) => {
+  console.log('🗓️ [DASHBOARD] Mês alterado (MonthNavigator):', range)
+  
+  // Desativa filtro avançado quando usa navegação simples
+  isUsingAdvancedFilter.value = false
+  
+  // Atualiza o mês atual
+  currentMonth.value = new Date(range.startDate)
+  
+  // Atualiza o range do período
+  currentPeriodRange.value = range
+  
+  // Recarrega os dados do dashboard com o novo período
+  await loadDashboardData(range)
+  
+  // Atualiza os gráficos
+  await nextTick()
+  if (lineChart) {
+    updateLineChart()
+  }
+  if (doughnutChart) {
+    updateDoughnutChart()
+  }
+}
+
+/**
+ * Handler para mudança de período no filtro avançado
+ */
+const handleAdvancedPeriodChange = async (range) => {
+  console.log('🎯 [DASHBOARD] Período avançado alterado:', range)
+  
+  // Ativa flag de filtro avançado
+  isUsingAdvancedFilter.value = true
+  
+  // Atualiza o range do período
+  currentPeriodRange.value = range
+  
+  // Recarrega os dados do dashboard com o novo período
+  await loadDashboardData(range)
+  
+  // Atualiza os gráficos
+  await nextTick()
+  if (lineChart) {
+    updateLineChart()
+  }
+  if (doughnutChart) {
+    updateDoughnutChart()
+  }
 }
 
 /**
@@ -984,8 +1251,31 @@ const updateChartData = async () => {
 onMounted(async () => {
   console.log('🚀 [DASHBOARD] Dashboard montado')
   
-  // Carrega dados iniciais
-  await loadDashboardData()
+  // SEMPRE inicializa com o mês atual ao entrar na tela
+  const now = new Date()
+  const monthStart = startOfMonth(now)
+  const monthEnd = endOfMonth(now)
+  
+  const initialRange = {
+    startDate: formatDateFns(monthStart, 'yyyy-MM-dd'),
+    endDate: formatDateFns(monthEnd, 'yyyy-MM-dd')
+  }
+  
+  console.log('📅 [DASHBOARD] Inicializando com mês atual:', initialRange)
+  
+  // Atualiza estado
+  currentMonth.value = now
+  currentPeriodRange.value = initialRange
+  
+  // Limpa preferência anterior para garantir que sempre inicie no mês atual
+  try {
+    localStorage.removeItem('dashboard-month')
+  } catch (error) {
+    console.error('Erro ao limpar localStorage:', error)
+  }
+  
+  // Carrega dados do mês atual
+  await loadDashboardData(initialRange)
   
   // Inicializa gráficos após próximo tick
   await nextTick()
@@ -1265,6 +1555,75 @@ onMounted(async () => {
 }
 
 // ==========================================================================
+// PERIOD FILTER SECTION - Design Melhorado
+// ==========================================================================
+.period-filter-section {
+  animation: fadeInUp 0.6s ease;
+  
+  .advanced-filter-expansion {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    &:hover {
+      border-color: rgba(25, 118, 210, 0.3);
+      box-shadow: 0 4px 16px rgba(25, 118, 210, 0.08);
+    }
+  }
+  
+  .advanced-filter-header {
+    padding: 12px 16px;
+    
+    .q-item__section--avatar {
+      min-width: auto;
+      padding-right: 12px;
+    }
+    
+    .q-item-label {
+      font-size: 0.95rem;
+      color: #1f2937;
+    }
+    
+    .q-item-label--caption {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+  }
+  
+  .advanced-filter-card {
+    background: #f9fafb;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    margin-top: 0;
+  }
+}
+
+.future-month-banner {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border: 2px solid #fed7aa;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 4px 12px rgba(251, 146, 60, 0.15);
+  
+  .text-h6 {
+    color: #ea580c;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .text-body2 {
+    color: #9a3412;
+    line-height: 1.5;
+  }
+  
+  .opacity-80 {
+    opacity: 0.85;
+  }
+}
+
+// ==========================================================================
 // METRIC CARDS - Premium Design
 // ==========================================================================
 .metric-card {
@@ -1540,6 +1899,51 @@ onMounted(async () => {
   p {
     color: #64748b;
     font-size: 0.9rem;
+    margin: 0;
+  }
+}
+
+// Estado vazio do gráfico de evolução
+.evolution-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 2rem;
+  min-height: 380px;
+  
+  .empty-icon-wrapper-large {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .empty-title-large {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #475569;
+    margin: 0 0 0.75rem 0;
+  }
+  
+  .empty-subtitle-large {
+    font-size: 1rem;
+    color: #94a3b8;
+    margin: 0 0 2rem 0;
+    line-height: 1.6;
+  }
+  
+  .empty-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }
 
@@ -1658,10 +2062,18 @@ onMounted(async () => {
   /* Mobile: altura maior para melhor visualização */
   min-height: 320px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 0.5rem;
   position: relative;
+}
+
+.category-chart-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .category-chart-canvas {
@@ -1673,6 +2085,76 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   height: 300px;
+}
+
+// Estado vazio do gráfico de categorias
+.category-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1rem;
+  
+  .empty-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .empty-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #475569;
+    margin: 0 0 0.5rem 0;
+  }
+  
+  .empty-subtitle {
+    font-size: 0.875rem;
+    color: #94a3b8;
+    margin: 0 0 1rem 0;
+    line-height: 1.5;
+  }
+}
+
+// Informações adicionais do gráfico
+.category-insights {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-top: 0.5rem;
+  
+  .insight-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    .insight-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #475569;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 // ==========================================================================

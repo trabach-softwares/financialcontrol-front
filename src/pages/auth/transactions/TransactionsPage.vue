@@ -30,116 +30,165 @@
       </div>
 
       <!-- ==========================================================================
-      BARRA DE FILTROS
+      NAVEGAÇÃO DE PERÍODO - OPÇÃO HÍBRIDA (MonthNavigator + Filtros Avançados)
       ========================================================================== -->
-      <q-card class="filters-card q-mb-lg" flat bordered>
-        <q-card-section>
-          <div class="row q-col-gutter-md items-end">
-            
-            <!-- Buscar por descrição -->
-            <div class="col-12 col-sm-6 col-md-3">
-              <q-input
-                v-model="filters.search"
-                label="Buscar transação"
-                outlined
-                dense
-                clearable
-                debounce="500"
-                @update:model-value="applyFilters"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="search" />
-                </template>
-              </q-input>
-            </div>
+      <div class="period-filter-section row q-col-gutter-md q-mb-lg">
+        
+        <!-- Navegador de Mês (sempre visível) -->
+        <div class="col-12 col-md-4">
+          <MonthNavigator 
+            @change="handleMonthChange"
+            :loading="isLoadingTransactions"
+            storage-key="transactions-month"
+          />
+        </div>
 
-            <!-- Filtro por tipo -->
-            <div class="col-12 col-sm-6 col-md-2">
-              <q-select
-                v-model="filters.type"
-                label="Tipo"
-                :options="typeOptions"
-                outlined
-                dense
-                clearable
-                emit-value
-                map-options
-                @update:model-value="applyFilters"
-              />
-            </div>
+        <!-- Filtros Avançados (colapsável melhorado) -->
+        <div class="col-12 col-md-8">
+          <q-expansion-item
+            icon="filter_alt"
+            label="Filtros Avançados"
+            caption="Períodos personalizados"
+            dense-toggle
+            expand-separator
+            class="advanced-filter-expansion"
+          >
+            <template v-slot:header>
+              <q-item-section avatar>
+                <q-avatar color="primary" text-color="white" size="40px">
+                  <q-icon name="filter_alt" />
+                </q-avatar>
+              </q-item-section>
 
-            <!-- Filtro por categoria -->
-            <div class="col-12 col-sm-6 col-md-2">
-              <q-select
-                v-model="filters.category"
-                label="Categoria"
-                :options="categoryOptions"
-                outlined
-                dense
-                clearable
-                @update:model-value="applyFilters"
-              />
-            </div>
+              <q-item-section>
+                <q-item-label class="text-weight-medium">
+                  Filtros Avançados
+                </q-item-label>
+                <q-item-label caption class="text-grey-7">
+                  Últimos 3/6/12 meses, personalizado...
+                </q-item-label>
+              </q-item-section>
+            </template>
 
-            <!-- Pago -->
-            <div class="col-12 col-sm-6 col-md-2">
-              <q-select
-                v-model="filters.paid"
-                label="Status"
-                :options="paidOptions"
-                outlined
-                dense
-                clearable
-                emit-value
-                map-options
-                @update:model-value="applyFilters"
-              />
-            </div>
+            <q-card flat bordered class="advanced-filter-card">
+              <q-card-section class="q-pa-md">
+                <PeriodFilter 
+                  @change="handleAdvancedPeriodChange"
+                  storage-key="transactions-advanced-period"
+                />
+              </q-card-section>
+            </q-card>
+          </q-expansion-item>
+        </div>
+      </div>
 
-            <!-- Data inicial -->
-            <div class="col-12 col-sm-6 col-md-2">
-              <q-input
-                v-model="filters.startDate"
-                label="Data inicial"
-                type="date"
-                outlined
-                dense
-                clearable
-                @update:model-value="applyFilters"
-              />
+      <!-- Banner informativo se estiver em mês futuro -->
+      <div v-if="isFutureMonth" class="row q-mb-lg">
+        <div class="col-12">
+          <q-banner class="future-month-banner" rounded>
+            <template v-slot:avatar>
+              <q-avatar color="orange" text-color="white" size="48px">
+                <q-icon name="schedule" size="24px" />
+              </q-avatar>
+            </template>
+            <div class="text-weight-medium text-h6">
+              🔮 Visualizando lançamentos futuros
             </div>
-
-            <!-- Data final -->
-            <div class="col-12 col-sm-6 col-md-2">
-              <q-input
-                v-model="filters.endDate"
-                label="Data final"
-                type="date"
-                outlined
-                dense
-                clearable
-                @update:model-value="applyFilters"
-              />
+            <div class="text-body2 q-mt-xs opacity-80">
+              As transações marcadas como "Pendente" ainda não foram pagas ou recebidas.
             </div>
+          </q-banner>
+        </div>
+      </div>
 
-            <!-- Botão limpar filtros -->
-            <div class="col-12 col-sm-6 col-md-1 div-clear-filters">
-              <q-btn
-                icon="clear"
-                color="grey-6"
-                outline
-                dense
-                @click="clearAllFilters"
-                class="btn-clear-filters"
-              >
-                <q-tooltip>Limpar filtros</q-tooltip>
-              </q-btn>
-            </div>
-          </div>
+      <!-- ==========================================================================
+      OUTROS FILTROS (Busca, Tipo, Categoria, Status)
+      ========================================================================== -->
+      <div class="row q-mb-lg">
+        <div class="col-12">
+          <q-card class="filters-card" flat bordered>
+            <q-card-section>
+              <div class="row q-col-gutter-md items-end">
+                
+                <!-- Buscar por descrição -->
+                <div class="col-12 col-sm-6 col-md-4">
+                  <q-input
+                    v-model="filters.search"
+                    label="Buscar transação"
+                    outlined
+                    dense
+                    clearable
+                    debounce="500"
+                    @update:model-value="applyFilters"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="search" />
+                    </template>
+                  </q-input>
+                </div>
 
-          
-        </q-card-section>
-      </q-card>
+                <!-- Filtro por tipo -->
+                <div class="col-12 col-sm-6 col-md-3">
+                  <q-select
+                    v-model="filters.type"
+                    label="Tipo"
+                    :options="typeOptions"
+                    outlined
+                    dense
+                    clearable
+                    emit-value
+                    map-options
+                    @update:model-value="applyFilters"
+                  />
+                </div>
+
+                <!-- Filtro por categoria -->
+                <div class="col-12 col-sm-6 col-md-3">
+                  <q-select
+                    v-model="filters.category"
+                    label="Categoria"
+                    :options="categoryOptions"
+                    outlined
+                    dense
+                    clearable
+                    @update:model-value="applyFilters"
+                  />
+                </div>
+
+                <!-- Pago -->
+                <div class="col-12 col-sm-6 col-md-2">
+                  <q-select
+                    v-model="filters.paid"
+                    label="Status"
+                    :options="paidOptions"
+                    outlined
+                    dense
+                    clearable
+                    emit-value
+                    map-options
+                    @update:model-value="applyFilters"
+                  />
+                </div>
+
+                <!-- Botão limpar filtros -->
+                <div class="col-12 col-sm-6 col-md-12 col-lg-auto div-clear-filters">
+                  <q-btn
+                    icon="clear"
+                    label="Limpar"
+                    color="grey-6"
+                    outline
+                    dense
+                    @click="clearAllFilters"
+                    class="btn-clear-filters full-width"
+                  >
+                    <q-tooltip>Limpar filtros</q-tooltip>
+                  </q-btn>
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
 
       <!-- ==========================================================================
       ESTATÍSTICAS RESUMIDAS
@@ -435,7 +484,10 @@ import { useTransactionStore } from 'src/stores/transactions'
 import { useCurrency } from 'src/composables/useCurrency'
 import { useDate } from 'src/composables/useDate'
 import { useNotifications } from 'src/composables/useNotifications'
+import { startOfMonth, endOfMonth, isAfter, format } from 'date-fns'
 import TransactionForm from 'src/components/TransactionForm.vue'
+import PeriodFilter from 'src/components/PeriodFilter.vue'
+import MonthNavigator from 'src/components/MonthNavigator.vue'
 
 // ==========================================================================
 // COMPOSABLES E STORES
@@ -455,6 +507,8 @@ const selectedTransaction = ref(null)
 const transactionToDelete = ref(null)
 const dialogMode = ref('create') // 'create' | 'edit' | 'view'
 const currentPage = ref(1)
+const currentMonth = ref(new Date()) // Mês atual sendo visualizado no MonthNavigator
+const isUsingAdvancedFilter = ref(false) // Flag para indicar se está usando filtro avançado
 
 // Filtros
 const filters = ref({
@@ -482,6 +536,17 @@ const paidOptions = [
 // ==========================================================================
 // COMPUTED PROPERTIES
 // ==========================================================================
+
+/**
+ * Verifica se o mês atual sendo visualizado é futuro
+ */
+const isFutureMonth = computed(() => {
+  if (!currentMonth.value) return false
+  const now = new Date()
+  const currentStart = startOfMonth(currentMonth.value)
+  const nowStart = startOfMonth(now)
+  return isAfter(currentStart, nowStart)
+})
 
 /**
  * Verifica se há filtros ativos
@@ -514,11 +579,29 @@ const loadInitialData = async () => {
     transactionStore.loadCategories()
     categoryOptions.value = transactionStore.categories
     
-    // Define período padrão para o mês corrente, caso não haja filtros
+    // SEMPRE inicializa com o mês atual ao entrar na tela
+    const now = new Date()
+    const monthStart = startOfMonth(now)
+    const monthEnd = endOfMonth(now)
+    
+    // Define período para o mês atual
     if (!filters.value.startDate && !filters.value.endDate) {
-      const { start, end } = getCurrentMonthRange()
-      filters.value.startDate = start
-      filters.value.endDate = end
+      filters.value.startDate = format(monthStart, 'yyyy-MM-dd')
+      filters.value.endDate = format(monthEnd, 'yyyy-MM-dd')
+      
+      // Atualiza currentMonth para sincronizar com MonthNavigator
+      currentMonth.value = now
+      console.log('📅 [TRANSACTIONS] Inicializando com mês atual:', {
+        start: filters.value.startDate,
+        end: filters.value.endDate
+      })
+      
+      // Limpa preferência anterior para garantir que sempre inicie no mês atual
+      try {
+        localStorage.removeItem('transactions-month')
+      } catch (error) {
+        console.error('Erro ao limpar localStorage:', error)
+      }
     }
 
     // Carrega transações já com o filtro de mês aplicado
@@ -580,6 +663,43 @@ const clearAllFilters = async () => {
     search: '', type: '', category: '', startDate: start, endDate: end, paid: ''
   })
   await transactionStore.fetchStats({ startDate: start, endDate: end })
+}
+
+/**
+ * Handler para mudança de mês no MonthNavigator
+ */
+const handleMonthChange = async (range) => {
+  console.log('🗓️ [TRANSACTIONS] Mês alterado (MonthNavigator):', range)
+  
+  // Desativa filtro avançado quando usa navegação simples
+  isUsingAdvancedFilter.value = false
+  
+  // Atualiza o mês atual
+  currentMonth.value = new Date(range.startDate)
+  
+  // Atualiza os filtros de data
+  filters.value.startDate = range.startDate || ''
+  filters.value.endDate = range.endDate || ''
+  
+  // Aplica os filtros com o novo período
+  await applyFilters()
+}
+
+/**
+ * Handler para mudança de período no filtro avançado
+ */
+const handleAdvancedPeriodChange = async (range) => {
+  console.log('🎯 [TRANSACTIONS] Período avançado alterado:', range)
+  
+  // Ativa flag de filtro avançado
+  isUsingAdvancedFilter.value = true
+  
+  // Atualiza os filtros de data
+  filters.value.startDate = range.startDate || ''
+  filters.value.endDate = range.endDate || ''
+  
+  // Aplica os filtros com o novo período
+  await applyFilters()
 }
 
 /**
@@ -1462,6 +1582,76 @@ onMounted(() => {
     .q-separator {
       margin: 0 !important;
     }
+  }
+}
+
+// ==========================================================================
+// PERIOD FILTER SECTION - DESIGN MELHORADO
+// ==========================================================================
+.period-filter-section {
+  animation: fadeInUp 0.6s ease;
+  
+  .advanced-filter-expansion {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    &:hover {
+      border-color: rgba(25, 118, 210, 0.3);
+      box-shadow: 0 4px 16px rgba(25, 118, 210, 0.08);
+    }
+    
+    :deep(.q-item) {
+      padding: 12px 16px;
+    }
+    
+    :deep(.q-item__label) {
+      font-size: 0.95rem;
+      color: #1f2937;
+    }
+    
+    :deep(.q-item__label--caption) {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+  }
+  
+  .advanced-filter-card {
+    background: #f9fafb;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+  }
+}
+
+.future-month-banner {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border: 2px solid #fed7aa;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 4px 12px rgba(251, 146, 60, 0.15);
+  
+  .text-h6 {
+    color: #ea580c;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .text-body2 {
+    color: #9a3412;
+    line-height: 1.5;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

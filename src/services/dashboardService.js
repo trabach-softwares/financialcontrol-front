@@ -67,14 +67,20 @@ export const dashboardService = {
    * Busca transações individuais e agrupa inteligentemente baseado no período
    * Períodos curtos (7 dias) = agrupamento diário
    * Períodos longos (1 ano) = agrupamento mensal
+   * @param {string} period - Período predefinido (current-month, 7days, etc)
+   * @param {Object} customDateRange - Range customizado { startDate, endDate }
    */
-  async getMonthlyEvolution(period = 'current-month') {
+  async getMonthlyEvolution(period = 'current-month', customDateRange = null) {
     try {
       console.log('📊 [SERVICE] Buscando evolução para período:', period)
+      console.log('🎯 [SERVICE] Custom dateRange recebido:', customDateRange)
       
-      // Calcular datas baseado no período selecionado
-      const dateRange = this.calculateDateRange(period)
-      console.log('📅 [SERVICE] Range de datas:', dateRange)
+      // Usar dateRange customizado se fornecido, senão calcular baseado no período
+      const dateRange = customDateRange && customDateRange.startDate && customDateRange.endDate
+        ? customDateRange
+        : this.calculateDateRange(period)
+      
+      console.log('📅 [SERVICE] Range de datas FINAL:', dateRange)
       
       // Buscar todas as transações do período
       const response = await api.get(FINANCIAL_ROUTES.transactionsList, {

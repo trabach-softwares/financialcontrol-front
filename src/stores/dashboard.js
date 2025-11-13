@@ -165,9 +165,9 @@ export const useDashboardStore = defineStore('dashboard', {
       try {
         console.log('📊 [STORE] Carregando dados dos gráficos...', options)
         
-        // Carrega evolução mensal com o período correto
+        // Carrega evolução mensal com o período correto e dateRange customizado
         const period = options.period || this.chartConfig.period
-        const evolutionData = await dashboardService.getMonthlyEvolution(period)
+        const evolutionData = await dashboardService.getMonthlyEvolution(period, options.dateRange)
         
         console.log('📈 [STORE] Dados de evolução recebidos:', evolutionData)
         this.monthlyEvolution = evolutionData
