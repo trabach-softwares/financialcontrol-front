@@ -10,6 +10,11 @@ import { boot } from 'quasar/wrappers'
 import axios from 'axios'
 import { Notify, LocalStorage } from 'quasar'
 import { useGlobalLoading } from 'src/composables/useGlobalLoading'
+import { 
+  showForbiddenDialog, 
+  showGenericErrorDialog,
+  showLimitDialog 
+} from 'src/services/errorDialogService'
 
 // Instanciar loading global
 const { startLoading, stopLoading } = useGlobalLoading()
@@ -152,14 +157,27 @@ api.interceptors.response.use(
           }
           break
         }
-        case 403:
-          Notify.create({
-            type: 'negative',
-            message: 'Acesso negado. Você não tem permissão para esta ação.',
-            position: 'top',
-            timeout: 4000
-          })
+        case 403: {
+          // Acesso negado - pode ser permissão ou limite
+          const errorMessage = data?.message || 'Acesso negado. Você não tem permissão para esta ação.'
+          const errorCode = data?.code || data?.error
+          
+          // Verificar se é erro de limite de transações
+          if (errorCode === 'TRANSACTION_LIMIT_EXCEEDED' || errorMessage.toLowerCase().includes('limite')) {
+            showLimitDialog({
+              message: errorMessage,
+              limit: data?.limit || null,
+              current: data?.current || null,
+              plan: data?.plan || 'FREE',
+              details: data?.details || ''
+            })
+          } else {
+            // Erro genérico de permissão
+            showForbiddenDialog(errorMessage)
+          }
+          // NÃO mostrar Notify - apenas o dialog
           break
+        }
         case 404:
           Notify.create({
             type: 'negative',
