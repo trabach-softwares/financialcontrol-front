@@ -483,22 +483,16 @@ async function fetchPlans() {
   try {
     // plansList já retorna data?.data || data || []
     const response = await plansList()
-    console.log('📊 Resposta da API (já processada):', response)
-    console.log('📊 Tipo da resposta:', Array.isArray(response) ? 'Array' : typeof response)
     
     // A resposta já deve ser um array direto graças ao tratamento em plans.js
     const allPlans = Array.isArray(response) ? response : []
     
-    console.log(`📋 Total de planos recebidos: ${allPlans.length}`)
     if (allPlans.length > 0) {
-      console.log('📋 Planos:', allPlans.map(p => `${p.name} (R$ ${p.price})`).join(', '))
     }
     
     // Filtrar apenas excluindo ADMIN
     plans.value = allPlans.filter(plan => plan && plan.name !== 'ADMIN')
-    
-    console.log(`✅ Planos disponíveis após filtro: ${plans.value.length}`)
-    
+        
     if (!plans.value.length) {
       console.warn('⚠️ Nenhum plano disponível após filtro')
       error.value = 'Nenhum plano disponível no momento'
@@ -766,18 +760,13 @@ async function confirmUpgrade() {
 
 // Callback quando pagamento é bem-sucedido
 async function handlePaymentSuccess() {
-  try {
-    console.log('🔄 Atualizando plano após pagamento confirmado...')
-    console.log('📦 Plano selecionado:', selectedPlanData.value.name, '| ID:', selectedPlanData.value.id)
-    
+  try {    
     // Chama API para atualizar o plano do usuário
     // Note: API usa "planId" (camelCase) conforme documentação do backend
     const response = await userPlanUpdate({
       planId: selectedPlanData.value.id
     })
-    
-    console.log('✅ Resposta da API:', response)
-    
+        
     // Atualiza dados do usuário no store
     const updatedUser = response?.data?.user || response?.user || {
       ...user.value,
@@ -847,7 +836,8 @@ onMounted(() => {
 }
 
 .hero-title {
-  color: var(--text-primary, #1a1a1a);
+  // color: var(--text-primary, #1a1a1a);
+  color: #ffffff;
   font-weight: 700;
   line-height: 1.2;
   animation: fadeInUp 0.8s ease-out;
@@ -857,6 +847,7 @@ onMounted(() => {
   max-width: 500px;
   margin: 0 auto;
   animation: fadeInUp 0.8s ease-out 0.2s both;
+  color: #9e9e9e;
 }
 
 // Current Plan Banner

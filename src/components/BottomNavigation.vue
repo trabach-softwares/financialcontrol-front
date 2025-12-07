@@ -15,46 +15,31 @@ Características:
     <!-- ==========================================================================
     BOTTOM NAVIGATION
     ========================================================================== -->
-    <div 
-      class="bottom-navigation"
-      :class="{ 
+    <div class="bottom-navigation" :class="{ 
         'bottom-nav-hidden': hideOnScroll && isScrollingDown
-      }"
-    >
+      }">
       <nav class="bottom-nav-container">
-        <button
-          v-for="item in navigationItems"
-          :key="item.name"
-          class="nav-item"
-          :class="{ 'nav-item-active': isActive(item.path) }"
-          @click="navigateTo(item.path)"
-        >
+        <button v-for="item in navigationItems" :key="item.name" class="nav-item"
+          :class="{ 'nav-item-active': isActive(item.path) }" @click="navigateTo(item.path)" v-ripple>
           <!-- Indicador visual de ativo -->
           <div class="active-indicator" v-if="isActive(item.path)"></div>
-          
+
           <!-- Ícone -->
           <div class="nav-icon">
             <q-icon :name="item.icon" size="1.5rem" />
-            
+
             <!-- Badge de notificação (opcional) -->
-            <q-badge 
-              v-if="item.badge && item.badge > 0"
-              color="red-6"
-              floating
-              rounded
-              :label="item.badge > 99 ? '99+' : item.badge"
-              class="nav-badge"
-            />
+            <q-badge v-if="item.badge && item.badge > 0" color="red-6" floating rounded
+              :label="item.badge > 99 ? '99+' : item.badge" class="nav-badge" />
           </div>
-          
+
           <!-- Label -->
           <span class="nav-label">{{ item.label }}</span>
-          
-          <!-- Ripple effect -->
-          <q-ripple />
+
+          <!-- Ripple effect provided via directive -->
         </button>
       </nav>
-      
+
       <!-- Safe area para iPhones com notch -->
       <div class="safe-area-spacer"></div>
     </div>
@@ -62,10 +47,10 @@ Características:
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useAuthStore } from 'src/stores/auth'
 import { useQuasar } from 'quasar'
+import { useAuthStore } from 'src/stores/auth'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 // ==========================================================================
 // COMPOSABLES E STORES

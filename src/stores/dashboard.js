@@ -162,19 +162,14 @@ export const useDashboardStore = defineStore('dashboard', {
       this.isLoadingCharts = true
       this.chartsError = null
       
-      try {
-        console.log('📊 [STORE] Carregando dados dos gráficos...', options)
-        
+      try {        
         // Carrega evolução mensal com o período correto e dateRange customizado
         const period = options.period || this.chartConfig.period
         const evolutionData = await dashboardService.getMonthlyEvolution(period, options.dateRange)
-        
-        console.log('📈 [STORE] Dados de evolução recebidos:', evolutionData)
-        this.monthlyEvolution = evolutionData
+                this.monthlyEvolution = evolutionData
 
         // Carrega análise de categorias  
         const categoryData = await dashboardService.getCategoryAnalysis(options.dateRange)
-        console.log('🍩 [STORE] Dados de categorias recebidos:', categoryData)
         this.categoryAnalysis = categoryData
 
         // Atualiza configuração
@@ -229,9 +224,7 @@ export const useDashboardStore = defineStore('dashboard', {
     /**
      * Atualiza período dos gráficos
      */
-    async updateChartPeriod(period) {
-      console.log('🔄 [STORE] Atualizando período dos gráficos para:', period)
-      
+    async updateChartPeriod(period) {      
       this.chartConfig.period = period
       await this.fetchChartData({ period })
     },

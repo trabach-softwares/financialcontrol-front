@@ -25,7 +25,6 @@ const transactionService = {
    * Efeitos: Lista paginada com filtros aplicados
    */
   async getTransactions(filters = {}) {
-    console.log('💰 Buscando transações com filtros:', filters)
 
     // Construir query parameters
     const params = new URLSearchParams()
@@ -72,12 +71,6 @@ const transactionService = {
       totalPages = Number(payload.totalPages || payload.pages || totalPages)
     }
 
-    console.log('✅ Transações obtidas:', {
-      count: Array.isArray(transactions) ? transactions.length : 0,
-      page, limit, total, totalPages,
-      filters
-    })
-
     return { transactions, page, limit, total, totalPages }
   },
 
@@ -85,10 +78,8 @@ const transactionService = {
   // CRIAÇÃO EM MASSA (SÉRIE) - POST /transactions/series
   // ==========================================================================
   async createTransactionsBulk(transactionsArray) {
-    console.log('➕ [POST /transactions/series] criando em massa:', transactionsArray)
     try {
       const response = await api.post('/transactions/series', transactionsArray)
-      console.log('✅ [POST /transactions/series] response:', response?.data)
       return response.data
     } catch (error) {
       const status = error?.response?.status
@@ -118,11 +109,9 @@ const transactionService = {
     }
     const baseURL = api?.defaults?.baseURL || '(no baseURL)'
     const url = '/transactions'
-    console.log('➕ [POST /transactions] baseURL:', baseURL, 'url:', url, 'payload:', JSON.stringify(payload))
 
     try {
       const response = await api.post(url, payload)
-      console.log('✅ [POST /transactions] response:', response?.status, response?.data)
       return response.data
     } catch (error) {
       const status = error?.response?.status
@@ -148,10 +137,6 @@ const transactionService = {
    * Efeitos: Transação modificada no sistema
    */
   async updateTransaction(id, transactionData) {
-    console.log('✏️ Atualizando transação:', id, {
-      type: transactionData.type,
-      amount: transactionData.amount
-    })
 
     const response = await api.put(`/transactions/${id}`, {
       type: transactionData.type,
@@ -161,7 +146,6 @@ const transactionService = {
       date: transactionData.date
     })
 
-    console.log('✅ Transação atualizada com sucesso:', id)
     return response.data
   },
 
@@ -176,11 +160,9 @@ const transactionService = {
    * Efeitos: Transação removida permanentemente
    */
   async deleteTransaction(id) {
-    console.log('🗑️ Deletando transação:', id)
 
     const response = await api.delete(`/transactions/${id}`)
 
-    console.log('✅ Transação deletada com sucesso:', id)
     return response.data
   },
 
@@ -188,13 +170,11 @@ const transactionService = {
    * Deleta uma série de parcelas a partir de uma data
    */
   async deleteSeriesForward(seriesId, fromDate) {
-    console.log('🗑️ Deletando série a partir de', { seriesId, fromDate })
     try {
       const params = new URLSearchParams()
       if (fromDate) params.append('fromDate', fromDate)
       const url = `/transactions/series/${seriesId}${params.toString() ? `?${params.toString()}` : ''}`
       const response = await api.delete(url)
-      console.log('✅ Série deletada:', response?.data)
       return response.data
     } catch (error) {
       const status = error?.response?.status
@@ -211,10 +191,8 @@ const transactionService = {
    * Marca uma transação como paga/não paga
    */
   async markTransactionPaid(id, paid, paidAt) {
-    console.log('✅ Marcando transação como paga:', { id, paid, paidAt })
     try {
       const response = await api.patch(`/transactions/${id}/paid`, { paid: !!paid, paidAt })
-      console.log('✅ Paid status atualizado:', response?.data)
       return response.data
     } catch (error) {
       const status = error?.response?.status
@@ -235,7 +213,6 @@ const transactionService = {
    * Efeitos: Dados para gráficos e resumo financeiro
    */
   async getTransactionStats(dateRange = {}) {
-    console.log('📊 Buscando estatísticas financeiras:', dateRange)
 
     try {
       const params = new URLSearchParams()
@@ -256,7 +233,6 @@ const transactionService = {
         transactionCount: Number(payload?.totalTransactions || 0)
       }
 
-      console.log('✅ Estatísticas obtidas:', stats)
 
       return stats
     } catch (error) {
@@ -278,11 +254,9 @@ const transactionService = {
    * Efeitos: Carregamento de dados para edição/visualização
    */
   async getTransactionById(id) {
-    console.log('🔍 Buscando transação por ID:', id)
 
     const response = await api.get(`/transactions/${id}`)
 
-    console.log('✅ Transação encontrada:', response.data.id)
     return response.data
   },
 
@@ -331,7 +305,6 @@ const transactionService = {
    * Efeitos: Relatórios detalhados com insights
    */
   async getReports(filters = {}) {
-    console.log('📊 Buscando dados para relatórios:', filters)
 
     const params = new URLSearchParams()
     if (filters.startDate) params.append('startDate', filters.startDate)
@@ -341,12 +314,6 @@ const transactionService = {
     const url = `/transactions/reports${queryString ? `?${queryString}` : ''}`
 
     const response = await api.get(url)
-
-    console.log('✅ Dados de relatórios obtidos:', {
-      totalTransactions: response.data.summary?.totalTransactions || 0,
-      categoriesCount: response.data.categoryAnalysis?.length || 0,
-      timelinePoints: response.data.timeline?.length || 0
-    })
 
     return response.data
   }

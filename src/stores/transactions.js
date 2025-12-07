@@ -32,7 +32,6 @@ export const useTransactionStore = defineStore('transactions', {
       this.isCreating = true
       this.error = null
       try {
-        console.log(' [Store] createTransactionsBulk input:', transactionsArray)
         const created = await transactionService.createTransactionsBulk(transactionsArray)
         const items = Array.isArray(created?.data) ? created.data : (created || [])
         // adiciona ao topo preservando ordem
@@ -229,7 +228,6 @@ export const useTransactionStore = defineStore('transactions', {
       this.error = null
       
       try {
-        console.log(' [Store] createTransaction input:', JSON.stringify(transactionData))
         const newTransaction = await transactionService.createTransaction(transactionData)
         
         // Adiciona à lista local
@@ -312,7 +310,6 @@ export const useTransactionStore = defineStore('transactions', {
     async markPaid(id, paid, paidAt) {
       this.error = null
       try {
-        console.log(' [Store] markPaid:', { id, paid, paidAt })
         const apiResponse = await transactionService.markTransactionPaid(id, paid, paidAt)
         const updated = apiResponse?.data ?? apiResponse
         const index = this.transactions.findIndex(t => t.id === id)

@@ -26,7 +26,6 @@ export const authService = {
    * Efeitos: Token é armazenado automaticamente pelo interceptor
    */
   async login(credentials) {
-    console.log(' Tentativa de login para:', credentials.email)
     
     const response = await api.post('/auth/login', {
       email: credentials.email,
@@ -36,7 +35,6 @@ export const authService = {
     const apiData = handleApiResponse(response, 'login')
     
     if (apiData && apiData.user && apiData.user.email) {
-      console.log(' Login bem-sucedido:', apiData.user.email)
     } else {
       throw new Error('Estrutura de resposta inválida: user não encontrado')
     }
@@ -55,7 +53,6 @@ export const authService = {
    * Efeitos: Usuário criado e logado automaticamente
    */
   async register(userData) {
-    console.log(' Registrando novo usuário:', userData.email)
     
     const response = await api.post('/auth/register', {
       name: userData.name,
@@ -64,8 +61,7 @@ export const authService = {
     })
     
     const apiData = handleApiResponse(response, 'register')
-    
-    console.log(' Registro bem-sucedido:', apiData.user.email)
+
     return apiData
   },
 

@@ -59,7 +59,6 @@ const themeOptions = [
 // ==========================================================================
 const handleThemeChange = (value) => {
   theme.setTheme(value)
-  console.log(`🎨 [THEME SWITCHER] Tema alterado para: ${value}`)
 }
 </script>
 

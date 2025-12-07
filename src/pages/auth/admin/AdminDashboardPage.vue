@@ -426,10 +426,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
 import { useCurrency } from 'src/composables/useCurrency'
 import { useDate } from 'src/composables/useDate'
 import { useNotifications } from 'src/composables/useNotifications'
+import { onMounted, ref } from 'vue'
 
 // Composables
 const { formatCurrency } = useCurrency()
@@ -534,8 +534,6 @@ const exportData = () => {
 
 // Lifecycle
 onMounted(() => {
-  // Load admin dashboard data
-  console.log('Loading admin dashboard')
 })
 </script>
 

@@ -468,14 +468,14 @@ Efeitos: CRUD de transações com validação -->
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
-import { useTransactionStore } from 'src/stores/transactions'
-import { categoriesList, categoriesCreate, categoriesUpdate, categoriesDelete } from 'src/apis/categories'
-import CategoryDialog from './CategoryDialog.vue'
+import { categoriesDelete, categoriesList, categoriesUpdate } from 'src/apis/categories'
 import { useCurrency } from 'src/composables/useCurrency'
 import { useDate } from 'src/composables/useDate'
 import { useNotifications } from 'src/composables/useNotifications'
+import { useTransactionStore } from 'src/stores/transactions'
+import { computed, onMounted, ref, watch } from 'vue'
+import CategoryDialog from './CategoryDialog.vue'
 // UUID helper (browser-native)
 const uuidv4 = () => (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`)
 
@@ -609,9 +609,7 @@ const loadCategories = async () => {
   try {
     const resp = await categoriesList()
     const items = Array.isArray(resp?.data) ? resp.data : resp
-    
-    console.log('📂 Categorias carregadas:', items)
-    
+
     // normaliza mantendo type ('income' | 'expense')
     availableCategories.value = (items || []).map(c => ({
       id: c.id,
@@ -621,9 +619,7 @@ const loadCategories = async () => {
       type: c.type || 'expense', // 'income' ou 'expense'
       is_default: c.is_default || false
     })).filter(c => !!c.name)
-    
-    console.log('✅ Categorias normalizadas:', availableCategories.value)
-    
+
     filteredCategories.value = buildGroupedOptions('')
   } catch (err) {
     console.error('❌ Erro ao carregar categorias:', err)
@@ -773,14 +769,11 @@ const handleSubmit = async () => {
       notes: form.value.notes?.trim() || null,
       paid: !!form.value.paid
     }
-    console.log('🧾 [Form] Submitting transaction base data:', JSON.stringify({ ...baseData, date: form.value.date }))
     
     if (props.mode === 'edit' && props.transaction?.id) {
       // Atualizar transação única
       const payload = { ...baseData, date: form.value.date }
-      console.log('✏️ [Form] Update payload (before store):', JSON.stringify(payload))
       const updated = await transactionStore.updateTransaction(props.transaction.id, payload)
-      console.log('✏️ [Form] Update response (after store):', updated)
       notifySuccess('Transação atualizada com sucesso!')
       
     } else {
@@ -803,15 +796,11 @@ const handleSubmit = async () => {
             installmentTotal: count
           })
         }
-        console.log('➕ [Form] Bulk create payload (count):', batch.length)
         const bulkResp = await transactionStore.createTransactionsBulk(batch)
-        console.log('➕ [Form] Bulk create response:', Array.isArray(bulkResp) ? bulkResp.length : bulkResp)
         notifySuccess(`${count} parcelas lançadas com sucesso!`)
       } else {
         const payload = { ...baseData, date: form.value.date }
-        console.log('➕ [Form] Create payload (before store):', JSON.stringify(payload))
         const created = await transactionStore.createTransaction(payload)
-        console.log('➕ [Form] Create response (after store):', created)
         notifySuccess('Transação criada com sucesso!')
       }
     }
@@ -921,7 +910,6 @@ watch(
   () => form.value.type,
   (newType, oldType) => {
     if (newType !== oldType) {
-      console.log(`🔄 Tipo mudou de ${oldType} para ${newType}, refiltrando categorias...`)
       
       // Refiltra as categorias disponíveis
       filteredCategories.value = buildGroupedOptions('')
@@ -929,7 +917,6 @@ watch(
       // Se a categoria atual não pertence ao novo tipo, limpa
       const currentCat = availableCategories.value.find(c => c.name === form.value.category)
       if (currentCat && currentCat.type !== newType) {
-        console.log(`⚠️ Categoria atual "${form.value.category}" não é do tipo ${newType}, limpando...`)
         form.value.category = ''
       }
     }

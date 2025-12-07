@@ -478,18 +478,12 @@ async function processPayment() {
   loading.value = true
 
   try {
-    console.log('🔄 Criando pagamento...')
-    console.log('💳 Método:', selectedMethod.value)
-    console.log('📦 Plano:', props.plan.name, '| Valor:', props.plan.price)
-
     // Cria pagamento na API
     const response = await createPayment({
       planId: props.plan.id,
       paymentMethod: selectedMethod.value,
       ...(selectedMethod.value === 'CREDIT_CARD' && { creditCard: creditCard.value })
     })
-
-    console.log('✅ Pagamento criado:', response)
 
     paymentId.value = response.data?.payment?.id || response.payment?.id
     paymentCreated.value = true
@@ -520,7 +514,6 @@ async function loadPixData() {
   try {
     const response = await getPixQrCode(paymentId.value)
     pixData.value = response.data || response
-    console.log('✅ QR Code PIX carregado:', pixData.value)
   } catch (error) {
     console.error('❌ Erro ao carregar QR Code PIX:', error)
     notifyError('Erro ao gerar QR Code PIX')

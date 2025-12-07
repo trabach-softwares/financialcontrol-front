@@ -1,7 +1,7 @@
 <template>
-  <q-card flat bordered class="period-filter-card">
+  <q-card flat bordered class="period-filter-card" :dark="$q.dark.isActive">
     <q-card-section class="q-pb-sm">
-      
+
       <!-- Cabeçalho com ícone e título -->
       <div class="row items-center q-mb-md">
         <div class="col">
@@ -16,18 +16,8 @@
       </div>
 
       <!-- Seletor de período predefinido -->
-      <q-select
-        :model-value="selectedPeriod"
-        :options="periodOptions"
-        outlined
-        dense
-        emit-value
-        map-options
-        option-value="value"
-        option-label="label"
-        @update:model-value="handlePeriodChange"
-        class="q-mb-sm"
-      >
+      <q-select :model-value="selectedPeriod" :options="periodOptions" outlined dense emit-value map-options
+        option-value="value" option-label="label" @update:model-value="handlePeriodChange" class="q-mb-sm">
         <template v-slot:prepend>
           <q-icon name="event" />
         </template>
@@ -49,28 +39,16 @@
       <div v-if="selectedPeriod === 'custom'" class="custom-dates-wrapper">
         <div class="row q-col-gutter-sm">
           <div class="col-12 col-sm-6">
-            <q-input
-              v-model="localCustomStartDate"
-              type="date"
-              label="Data inicial"
-              outlined
-              dense
-              @update:model-value="handleCustomDatesChange"
-            >
+            <q-input v-model="localCustomStartDate" type="date" label="Data inicial" outlined dense
+              @update:model-value="handleCustomDatesChange">
               <template v-slot:prepend>
                 <q-icon name="event" />
               </template>
             </q-input>
           </div>
           <div class="col-12 col-sm-6">
-            <q-input
-              v-model="localCustomEndDate"
-              type="date"
-              label="Data final"
-              outlined
-              dense
-              @update:model-value="handleCustomDatesChange"
-            >
+            <q-input v-model="localCustomEndDate" type="date" label="Data final" outlined dense
+              @update:model-value="handleCustomDatesChange">
               <template v-slot:prepend>
                 <q-icon name="event" />
               </template>
@@ -89,15 +67,7 @@
 
       <!-- Botão de reset -->
       <div v-if="selectedPeriod !== 'current_month'" class="q-mt-sm text-right">
-        <q-btn
-          label="Voltar ao padrão"
-          icon="refresh"
-          size="sm"
-          flat
-          dense
-          color="grey-7"
-          @click="handleReset"
-        />
+        <q-btn label="Voltar ao padrão" icon="refresh" size="sm" flat dense color="grey-7" @click="handleReset" />
       </div>
 
     </q-card-section>
@@ -105,10 +75,11 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useQuasar } from 'quasar';
 import { usePeriodFilter } from 'src/composables/usePeriodFilter';
+import { ref, watch } from 'vue';
 
 const props = defineProps({
   storageKey: {
@@ -118,6 +89,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['change']);
+
+const $q = useQuasar()
 
 // Usar o composable
 const {

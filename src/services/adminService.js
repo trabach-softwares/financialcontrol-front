@@ -26,7 +26,6 @@ export const adminService = {
    * Efeitos: Lista paginada de usuários para administração
    */
   async getUsers(filters = {}) {
-    console.log('👥 [ADMIN] Buscando usuários do sistema:', filters)
     
     const params = new URLSearchParams()
     if (filters.page) params.append('page', filters.page)
@@ -40,11 +39,6 @@ export const adminService = {
     
     const response = await api.get(url)
     
-    console.log('✅ [ADMIN] Usuários obtidos:', {
-      total: response.data.total,
-      count: response.data.users?.length || 0
-    })
-    
     return response.data
   },
 
@@ -56,12 +50,8 @@ export const adminService = {
    * Efeitos: Carregamento de dados para administração
    */
   async getUserById(id) {
-    console.log('🔍 [ADMIN] Buscando usuário por ID:', id)
-    
     const response = await api.get(`/admin/users/${id}`)
-    
-    console.log('✅ [ADMIN] Usuário encontrado:', response.data.id)
-    return response.data
+        return response.data
   },
 
   /**
@@ -72,11 +62,7 @@ export const adminService = {
    * Efeitos: Modificação de dados pelo administrador
    */
   async updateUser(id, userData) {
-    console.log('✏️ [ADMIN] Atualizando usuário:', id, {
-      name: userData.name,
-      plan: userData.plan,
-      status: userData.status
-    })
+
     
     const response = await api.put(`/admin/users/${id}`, {
       name: userData.name,
@@ -85,9 +71,7 @@ export const adminService = {
       status: userData.status,
       company: userData.company
     })
-    
-    console.log('✅ [ADMIN] Usuário atualizado com sucesso:', id)
-    return response.data
+        return response.data
   },
 
   /**
@@ -98,13 +82,11 @@ export const adminService = {
    * Efeitos: Bloqueio/desbloqueio de acesso do usuário
    */
   async toggleUserStatus(id, status) {
-    console.log('🔄 [ADMIN] Alterando status do usuário:', id, 'para', status)
     
     const response = await api.patch(`/admin/users/${id}/status`, {
       status: status // 'active' | 'inactive' | 'suspended'
     })
     
-    console.log('✅ [ADMIN] Status do usuário alterado:', id)
     return response.data
   },
 
@@ -116,11 +98,9 @@ export const adminService = {
    * Efeitos: Usuário removido permanentemente do sistema
    */
   async deleteUser(id) {
-    console.log('🗑️ [ADMIN] Deletando usuário - AÇÃO IRREVERSÍVEL:', id)
     
     const response = await api.delete(`/admin/users/${id}`)
     
-    console.log('✅ [ADMIN] Usuário deletado permanentemente:', id)
     return response.data
   },
 
@@ -136,11 +116,9 @@ export const adminService = {
    * Efeitos: Lista de planos para administração
    */
   async getPlans() {
-    console.log('📋 [ADMIN] Buscando planos do sistema')
     
     const response = await api.get('/admin/plans')
     
-    console.log('✅ [ADMIN] Planos obtidos:', response.data.length)
     return response.data
   },
 
@@ -152,7 +130,6 @@ export const adminService = {
    * Efeitos: Novo plano disponível no sistema
    */
   async createPlan(planData) {
-    console.log('➕ [ADMIN] Criando novo plano:', planData.name)
     
     const response = await api.post('/admin/plans', {
       name: planData.name,
@@ -163,7 +140,6 @@ export const adminService = {
       isActive: planData.isActive
     })
     
-    console.log('✅ [ADMIN] Plano criado com sucesso:', response.data.id)
     return response.data
   },
 
@@ -175,7 +151,6 @@ export const adminService = {
    * Efeitos: Plano modificado no sistema
    */
   async updatePlan(id, planData) {
-    console.log('✏️ [ADMIN] Atualizando plano:', id, planData.name)
     
     const response = await api.put(`/admin/plans/${id}`, {
       name: planData.name,
@@ -186,7 +161,6 @@ export const adminService = {
       isActive: planData.isActive
     })
     
-    console.log('✅ [ADMIN] Plano atualizado com sucesso:', id)
     return response.data
   },
 
@@ -198,11 +172,9 @@ export const adminService = {
    * Efeitos: Plano removido do sistema
    */
   async deletePlan(id) {
-    console.log('🗑️ [ADMIN] Deletando plano:', id)
     
     const response = await api.delete(`/admin/plans/${id}`)
     
-    console.log('✅ [ADMIN] Plano deletado com sucesso:', id)
     return response.data
   },
 
@@ -218,15 +190,8 @@ export const adminService = {
    * Efeitos: Dados para dashboard admin e relatórios
    */
   async getSystemStats() {
-    console.log('📊 [ADMIN] Buscando estatísticas do sistema')
     
     const response = await api.get('/admin/stats')
-    
-    console.log('✅ [ADMIN] Estatísticas obtidas:', {
-      totalUsers: response.data.totalUsers,
-      totalTransactions: response.data.totalTransactions,
-      revenue: response.data.revenue
-    })
     
     return response.data
   },
@@ -239,7 +204,6 @@ export const adminService = {
    * Efeitos: Análise de crescimento e engajamento
    */
   async getUsageStats(dateRange = {}) {
-    console.log('📈 [ADMIN] Buscando estatísticas de uso:', dateRange)
     
     const params = new URLSearchParams()
     if (dateRange.startDate) params.append('startDate', dateRange.startDate)
@@ -250,7 +214,6 @@ export const adminService = {
     
     const response = await api.get(url)
     
-    console.log('✅ [ADMIN] Estatísticas de uso obtidas')
     return response.data
   },
 
@@ -266,11 +229,7 @@ export const adminService = {
    * Efeitos: Carregamento de configurações para edição
    */
   async getSystemSettings() {
-    console.log('⚙️ [ADMIN] Buscando configurações do sistema')
-    
     const response = await api.get('/admin/settings')
-    
-    console.log('✅ [ADMIN] Configurações obtidas')
     return response.data
   },
 
@@ -282,11 +241,8 @@ export const adminService = {
    * Efeitos: Modificação de comportamento global do sistema
    */
   async updateSystemSettings(settings) {
-    console.log('⚙️ [ADMIN] Atualizando configurações do sistema')
-    
     const response = await api.put('/admin/settings', settings)
     
-    console.log('✅ [ADMIN] Configurações atualizadas com sucesso')
     return response.data
   }
 }

@@ -242,7 +242,6 @@ onBeforeUnmount(() => {
  * Abre FAQ (implementação futura)
  */
 const openFAQ = () => {
-  console.log('📖 [AUTH LAYOUT] Abrindo FAQ')
   // TODO: Implementar página de FAQ
   showSupport.value = false
 }
@@ -251,7 +250,6 @@ const openFAQ = () => {
  * Abre documentação (implementação futura)
  */
 const openDocumentation = () => {
-  console.log('📚 [AUTH LAYOUT] Abrindo documentação')
   // TODO: Implementar documentação
   showSupport.value = false
 }
@@ -260,7 +258,6 @@ const openDocumentation = () => {
  * Abre suporte por email
  */
 const openEmailSupport = () => {
-  console.log('📧 [AUTH LAYOUT] Abrindo suporte por email')
   
   const subject = encodeURIComponent('Suporte - Financial Control')
   const body = encodeURIComponent(`

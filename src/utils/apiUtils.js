@@ -81,7 +81,6 @@ export function installInterceptors(axiosInstance, options = {}) {
   // Esta função pode ser usada para interceptors adicionais específicos
   // de cada API se necessário
 
-  console.log("🔧 Interceptors instalados na instância da API");
 }
 
 /**

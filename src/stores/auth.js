@@ -111,14 +111,7 @@ export const useAuthStore = defineStore('auth', {
       
       // Perfil incompleto = QUALQUER campo obrigatório vazio
       const isIncomplete = !hasName || !hasPhone || !hasCpf || !hasBirthDate
-      
-      console.log('🔍 [AUTH] Verificação de perfil incompleto:')
-      console.log('  - hasName:', hasName, '(', user.name, ')')
-      console.log('  - hasPhone:', hasPhone, '(', user.phone, ')')
-      console.log('  - hasCpf:', hasCpf, '(', user.cpf, ')')
-      console.log('  - hasBirthDate:', hasBirthDate, '(', user.birth_date, ')')
-      console.log('  - isIncomplete:', isIncomplete)
-      
+    
       return isIncomplete
     }
   },
@@ -231,7 +224,6 @@ export const useAuthStore = defineStore('auth', {
         
         // Garantir que o usuário tem um plano (fallback para FREE)
         if (!this.user.plan_id && !this.user.plan_name) {
-          console.log('⚠️ [AUTH] Usuário sem plano definido, tentando atribuir plano FREE')
           try {
             await this.assignFreePlan()
           } catch (error) {
@@ -284,7 +276,6 @@ export const useAuthStore = defineStore('auth', {
             plan_type: freePlan.type || 'FREE'
           }
           localStorage.setItem('auth_user', JSON.stringify(this.user))
-          console.log('✅ [AUTH] Plano FREE atribuído com sucesso')
         } else {
           console.warn('[AUTH] Nenhum plano FREE encontrado na base de dados')
         }
@@ -303,7 +294,6 @@ export const useAuthStore = defineStore('auth', {
       if (!this.token) return
       
       try {
-        console.log('🔄 [AUTH] Buscando dados atualizados do usuário do backend...')
         
         // Buscar dados do backend (sempre pegar dados frescos)
         const me = await authService.getMe()
@@ -324,7 +314,6 @@ export const useAuthStore = defineStore('auth', {
           this.user = updatedUser
           localStorage.setItem('auth_user', JSON.stringify(this.user))
           
-          console.log('✅ [AUTH] Dados do usuário atualizados:', this.user)
         } else {
           // Fallback: tentar ler do localStorage
           const raw = localStorage.getItem('auth_user')

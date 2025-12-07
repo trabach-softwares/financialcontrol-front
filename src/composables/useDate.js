@@ -308,7 +308,6 @@ export function useDate() {
     if (localeConfigs[newLocale]) {
       locale.value = newLocale
       dateFormat.value = localeConfigs[newLocale].dateFormat
-      console.log('📅 [DATE] Localização alterada para:', newLocale)
     }
   }
 

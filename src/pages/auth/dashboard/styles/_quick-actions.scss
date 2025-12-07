@@ -1,0 +1,36 @@
+.quick-actions-modern {
+	background: white;
+	border-radius: 20px;
+	padding: 1.75rem;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+	height: 100%;
+	transition: all 0.3s ease;
+}
+
+.quick-actions-modern:hover { box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12); }
+
+.actions-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+
+.actions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+
+.action-card {
+	display: flex; align-items: center; gap: 1rem; padding: 1.25rem; background: #f8fafc; border: 2px solid transparent; border-radius: 16px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.action-card:hover {
+	background: white; border-color: #e2e8f0; transform: translateX(4px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.action-card:hover .action-arrow { transform: translateX(4px); opacity: 1; }
+.action-card:hover .action-icon { transform: scale(1.1); }
+
+.action-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease; }
+.action-icon.income { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+.action-icon.expense { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; box-shadow: 0 4px 12px rgba(239,68,68,0.3); }
+.action-icon.transactions { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+.action-icon.reports { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; box-shadow: 0 4px 12px rgba(139,92,246,0.3); }
+
+.action-content { flex: 1; }
+.action-title { font-size: 0.95rem; font-weight: 700; color: #1e293b; margin: 0 0 0.25rem 0; }
+.action-description { font-size: 0.8rem; color: #64748b; margin: 0; }
+.action-arrow { color: #cbd5e1; transition: all 0.3s ease; opacity: 0; }

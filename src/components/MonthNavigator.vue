@@ -1,17 +1,9 @@
 <template>
   <div class="month-navigator">
     <div class="navigator-wrapper">
-      
+
       <!-- Botão Anterior -->
-      <q-btn
-        icon="chevron_left"
-        round
-        flat
-        dense
-        color="primary"
-        @click="previousMonth"
-        :disable="loading"
-      >
+      <q-btn icon="chevron_left" round flat dense color="primary" @click="previousMonth" :disable="loading">
         <q-tooltip>Mês anterior</q-tooltip>
       </q-btn>
 
@@ -20,32 +12,16 @@
         <div class="month-label">
           {{ currentMonthLabel }}
         </div>
-        <q-badge 
-          v-if="isCurrentMonth" 
-          color="primary" 
-          class="month-badge"
-        >
+        <q-badge v-if="isCurrentMonth" color="primary" class="month-badge">
           ATUAL
         </q-badge>
-        <q-badge 
-          v-else-if="isFutureMonth" 
-          color="info" 
-          class="month-badge"
-        >
+        <q-badge v-else-if="isFutureMonth" color="info" class="month-badge">
           FUTURO
         </q-badge>
       </div>
 
       <!-- Botão Próximo -->
-      <q-btn
-        icon="chevron_right"
-        round
-        flat
-        dense
-        color="primary"
-        @click="nextMonth"
-        :disable="loading"
-      >
+      <q-btn icon="chevron_right" round flat dense color="primary" @click="nextMonth" :disable="loading">
         <q-tooltip>Próximo mês</q-tooltip>
       </q-btn>
 
@@ -53,7 +29,7 @@
 
     <!-- Dialog para selecionar mês/ano específico -->
     <q-dialog v-model="showMonthPicker">
-      <q-card style="min-width: 350px">
+      <q-card :dark="$q.dark.isActive" style="min-width: 350px">
         <q-card-section>
           <div class="text-h6">Selecionar Período</div>
         </q-card-section>
@@ -61,44 +37,17 @@
         <q-card-section class="q-pt-none">
           <div class="row q-col-gutter-md">
             <div class="col-7">
-              <q-select
-                v-model="selectedMonth"
-                :options="monthOptions"
-                label="Mês"
-                outlined
-                dense
-                emit-value
-                map-options
-              />
+              <q-select v-model="selectedMonth" :options="monthOptions" label="Mês" outlined dense emit-value
+                map-options />
             </div>
             <div class="col-5">
-              <q-select
-                v-model="selectedYear"
-                :options="yearOptions"
-                label="Ano"
-                outlined
-                dense
-              />
+              <q-select v-model="selectedYear" :options="yearOptions" label="Ano" outlined dense />
             </div>
           </div>
 
           <div class="q-mt-md">
-            <q-btn
-              label="Hoje"
-              color="grey-7"
-              flat
-              dense
-              size="sm"
-              @click="goToCurrentMonth"
-              class="q-mr-sm"
-            />
-            <q-btn
-              label="Aplicar"
-              color="primary"
-              unelevated
-              @click="applyMonthSelection"
-              class="float-right"
-            />
+            <q-btn label="Hoje" color="grey-7" flat dense size="sm" @click="goToCurrentMonth" class="q-mr-sm" />
+            <q-btn label="Aplicar" color="primary" unelevated @click="applyMonthSelection" class="float-right" />
           </div>
         </q-card-section>
       </q-card>
@@ -107,9 +56,11 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { startOfMonth, endOfMonth, addMonths, subMonths, format, isSameMonth, isAfter } from 'date-fns';
+import { addMonths, endOfMonth, format, isAfter, isSameMonth, startOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { computed, ref, watch } from 'vue';
+
+import { useQuasar } from 'quasar';
 
 const props = defineProps({
   loading: {
@@ -247,7 +198,6 @@ const loadPreference = () => {
     currentDate.value = new Date();
     selectedMonth.value = currentDate.value.getMonth();
     selectedYear.value = currentDate.value.getFullYear();
-    console.log('📅 [MONTH-NAVIGATOR] Inicializando com mês atual')
     
     // Limpa qualquer preferência antiga
     localStorage.removeItem(props.storageKey);
@@ -265,6 +215,8 @@ watch(currentDate, (newDate) => {
 // Carrega preferência e emite evento inicial
 loadPreference();
 emitChange();
+
+const $q = useQuasar()
 </script>
 
 <style lang="scss" scoped>

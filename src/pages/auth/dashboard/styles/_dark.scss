@@ -1,0 +1,109 @@
+:global(.body--dark) {
+  .modern-dashboard {
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
+  }
+
+  .hero-header {
+    background: linear-gradient(135deg, #1f3a20 0%, #2a4a2b 100%);
+  }
+
+  .metric-card,
+  .chart-card,
+  .recent-transactions-card,
+  .quick-actions-card {
+    background: #1e1e2e;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .transaction-item {
+    background: #252535;
+  }
+
+  .transaction-item:hover {
+    background: #2a2a3a;
+    border-color: #3a3a4a;
+  }
+
+  .quick-links .q-btn {
+    background: #252535;
+    color: #cbd5e1;
+  }
+
+  .quick-links .q-btn:hover {
+    background: #2a2a3a;
+    color: #f1f5f9;
+  }
+}
+
+/* Additional dark overrides used inside mobile dialog area */
+.modern-dashboard.dark-theme {
+  background: linear-gradient(135deg, #071021 0%, #0b1220 100%);
+  color: #cbd5e1;
+}
+
+.modern-dashboard.dark-theme .hero-header {
+  background: linear-gradient(135deg, #0b2950 0%, #0d2b3f 50%, #072034 100%);
+  color: #eef2ff;
+  box-shadow: 0 8px 32px rgba(2, 6, 23, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.modern-dashboard.dark-theme .metric-card,
+.modern-dashboard.dark-theme .category-chart-card,
+.modern-dashboard.dark-theme .main-chart-card,
+.modern-dashboard.dark-theme .recent-transactions-card,
+.modern-dashboard.dark-theme .quick-actions-modern {
+  background: #071226;
+  color: #e6eef8;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.5);
+}
+
+.modern-dashboard.dark-theme .chart-subtitle,
+.modern-dashboard.dark-theme .chart-title,
+.modern-dashboard.dark-theme .metric-label,
+.modern-dashboard.dark-theme .metric-value {
+  color: #e6eef8;
+}
+
+.modern-dashboard.dark-theme .empty-subtitle,
+.modern-dashboard.dark-theme .empty-title,
+.modern-dashboard.dark-theme .empty-title-large,
+.modern-dashboard.dark-theme .empty-subtitle-large {
+  color: rgba(230, 238, 248, 0.85);
+}
+
+.modern-dashboard.dark-theme .q-btn {
+  --q-btn-bg: #0f1724;
+}
+
+.modern-dashboard.dark-theme .chart-legend .legend-label,
+.modern-dashboard.dark-theme .chart-legend .legend-value,
+.modern-dashboard.dark-theme .category-insights .insight-label {
+  color: #cbd5e1;
+}
+
+/* Additional dark overrides for smaller components */
+.modern-dashboard.dark-theme .period-filter-card,
+.modern-dashboard.dark-theme .transaction-form-card,
+.modern-dashboard.dark-theme .complete-profile-card,
+.modern-dashboard.dark-theme .month-navigator .navigator-wrapper {
+  background: #071226;
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 6px 18px rgba(2,6,23,0.45);
+  color: #e6eef8;
+}
+
+.modern-dashboard.dark-theme .period-filter-card .custom-dates-wrapper {
+  background: rgba(255,255,255,0.02);
+}
+
+.modern-dashboard.dark-theme .month-navigator .navigator-wrapper .month-label {
+  color: #9ec5ff;
+}
+
+.modern-dashboard.dark-theme .period-filter-card .date-range-info .q-chip,
+.modern-dashboard.dark-theme .month-navigator .navigator-wrapper .month-badge {
+  background: rgba(255,255,255,0.04);
+  color: #cbd5e1;
+}

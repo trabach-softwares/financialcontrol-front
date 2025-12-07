@@ -478,16 +478,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { endOfMonth, format, isAfter, startOfMonth } from 'date-fns'
 import { useQuasar } from 'quasar'
-import { useTransactionStore } from 'src/stores/transactions'
+import MonthNavigator from 'src/components/MonthNavigator.vue'
+import PeriodFilter from 'src/components/PeriodFilter.vue'
+import TransactionForm from 'src/components/TransactionForm.vue'
 import { useCurrency } from 'src/composables/useCurrency'
 import { useDate } from 'src/composables/useDate'
 import { useNotifications } from 'src/composables/useNotifications'
-import { startOfMonth, endOfMonth, isAfter, format } from 'date-fns'
-import TransactionForm from 'src/components/TransactionForm.vue'
-import PeriodFilter from 'src/components/PeriodFilter.vue'
-import MonthNavigator from 'src/components/MonthNavigator.vue'
+import { useTransactionStore } from 'src/stores/transactions'
+import { computed, onMounted, ref, watch } from 'vue'
 
 // ==========================================================================
 // COMPOSABLES E STORES
@@ -591,10 +591,6 @@ const loadInitialData = async () => {
       
       // Atualiza currentMonth para sincronizar com MonthNavigator
       currentMonth.value = now
-      console.log('📅 [TRANSACTIONS] Inicializando com mês atual:', {
-        start: filters.value.startDate,
-        end: filters.value.endDate
-      })
       
       // Limpa preferência anterior para garantir que sempre inicie no mês atual
       try {
@@ -669,7 +665,6 @@ const clearAllFilters = async () => {
  * Handler para mudança de mês no MonthNavigator
  */
 const handleMonthChange = async (range) => {
-  console.log('🗓️ [TRANSACTIONS] Mês alterado (MonthNavigator):', range)
   
   // Desativa filtro avançado quando usa navegação simples
   isUsingAdvancedFilter.value = false
@@ -689,7 +684,6 @@ const handleMonthChange = async (range) => {
  * Handler para mudança de período no filtro avançado
  */
 const handleAdvancedPeriodChange = async (range) => {
-  console.log('🎯 [TRANSACTIONS] Período avançado alterado:', range)
   
   // Ativa flag de filtro avançado
   isUsingAdvancedFilter.value = true
@@ -785,7 +779,6 @@ const onTogglePaid = async (transaction, val) => {
         paidAt = toISOFromBR(res)
       }
     }
-    console.log('[UI] onTogglePaid -> calling store.markPaid', { id: transaction.id, paid: !!val, paidAt })
     await transactionStore.markPaid(transaction.id, !!val, paidAt)
     notifySuccess(
       val

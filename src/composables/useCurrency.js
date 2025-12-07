@@ -165,7 +165,6 @@ export function useCurrency() {
     if (currencyConfigs[newCurrency]) {
       currency.value = newCurrency
       locale.value = currencyConfigs[newCurrency].locale
-      console.log('💱 [CURRENCY] Moeda alterada para:', newCurrency)
     }
   }
 

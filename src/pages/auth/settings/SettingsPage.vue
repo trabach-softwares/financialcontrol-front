@@ -468,7 +468,6 @@ const backupData = async () => {
   try {
     showSuccess("Iniciando backup dos dados...");
     // In a real app, this would generate and download a backup file
-    console.log("Backing up user data");
   } catch (error) {
     showError("Erro ao fazer backup dos dados");
   }
@@ -486,7 +485,6 @@ const restoreData = async () => {
     try {
       showSuccess("Iniciando restauração de dados...");
       // In a real app, this would open file picker and restore data
-      console.log("Restoring user data");
     } catch (error) {
       showError("Erro ao restaurar dados");
     }

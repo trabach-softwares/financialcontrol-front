@@ -7,13 +7,8 @@ Exibido: Automaticamente no Dashboard quando perfil incompleto
 ========================================================================== -->
 
 <template>
-  <q-dialog
-    v-model="isOpen"
-    persistent
-    transition-show="scale"
-    transition-hide="scale"
-  >
-    <q-card class="complete-profile-card" style="min-width: 500px; max-width: 600px;">
+  <q-dialog v-model="isOpen" persistent transition-show="scale" transition-hide="scale">
+    <q-card class="complete-profile-card" :dark="$q.dark.isActive" style="min-width: 500px; max-width: 600px;">
       <q-card-section class="text-center q-pb-none">
         <div class="welcome-icon q-mb-md">
           <q-icon name="account_circle" color="primary" size="64px" />
@@ -28,7 +23,7 @@ Exibido: Automaticamente no Dashboard quando perfil incompleto
 
       <q-card-section>
         <q-form @submit.prevent="handleSubmit" class="q-gutter-md">
-          
+
           <!-- Avatar Upload -->
           <div class="text-center q-mb-md">
             <q-avatar size="100px" class="q-mb-sm">
@@ -36,76 +31,39 @@ Exibido: Automaticamente no Dashboard quando perfil incompleto
               <q-icon v-else name="person" size="64px" color="grey-6" />
             </q-avatar>
             <div>
-              <q-btn
-                flat
-                dense
-                color="primary"
-                icon="photo_camera"
-                label="Adicionar foto"
-                size="sm"
-                @click="$refs.avatarInput.click()"
-              />
-              <input
-                ref="avatarInput"
-                type="file"
-                accept="image/*"
-                style="display: none"
-                @change="handleAvatarChange"
-              />
+              <q-btn flat dense color="primary" icon="photo_camera" label="Adicionar foto" size="sm"
+                @click="$refs.avatarInput.click()" />
+              <input ref="avatarInput" type="file" accept="image/*" style="display: none"
+                @change="handleAvatarChange" />
             </div>
           </div>
 
           <!-- Nome -->
-          <q-input
-            v-model="form.name"
-            label="Nome Completo"
-            outlined
-            dense
-            placeholder="Digite seu nome completo"
-            hint="Obrigatório"
-            :rules="[(val) => !!val || 'Nome é obrigatório']"
-          >
+          <q-input v-model="form.name" label="Nome Completo" outlined dense placeholder="Digite seu nome completo"
+            hint="Obrigatório" :rules="[(val) => !!val || 'Nome é obrigatório']">
             <template v-slot:prepend>
               <q-icon name="person" color="grey-6" />
             </template>
           </q-input>
 
           <!-- Telefone -->
-          <q-input
-            v-model="form.phone"
-            label="Telefone"
-            outlined
-            dense
-            mask="(##) #####-####"
-            placeholder="(00) 00000-0000"
-            hint="Opcional"
-          >
+          <q-input v-model="form.phone" label="Telefone" outlined dense mask="(##) #####-####"
+            placeholder="(00) 00000-0000" hint="Opcional">
             <template v-slot:prepend>
               <q-icon name="phone" color="grey-6" />
             </template>
           </q-input>
 
           <!-- Data de Nascimento -->
-          <q-input
-            v-model="form.birth_date"
-            label="Data de Nascimento"
-            outlined
-            dense
-            mask="##/##/####"
-            placeholder="DD/MM/AAAA"
-            hint="Opcional"
-          >
+          <q-input v-model="form.birth_date" label="Data de Nascimento" outlined dense mask="##/##/####"
+            placeholder="DD/MM/AAAA" hint="Opcional">
             <template v-slot:prepend>
               <q-icon name="cake" color="grey-6" />
             </template>
             <template v-slot:append>
               <q-icon name="event" class="cursor-pointer">
                 <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                  <q-date
-                    v-model="birthDateProxy"
-                    mask="DD/MM/YYYY"
-                    @update:model-value="updateBirthDate"
-                  >
+                  <q-date v-model="birthDateProxy" mask="DD/MM/YYYY" @update:model-value="updateBirthDate">
                     <div class="row items-center justify-end">
                       <q-btn v-close-popup label="Fechar" color="primary" flat />
                     </div>
@@ -116,60 +74,32 @@ Exibido: Automaticamente no Dashboard quando perfil incompleto
           </q-input>
 
           <!-- CPF -->
-          <q-input
-            v-model="form.cpf"
-            label="CPF"
-            outlined
-            dense
-            mask="###.###.###-##"
-            placeholder="000.000.000-00"
-            hint="Opcional"
-          >
+          <q-input v-model="form.cpf" label="CPF" outlined dense mask="###.###.###-##" placeholder="000.000.000-00"
+            hint="Opcional">
             <template v-slot:prepend>
               <q-icon name="badge" color="grey-6" />
             </template>
           </q-input>
 
           <!-- Empresa -->
-          <q-input
-            v-model="form.company"
-            label="Empresa"
-            outlined
-            dense
-            placeholder="Nome da sua empresa"
-            hint="Opcional"
-          >
+          <q-input v-model="form.company" label="Empresa" outlined dense placeholder="Nome da sua empresa"
+            hint="Opcional">
             <template v-slot:prepend>
               <q-icon name="business" color="grey-6" />
             </template>
           </q-input>
 
           <!-- Cargo -->
-          <q-input
-            v-model="form.position"
-            label="Cargo"
-            outlined
-            dense
-            placeholder="Seu cargo ou função"
-            hint="Opcional"
-          >
+          <q-input v-model="form.position" label="Cargo" outlined dense placeholder="Seu cargo ou função"
+            hint="Opcional">
             <template v-slot:prepend>
               <q-icon name="work" color="grey-6" />
             </template>
           </q-input>
 
           <!-- Bio -->
-          <q-input
-            v-model="form.bio"
-            label="Sobre você"
-            outlined
-            type="textarea"
-            rows="3"
-            placeholder="Conte um pouco sobre você..."
-            hint="Opcional - Máximo 500 caracteres"
-            maxlength="500"
-            counter
-          >
+          <q-input v-model="form.bio" label="Sobre você" outlined type="textarea" rows="3"
+            placeholder="Conte um pouco sobre você..." hint="Opcional - Máximo 500 caracteres" maxlength="500" counter>
             <template v-slot:prepend>
               <q-icon name="info" color="grey-6" />
             </template>
@@ -177,23 +107,10 @@ Exibido: Automaticamente no Dashboard quando perfil incompleto
 
           <!-- Botões de ação -->
           <div class="row q-gutter-sm q-mt-md">
-            <q-btn
-              type="submit"
-              label="Salvar e Continuar"
-              color="primary"
-              unelevated
-              class="col"
-              :loading="isSubmitting"
-              :disable="isSubmitting"
-            />
-            <q-btn
-              label="Pular por Agora"
-              color="grey-6"
-              flat
-              class="col"
-              @click="handleSkip"
-              :disable="isSubmitting"
-            />
+            <q-btn type="submit" label="Salvar e Continuar" color="primary" unelevated class="col"
+              :loading="isSubmitting" :disable="isSubmitting" />
+            <q-btn label="Pular por Agora" color="grey-6" flat class="col" @click="handleSkip"
+              :disable="isSubmitting" />
           </div>
         </q-form>
       </q-card-section>
@@ -202,10 +119,10 @@ Exibido: Automaticamente no Dashboard quando perfil incompleto
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
 import { useQuasar } from 'quasar'
+import { userProfileAvatarUpload, userProfileUpdate } from 'src/apis/user'
 import { useAuthStore } from 'src/stores/auth'
-import { userProfileUpdate, userProfileAvatarUpload } from 'src/apis/user'
+import { computed, ref, watch } from 'vue'
 
 const $q = useQuasar()
 const authStore = useAuthStore()
@@ -245,14 +162,10 @@ const birthDateProxy = ref('')
 // Watch para carregar dados existentes quando o modal abrir
 watch(isOpen, async (newValue) => {
   if (newValue) {
-    console.log('🔍 [COMPLETE PROFILE] Modal aberto, carregando dados...')
-    console.log('👤 [COMPLETE PROFILE] Usuário ANTES de recarregar:', JSON.stringify(authStore.user, null, 2))
     
     // Recarregar dados do usuário do backend para garantir dados atualizados
     try {
       await authStore.fetchUser()
-      console.log('✅ [COMPLETE PROFILE] Dados do usuário recarregados')
-      console.log('👤 [COMPLETE PROFILE] Usuário DEPOIS de recarregar:', JSON.stringify(authStore.user, null, 2))
     } catch (error) {
       console.warn('⚠️ [COMPLETE PROFILE] Erro ao recarregar usuário:', error)
     }
@@ -260,26 +173,12 @@ watch(isOpen, async (newValue) => {
     const user = authStore.user
     
     if (user) {
-      console.log('🔍 [COMPLETE PROFILE] Dados RAW do usuário:')
-      console.log('  - name:', user.name)
-      console.log('  - phone:', user.phone)
-      console.log('  - birth_date:', user.birth_date)
-      console.log('  - cpf:', user.cpf)
-      console.log('  - company:', user.company)
-      console.log('  - position:', user.position)
-      console.log('  - bio:', user.bio)
       
       // Carregar dados existentes no formulário
       const formattedPhone = user.phone ? formatPhone(user.phone) : ''
       const formattedBirthDate = user.birth_date ? formatDateFromISO(user.birth_date) : ''
       const formattedCPF = user.cpf ? formatCPF(user.cpf) : ''
-      
-      console.log('🎨 [COMPLETE PROFILE] Dados FORMATADOS:')
-      console.log('  - name:', user.name)
-      console.log('  - phone:', formattedPhone)
-      console.log('  - birth_date:', formattedBirthDate)
-      console.log('  - cpf:', formattedCPF)
-      
+
       form.value = {
         name: user.name || '',
         phone: formattedPhone,
@@ -294,9 +193,7 @@ watch(isOpen, async (newValue) => {
       if (user.avatar) {
         avatarPreview.value = user.avatar
       }
-      
-      console.log('📋 [COMPLETE PROFILE] form.value atualizado:', JSON.stringify(form.value, null, 2))
-    } else {
+          } else {
       console.warn('⚠️ [COMPLETE PROFILE] Nenhum usuário encontrado na store')
     }
   }
@@ -377,23 +274,13 @@ const handleSubmit = async () => {
     // Obter dados atuais do usuário
     const currentUser = authStore.user || {}
     
-    console.log('📤 [COMPLETE PROFILE] Iniciando submissão...')
-    console.log('📤 [COMPLETE PROFILE] Dados do formulário:', form.value)
-    console.log('📤 [COMPLETE PROFILE] Usuário atual:', currentUser)
-    
     // Preparar novos dados
     // ⚠️ IMPORTANTE: Backend espera PHONE COM máscara: (##) #####-####
     // ⚠️ IMPORTANTE: Backend espera CPF COM máscara: ###.###.###-##
     const formattedPhone = form.value.phone ? formatPhone(form.value.phone) : null
     const formattedCPF = form.value.cpf ? formatCPF(form.value.cpf) : null
     const isoBirthDate = form.value.birth_date ? convertToISODate(form.value.birth_date) : null
-    
-    console.log('🧹 [COMPLETE PROFILE] Dados preparados para API:')
-    console.log('  - name:', form.value.name)
-    console.log('  - phone:', formattedPhone, '(original:', form.value.phone, ')')
-    console.log('  - cpf:', formattedCPF, '(original:', form.value.cpf, ')')
-    console.log('  - birth_date:', isoBirthDate, '(original:', form.value.birth_date, ')')
-    
+
     const newData = {
       name: form.value.name || null,
       phone: formattedPhone,
@@ -427,7 +314,6 @@ const handleSubmit = async () => {
       }
     })
 
-    console.log('📝 [COMPLETE PROFILE] Payload final a ser enviado:', JSON.stringify(finalPayload, null, 2))
 
     // Atualizar perfil
     await userProfileUpdate(finalPayload)

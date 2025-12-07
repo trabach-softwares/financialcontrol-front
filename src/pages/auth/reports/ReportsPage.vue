@@ -561,7 +561,6 @@ const getAmountColor = (amount) => {
 const exportReport = (format) => {
   showSuccess(`Exportando relatório em ${format.toUpperCase()}...`)
   // In a real app, this would generate and download the report
-  console.log(`Exporting report in ${format} format`)
 }
 
 // Watchers

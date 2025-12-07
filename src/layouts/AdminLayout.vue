@@ -384,7 +384,6 @@ const handleLogout = () => {
 // Lifecycle
 onMounted(() => {
   // Load admin-specific data
-  console.log('Admin layout loaded')
 })
 </script>
 

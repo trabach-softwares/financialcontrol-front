@@ -33,9 +33,7 @@ export function usePayment() {
     error.value = null;
 
     try {
-      console.log('📤 Enviando requisição de pagamento:', params);
       const response = await createPayment(params);
-      console.log('📥 Resposta da API recebida:', response);
       
       // Trata diferentes formatos de resposta
       if (response.data && response.success !== false) {
@@ -49,10 +47,7 @@ export function usePayment() {
         console.error('❌ Formato de resposta inesperado:', response);
         throw new Error('Formato de resposta inválido da API');
       }
-      
-      console.log('✅ currentPayment.value definido:', currentPayment.value);
-      console.log('ID do pagamento:', currentPayment.value?.id);
-      
+
       // Cartão de crédito pode ser aprovado instantaneamente
       if (currentPayment.value.status === 'CONFIRMED') {
         notifySuccess('Pagamento aprovado com sucesso!');

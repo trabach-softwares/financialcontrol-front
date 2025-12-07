@@ -26,20 +26,13 @@ export const userService = {
    * Efeitos: Perfil modificado, possível atualização do token
    */
   async updateProfile(profileData) {
-    console.log('👤 Atualizando perfil do usuário:', {
-      name: profileData.name,
-      email: profileData.email,
-      company: profileData.company
-    })
-    
     const response = await api.put('/users/profile', {
       name: profileData.name,
       email: profileData.email,
       company: profileData.company || null,
       phone: profileData.phone || null
     })
-    
-    console.log('✅ Perfil atualizado com sucesso')
+
     return response.data
   },
 
@@ -54,14 +47,12 @@ export const userService = {
    * Efeitos: Nova senha definida, possível logout forçado
    */
   async changePassword(passwordData) {
-    console.log('🔒 Alterando senha do usuário')
     
     const response = await api.put('/users/password', {
       currentPassword: passwordData.currentPassword,
       newPassword: passwordData.newPassword
     })
-    
-    console.log('✅ Senha alterada com sucesso')
+
     return response.data
   },
 
@@ -76,17 +67,9 @@ export const userService = {
    * Efeitos: Dados atualizados para formulários e exibição
    */
   async getCurrentProfile() {
-    console.log('📋 Buscando perfil atual do usuário')
     
     const response = await api.get('/users/profile')
-    
-    console.log('✅ Perfil obtido:', {
-      id: response.data.id,
-      name: response.data.name,
-      email: response.data.email,
-      plan: response.data.plan
-    })
-    
+
     return response.data
   },
 
@@ -101,13 +84,11 @@ export const userService = {
    * Efeitos: Conta removida, logout automático, dados apagados
    */
   async deleteAccount(confirmation) {
-    console.log('⚠️ Deletando conta do usuário - AÇÃO IRREVERSÍVEL')
     
     const response = await api.delete('/users/account', {
       data: { confirmation: confirmation }
     })
-    
-    console.log('✅ Conta deletada permanentemente')
+
     return response.data
   },
 
@@ -122,16 +103,9 @@ export const userService = {
    * Efeitos: Aplicação de configurações personalizadas
    */
   async getUserSettings() {
-    console.log('⚙️ Buscando configurações do usuário')
     
     const response = await api.get('/users/settings')
-    
-    console.log('✅ Configurações obtidas:', {
-      theme: response.data.theme,
-      currency: response.data.currency,
-      notifications: response.data.notifications
-    })
-    
+
     return response.data
   },
 
@@ -143,7 +117,6 @@ export const userService = {
    * Efeitos: Preferências salvas e aplicadas
    */
   async updateUserSettings(settings) {
-    console.log('⚙️ Atualizando configurações do usuário:', settings)
     
     const response = await api.put('/users/settings', {
       theme: settings.theme,           // 'light' | 'dark' | 'auto'
@@ -157,8 +130,7 @@ export const userService = {
       dateFormat: settings.dateFormat, // 'DD/MM/YYYY' | 'MM/DD/YYYY'
       numberFormat: settings.numberFormat // 'pt-BR' | 'en-US'
     })
-    
-    console.log('✅ Configurações atualizadas com sucesso')
+
     return response.data
   },
 
@@ -173,7 +145,6 @@ export const userService = {
    * Efeitos: Avatar atualizado no perfil
    */
   async uploadAvatar(file) {
-    console.log('📷 Fazendo upload do avatar:', file.name)
     
     const formData = new FormData()
     formData.append('avatar', file)
@@ -183,8 +154,7 @@ export const userService = {
         'Content-Type': 'multipart/form-data'
       }
     })
-    
-    console.log('✅ Avatar atualizado:', response.data.avatarUrl)
+
     return response.data.avatarUrl
   },
 
@@ -199,11 +169,9 @@ export const userService = {
    * Efeitos: Avatar removido, volta ao padrão
    */
   async removeAvatar() {
-    console.log('🗑️ Removendo avatar do usuário')
     
     const response = await api.delete('/users/avatar')
-    
-    console.log('✅ Avatar removido com sucesso')
+
     return response.data
   },
 
@@ -218,17 +186,13 @@ export const userService = {
    * Efeitos: Plano alterado, recursos atualizados
    */
   async changePlan(planId) {
-    console.log('💳 Alterando plano do usuário:', {
-      planId: planId
-    })
     
     const response = await api.put('/users/plan', {
       planId: planId
     })
     
     const apiData = handleApiResponse(response, 'changePlan')
-    
-    console.log('✅ Plano alterado com sucesso')
+
     return apiData
   },
 
@@ -243,16 +207,9 @@ export const userService = {
    * Efeitos: Exibição de métricas de atividade
    */
   async getUserStats() {
-    console.log('📈 Buscando estatísticas do usuário')
     
     const response = await api.get('/users/stats')
-    
-    console.log('✅ Estatísticas obtidas:', {
-      transactionsCount: response.data.transactionsCount,
-      joinDate: response.data.joinDate,
-      lastActivity: response.data.lastActivity
-    })
-    
+
     return response.data
   }
 }

@@ -153,9 +153,7 @@ export const useAdminStore = defineStore('admin', {
     /**
      * Carrega lista de usuários com filtros e paginação
      */
-    async fetchUsers(options = {}) {
-      console.log('👥 [ADMIN STORE] Carregando usuários')
-      
+    async fetchUsers(options = {}) {      
       this.isLoadingUsers = true
       this.usersError = null
       
@@ -176,12 +174,7 @@ export const useAdminStore = defineStore('admin', {
           total: response.total || 0,
           totalPages: response.totalPages || 0
         }
-        
-        console.log('✅ [ADMIN STORE] Usuários carregados:', {
-          count: this.users.length,
-          total: this.usersPagination.total
-        })
-        
+
       } catch (error) {
         console.error('❌ [ADMIN STORE] Erro ao carregar usuários:', error.message)
         this.usersError = error.response?.data?.message || 'Erro ao carregar usuários'
@@ -195,7 +188,6 @@ export const useAdminStore = defineStore('admin', {
      * Atualiza usuário
      */
     async updateUser(id, userData) {
-      console.log('✏️ [ADMIN STORE] Atualizando usuário:', id)
       
       this.isUpdating = true
       this.error = null
@@ -208,8 +200,7 @@ export const useAdminStore = defineStore('admin', {
         if (index !== -1) {
           this.users[index] = updatedUser
         }
-        
-        console.log('✅ [ADMIN STORE] Usuário atualizado:', id)
+
         return updatedUser
         
       } catch (error) {
@@ -225,7 +216,6 @@ export const useAdminStore = defineStore('admin', {
      * Altera status do usuário
      */
     async toggleUserStatus(id, status) {
-      console.log('🔄 [ADMIN STORE] Alterando status do usuário:', id, 'para', status)
       
       this.isUpdating = true
       this.error = null
@@ -238,8 +228,7 @@ export const useAdminStore = defineStore('admin', {
         if (index !== -1) {
           this.users[index].status = updatedUser.status
         }
-        
-        console.log('✅ [ADMIN STORE] Status do usuário alterado:', id)
+
         return updatedUser
         
       } catch (error) {
@@ -255,7 +244,6 @@ export const useAdminStore = defineStore('admin', {
      * Deleta usuário
      */
     async deleteUser(id) {
-      console.log('🗑️ [ADMIN STORE] Deletando usuário:', id)
       
       this.isDeleting = true
       this.error = null
@@ -265,8 +253,7 @@ export const useAdminStore = defineStore('admin', {
         
         // Remove da lista local
         this.users = this.users.filter(u => u.id !== id)
-        
-        console.log('✅ [ADMIN STORE] Usuário deletado:', id)
+
         
       } catch (error) {
         console.error('❌ [ADMIN STORE] Erro ao deletar usuário:', error.message)
@@ -285,7 +272,6 @@ export const useAdminStore = defineStore('admin', {
      * Carrega lista de planos
      */
     async fetchPlans() {
-      console.log('📋 [ADMIN STORE] Carregando planos')
       
       this.isLoadingPlans = true
       this.plansError = null
@@ -293,8 +279,7 @@ export const useAdminStore = defineStore('admin', {
       try {
         const plans = await adminService.getPlans()
         this.plans = plans || []
-        
-        console.log('✅ [ADMIN STORE] Planos carregados:', this.plans.length)
+
         
       } catch (error) {
         console.error('❌ [ADMIN STORE] Erro ao carregar planos:', error.message)
@@ -308,9 +293,7 @@ export const useAdminStore = defineStore('admin', {
     /**
      * Cria novo plano
      */
-    async createPlan(planData) {
-      console.log('➕ [ADMIN STORE] Criando plano:', planData.name)
-      
+    async createPlan(planData) {      
       this.isCreating = true
       this.error = null
       
@@ -319,8 +302,7 @@ export const useAdminStore = defineStore('admin', {
         
         // Adiciona à lista local
         this.plans.push(newPlan)
-        
-        console.log('✅ [ADMIN STORE] Plano criado:', newPlan.id)
+
         return newPlan
         
       } catch (error) {
@@ -336,7 +318,6 @@ export const useAdminStore = defineStore('admin', {
      * Atualiza plano
      */
     async updatePlan(id, planData) {
-      console.log('✏️ [ADMIN STORE] Atualizando plano:', id)
       
       this.isUpdating = true
       this.error = null
@@ -349,8 +330,7 @@ export const useAdminStore = defineStore('admin', {
         if (index !== -1) {
           this.plans[index] = updatedPlan
         }
-        
-        console.log('✅ [ADMIN STORE] Plano atualizado:', id)
+
         return updatedPlan
         
       } catch (error) {
@@ -365,9 +345,7 @@ export const useAdminStore = defineStore('admin', {
     /**
      * Deleta plano
      */
-    async deletePlan(id) {
-      console.log('🗑️ [ADMIN STORE] Deletando plano:', id)
-      
+    async deletePlan(id) {      
       this.isDeleting = true
       this.error = null
       
@@ -376,9 +354,7 @@ export const useAdminStore = defineStore('admin', {
         
         // Remove da lista local
         this.plans = this.plans.filter(p => p.id !== id)
-        
-        console.log('✅ [ADMIN STORE] Plano deletado:', id)
-        
+
       } catch (error) {
         console.error('❌ [ADMIN STORE] Erro ao deletar plano:', error.message)
         this.error = error.response?.data?.message || 'Erro ao deletar plano'
@@ -396,7 +372,6 @@ export const useAdminStore = defineStore('admin', {
      * Carrega estatísticas do sistema
      */
     async fetchSystemStats() {
-      console.log('📊 [ADMIN STORE] Carregando estatísticas do sistema')
       
       this.isLoadingStats = true
       
@@ -407,12 +382,7 @@ export const useAdminStore = defineStore('admin', {
           ...stats,
           lastUpdated: new Date()
         }
-        
-        console.log('✅ [ADMIN STORE] Estatísticas carregadas:', {
-          usuários: this.systemStats.totalUsers,
-          transações: this.systemStats.totalTransactions
-        })
-        
+
       } catch (error) {
         console.error('❌ [ADMIN STORE] Erro ao carregar estatísticas:', error.message)
         this.error = error.response?.data?.message || 'Erro ao carregar estatísticas'
@@ -425,7 +395,6 @@ export const useAdminStore = defineStore('admin', {
      * Carrega estatísticas de uso
      */
     async fetchUsageStats(dateRange = {}) {
-      console.log('📈 [ADMIN STORE] Carregando estatísticas de uso')
       
       try {
         const stats = await adminService.getUsageStats(dateRange)
@@ -434,9 +403,7 @@ export const useAdminStore = defineStore('admin', {
           ...stats,
           lastUpdated: new Date()
         }
-        
-        console.log('✅ [ADMIN STORE] Estatísticas de uso carregadas')
-        
+
       } catch (error) {
         console.error('❌ [ADMIN STORE] Erro ao carregar estatísticas de uso:', error.message)
         this.error = error.response?.data?.message || 'Erro ao carregar estatísticas de uso'
@@ -451,7 +418,6 @@ export const useAdminStore = defineStore('admin', {
      * Aplica filtros de usuários
      */
     async applyUserFilters(newFilters) {
-      console.log('🔍 [ADMIN STORE] Aplicando filtros de usuários:', newFilters)
       
       this.usersFilters = { ...this.usersFilters, ...newFilters }
       this.usersPagination.page = 1
@@ -463,7 +429,6 @@ export const useAdminStore = defineStore('admin', {
      * Limpa filtros de usuários
      */
     async clearUserFilters() {
-      console.log('🧹 [ADMIN STORE] Limpando filtros de usuários')
       
       this.usersFilters = { search: '', plan: '', status: '' }
       this.usersPagination.page = 1
@@ -484,7 +449,6 @@ export const useAdminStore = defineStore('admin', {
      * Reseta o store
      */
     reset() {
-      console.log('🔄 [ADMIN STORE] Resetando store')
       
       this.users = []
       this.currentUser = null

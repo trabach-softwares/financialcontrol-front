@@ -259,20 +259,13 @@ const backToMethodSelection = () => {
 };
 
 const createPixPayment = async () => {
-  console.log('🔵 Iniciando criação de pagamento PIX...');
-  console.log('Plan ID:', currentPlan.value?.id);
-  
   try {
     const payment = await createPayment({
       planId: currentPlan.value.id,
       paymentMethod: 'PIX',
     });
     
-    console.log('✅ Pagamento PIX criado:', payment);
-    console.log('currentPayment.value:', currentPayment.value);
-    
     paymentCreated.value = true;
-    console.log('paymentCreated.value agora é:', paymentCreated.value);
   } catch (err) {
     console.error('❌ Erro ao criar pagamento PIX:', err);
     $q.notify({
@@ -284,20 +277,14 @@ const createPixPayment = async () => {
 };
 
 const createBoletoPayment = async () => {
-  console.log('🔵 Iniciando criação de pagamento Boleto...');
-  console.log('Plan ID:', currentPlan.value?.id);
-  
+
   try {
     const payment = await createPayment({
       planId: currentPlan.value.id,
       paymentMethod: 'BOLETO',
     });
     
-    console.log('✅ Pagamento Boleto criado:', payment);
-    console.log('currentPayment.value:', currentPayment.value);
-    
     paymentCreated.value = true;
-    console.log('paymentCreated.value agora é:', paymentCreated.value);
   } catch (err) {
     console.error('❌ Erro ao criar pagamento Boleto:', err);
     $q.notify({

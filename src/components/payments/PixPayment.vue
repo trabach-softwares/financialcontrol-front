@@ -244,13 +244,9 @@ const formatExpirationTime = (expiresAt) => {
 };
 
 onMounted(() => {
-  console.log('🔵 PixPayment montado');
-  console.log('Payment recebido:', props.payment);
-  console.log('Payment ID:', props.payment?.id);
   
   // Só inicia polling se tiver ID válido
   if (props.payment?.id && status.value === 'PENDING') {
-    console.log('✅ Iniciando polling para payment ID:', props.payment.id);
     startPolling(
       props.payment.id,
       (payment) => {
@@ -268,7 +264,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  console.log('🔴 PixPayment desmontado - parando polling');
   stopPolling();
 });
 </script>

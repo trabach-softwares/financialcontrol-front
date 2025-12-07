@@ -71,16 +71,12 @@ export const dashboardService = {
    * @param {Object} customDateRange - Range customizado { startDate, endDate }
    */
   async getMonthlyEvolution(period = 'current-month', customDateRange = null) {
-    try {
-      console.log('📊 [SERVICE] Buscando evolução para período:', period)
-      console.log('🎯 [SERVICE] Custom dateRange recebido:', customDateRange)
-      
+    try { 
       // Usar dateRange customizado se fornecido, senão calcular baseado no período
       const dateRange = customDateRange && customDateRange.startDate && customDateRange.endDate
         ? customDateRange
         : this.calculateDateRange(period)
       
-      console.log('📅 [SERVICE] Range de datas FINAL:', dateRange)
       
       // Buscar todas as transações do período
       const response = await api.get(FINANCIAL_ROUTES.transactionsList, {
@@ -96,18 +92,14 @@ export const dashboardService = {
       }
 
       const transactions = response.data.data || []
-      console.log(`📦 [SERVICE] ${transactions.length} transações recebidas`)
       
       // Determinar tipo de agrupamento baseado no período
       const groupingType = this.determineGroupingType(period)
-      console.log('📋 [SERVICE] Tipo de agrupamento:', groupingType)
       
       // Agrupar transações e transformar para formato Chart.js
       return this.groupAndTransformData(transactions, dateRange, groupingType, period)
       
-    } catch (error) {
-      console.error('❌ [SERVICE] Erro ao buscar evolução:', error)
-      
+    } catch (error) {      
       // Retornar estrutura vazia mas válida para Chart.js
       return this.getEmptyChartStructure()
     }
@@ -181,12 +173,9 @@ export const dashboardService = {
   /**
    * Agrupa transações e transforma para formato Chart.js
    */
-  groupAndTransformData(transactions, dateRange, groupingType, period) {
-    console.log(`🔄 [SERVICE] Agrupando ${transactions.length} transações (tipo: ${groupingType})`)
-    
+  groupAndTransformData(transactions, dateRange, groupingType, period) {    
     // Gerar todos os períodos (dias/semanas/meses) no range
     const periods = this.generatePeriods(dateRange, groupingType, period)
-    console.log(`📅 [SERVICE] ${periods.length} períodos gerados:`, periods.map(p => p.label))
     
     // Inicializar acumuladores para cada período
     const periodData = periods.map(period => ({
@@ -221,9 +210,7 @@ export const dashboardService = {
       accumulatedBalance += period.balance
       period.balance = accumulatedBalance
     })
-    
-    console.log('📊 [SERVICE] Dados agrupados:', periodData)
-    
+        
     // Transformar para formato Chart.js
     return {
       labels: periodData.map(p => p.label),

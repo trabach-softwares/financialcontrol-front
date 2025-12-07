@@ -8,45 +8,23 @@ Efeitos: Navegação completa e interface responsiva -->
 
 <template>
   <q-layout view="lHh LpR lff" class="main-layout" :class="{ 'mobile-layout': $q.screen.lt.lg }">
-    
+
     <!-- ==========================================================================
     HEADER MOBILE - Mobile Only (com botão hamburguer)
     ========================================================================== -->
-    <q-header 
-      v-if="$q.screen.lt.lg" 
-      elevated 
-      class="mobile-header bg-primary text-white"
-    >
+    <q-header v-if="$q.screen.lt.lg" elevated class="mobile-header bg-primary text-white">
       <q-toolbar>
         <!-- Botão Menu Hamburguer -->
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          @click="toggleLeftDrawer"
-          aria-label="Abrir menu"
-        />
-        
+        <q-btn flat dense round icon="menu" @click="toggleLeftDrawer" aria-label="Abrir menu" />
+
         <!-- Título da Página -->
         <q-toolbar-title class="text-center">
           {{ getCurrentPageTitle() }}
         </q-toolbar-title>
-        
+
         <!-- Botão de Notificações -->
-        <q-btn
-          flat
-          dense
-          round
-          icon="notifications"
-          @click="showNotifications = true"
-          aria-label="Notificações"
-        >
-          <q-badge 
-            v-if="notificationCount > 0"
-            color="red"
-            floating
-          >
+        <q-btn flat dense round icon="notifications" @click="showNotifications = true" aria-label="Notificações">
+          <q-badge v-if="notificationCount > 0" color="red" floating>
             {{ notificationCount > 99 ? '99+' : notificationCount }}
           </q-badge>
         </q-btn>
@@ -56,19 +34,12 @@ Efeitos: Navegação completa e interface responsiva -->
     <!-- ==========================================================================
     SIDEBAR DE NAVEGAÇÃO - Desktop + Mobile
     ========================================================================== -->
-    <q-drawer
-      v-model="leftDrawerOpen"
-      :show-if-above="$q.screen.gt.md"
-      :width="280"
-      :breakpoint="1024"
-      bordered
-      :overlay="$q.screen.lt.lg"
-      class="main-sidebar"
-    >
+    <q-drawer v-model="leftDrawerOpen" :show-if-above="$q.screen.gt.md" :width="280" :breakpoint="1024" bordered
+      :overlay="$q.screen.lt.lg" class="main-sidebar">
       <!-- Logo e título -->
       <div class="sidebar-header q-pa-lg text-center">
         <q-avatar size="80px" square class="q-mb-md">
-          <img src="/ControleFinanceiro.png" alt="Financial Control" class="logo"/>
+          <img src="/ControleFinanceiro.png" alt="Financial Control" class="logo" />
         </q-avatar>
         <div class="text-h6 text-weight-bold">
           Financial Control
@@ -82,136 +53,92 @@ Efeitos: Navegação completa e interface responsiva -->
 
       <!-- ==========================================================================
       NAVEGAÇÃO - Desktop: Menu completo | Mobile: Apenas secundários
+      Área central com scroll vertical
       ========================================================================== -->
-      <q-list class="sidebar-menu">
-        <!-- DESKTOP: Menu Principal Completo -->
-        <template v-if="$q.screen.gt.md">
-          <q-item-label header class="text-weight-medium q-px-lg">
-            MENU PRINCIPAL
-          </q-item-label>
+      <div class="sidebar-menu-wrapper">
+        <q-list class="sidebar-menu">
+          <!-- DESKTOP: Menu Principal Completo -->
+          <template v-if="$q.screen.gt.md">
+            <q-item-label header class="text-weight-medium q-px-lg">
+              MENU PRINCIPAL
+            </q-item-label>
 
-          <q-item
-            v-for="route in filteredMainMenuRoutes"
-            :key="route.name"
-            :to="canAccessRoute(route) ? route.path : null"
-            @click="handleRouteClick(route, $event)"
-            clickable
-            v-ripple
-            class="sidebar-item"
-            :class="{ 'route-locked': isRouteLocked(route) }"
-            active-class="sidebar-item-active"
-            v-if="!(authStore.isAdmin && route.path === '/plans')"
-          >
-            <q-item-section avatar>
-              <q-icon :name="route.icon" />
-              <!-- Ícone de cadeado para rotas bloqueadas -->
-              <q-icon 
-                v-if="isRouteLocked(route)" 
-                name="lock" 
-                size="xs" 
-                class="lock-badge" 
-                color="amber"
-              />
-            </q-item-section>
-            
-            <q-item-section>
-              <q-item-label>
-                {{ route.title }}
-                <!-- Badge Premium -->
-                <q-chip
-                  v-if="isRouteLocked(route)"
-                  dense
-                  color="deep-purple"
-                  text-color="white"
-                  size="sm"
-                  class="q-ml-xs"
-                >
-                  PREMIUM
-                </q-chip>
-              </q-item-label>
-              <q-item-label caption>{{ route.description }}</q-item-label>
-            </q-item-section>
-          </q-item>
-        </template>
+            <q-item v-for="route in filteredMainMenuRoutes" :key="route.name"
+              :to="canAccessRoute(route) ? route.path : null" @click="handleRouteClick(route, $event)" clickable
+              v-ripple class="sidebar-item" :class="{ 'route-locked': isRouteLocked(route) }"
+              active-class="sidebar-item-active" v-if="!(authStore.isAdmin && route.path === '/plans')">
+              <q-item-section avatar>
+                <q-icon :name="route.icon" />
+                <!-- Ícone de cadeado para rotas bloqueadas -->
+                <q-icon v-if="isRouteLocked(route)" name="lock" size="xs" class="lock-badge" color="amber" />
+              </q-item-section>
 
-        <!-- MOBILE: Apenas Recursos Avançados (não duplica bottom nav) -->
-        <template v-else>
-          <q-item-label header class="text-weight-medium q-px-lg">
-            RECURSOS AVANÇADOS
-          </q-item-label>
+              <q-item-section>
+                <q-item-label>
+                  {{ route.title }}
+                  <!-- Badge Premium -->
+                  <q-chip v-if="isRouteLocked(route)" dense color="deep-purple" text-color="white" size="sm"
+                    class="q-ml-xs">
+                    PREMIUM
+                  </q-chip>
+                </q-item-label>
+                <q-item-label caption>{{ route.description }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
 
-          <q-item
-            v-for="route in drawerMenuRoutes"
-            :key="route.name"
-            :to="canAccessRoute(route) ? route.path : null"
-            @click="handleRouteClick(route, $event)"
-            clickable
-            v-ripple
-            class="sidebar-item"
-            :class="{ 'route-locked': isRouteLocked(route) }"
-            active-class="sidebar-item-active"
-            v-if="!(authStore.isAdmin && route.path === '/plans')"
-          >
-            <q-item-section avatar>
-              <q-icon :name="route.icon" />
-              <!-- Ícone de cadeado para rotas bloqueadas -->
-              <q-icon 
-                v-if="isRouteLocked(route)" 
-                name="lock" 
-                size="xs" 
-                class="lock-badge" 
-                color="amber"
-              />
-            </q-item-section>
-            
-            <q-item-section>
-              <q-item-label>
-                {{ route.title }}
-                <!-- Badge Premium -->
-                <q-chip
-                  v-if="isRouteLocked(route)"
-                  dense
-                  color="deep-purple"
-                  text-color="white"
-                  size="sm"
-                  class="q-ml-xs"
-                >
-                  PREMIUM
-                </q-chip>
-              </q-item-label>
-              <q-item-label caption>{{ route.description }}</q-item-label>
-            </q-item-section>
-          </q-item>
-        </template>
+          <!-- MOBILE: Apenas Recursos Avançados (não duplica bottom nav) -->
+          <template v-else>
+            <q-item-label header class="text-weight-medium q-px-lg">
+              RECURSOS AVANÇADOS
+            </q-item-label>
 
-        <!-- Separador para área administrativa -->
-        <template v-if="authStore.isAdmin">
-          <q-separator class="q-my-md" />
-          
-          <q-item-label header class="text-weight-medium q-px-lg">
-            ADMINISTRAÇÃO
-          </q-item-label>
+            <q-item v-for="route in drawerMenuRoutes" :key="route.name" :to="canAccessRoute(route) ? route.path : null"
+              @click="handleRouteClick(route, $event)" clickable v-ripple class="sidebar-item"
+              :class="{ 'route-locked': isRouteLocked(route) }" active-class="sidebar-item-active"
+              v-if="!(authStore.isAdmin && route.path === '/plans')">
+              <q-item-section avatar>
+                <q-icon :name="route.icon" />
+                <!-- Ícone de cadeado para rotas bloqueadas -->
+                <q-icon v-if="isRouteLocked(route)" name="lock" size="xs" class="lock-badge" color="amber" />
+              </q-item-section>
 
-          <q-item
-            v-for="route in adminMenuRoutes"
-            :key="route.name"
-            :to="route.path"
-            clickable
-            v-ripple
-            class="sidebar-item"
-            active-class="sidebar-item-active"
-          >
-            <q-item-section avatar>
-              <q-icon :name="route.icon" />
-            </q-item-section>
-            
-            <q-item-section>
-              <q-item-label>{{ route.title }}</q-item-label>
-              <q-item-label caption>{{ route.description }}</q-item-label>
-            </q-item-section>
-          </q-item>
-        </template>
-      </q-list>
+              <q-item-section>
+                <q-item-label>
+                  {{ route.title }}
+                  <!-- Badge Premium -->
+                  <q-chip v-if="isRouteLocked(route)" dense color="deep-purple" text-color="white" size="sm"
+                    class="q-ml-xs">
+                    PREMIUM
+                  </q-chip>
+                </q-item-label>
+                <q-item-label caption>{{ route.description }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
+
+          <!-- Separador para área administrativa -->
+          <template v-if="authStore.isAdmin">
+            <q-separator class="q-my-md" />
+
+            <q-item-label header class="text-weight-medium q-px-lg">
+              ADMINISTRAÇÃO
+            </q-item-label>
+
+            <q-item v-for="route in adminMenuRoutes" :key="route.name" :to="route.path" clickable v-ripple
+              class="sidebar-item" active-class="sidebar-item-active">
+              <q-item-section avatar>
+                <q-icon :name="route.icon" />
+              </q-item-section>
+
+              <q-item-section>
+                <q-item-label>{{ route.title }}</q-item-label>
+                <q-item-label caption>{{ route.description }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
+        </q-list>
+      </div>
 
       <!-- Rodapé do Sidebar -->
       <div class="sidebar-footer q-pa-lg">
@@ -226,28 +153,17 @@ Efeitos: Navegação completa e interface responsiva -->
               <div class="text-caption q-mb-md">
                 Recursos ilimitados e suporte prioritário
               </div>
-              <q-btn
-                label="Upgrade"
-                color="white"
-                text-color="primary"
-                no-caps
-                rounded
-                size="sm"
-                @click="navigateToPlans"
-              />
+              <q-btn label="Upgrade" color="white" text-color="primary" no-caps rounded size="sm"
+                @click="navigateToPlans" />
             </q-card-section>
           </q-card>
         </template>
 
         <!-- Ações fixas do usuário no rodapé -->
-        <SidebarFooter
-          :notification-count="notificationCount"
-          @open-notifications="showNotifications = true"
-          @logout="handleLogout"
-        />
+        <SidebarFooter :notification-count="notificationCount" @open-notifications="showNotifications = true"
+          @logout="handleLogout" />
       </div>
     </q-drawer>
-
 
     <q-page-container class="main-content" :class="{ 'has-bottom-nav': $q.screen.lt.lg }">
       <router-view />
@@ -256,26 +172,14 @@ Efeitos: Navegação completa e interface responsiva -->
     <!-- ==========================================================================
     BOTTOM NAVIGATION - Mobile Only
     ========================================================================== -->
-    <BottomNavigation 
-      v-if="$q.screen.lt.lg" 
-      @open-transaction-dialog="openTransactionDialog"
-    />
+    <BottomNavigation v-if="$q.screen.lt.lg" @open-transaction-dialog="openTransactionDialog" />
 
     <!-- ==========================================================================
     DIALOG DE NOVA TRANSAÇÃO - Mobile
     ========================================================================== -->
-    <q-dialog 
-      v-model="showAddTransactionDialog"
-      maximized 
-      transition-show="slide-up" 
-      transition-hide="slide-down"
-      class="transaction-dialog-mobile"
-    >
-      <TransactionForm
-        mode="create"
-        @cancelled="closeTransactionDialog"
-        @saved="handleTransactionSuccess"
-      />
+    <q-dialog v-model="showAddTransactionDialog" maximized transition-show="slide-up" transition-hide="slide-down"
+      class="transaction-dialog-mobile">
+      <TransactionForm mode="create" @cancelled="closeTransactionDialog" @saved="handleTransactionSuccess" />
     </q-dialog>
 
     <!-- Dialog de Notificações -->
@@ -297,11 +201,7 @@ Efeitos: Navegação completa e interface responsiva -->
           </div>
 
           <q-list v-else separator>
-            <q-item
-              v-for="notification in notifications"
-              :key="notification.id"
-              clickable
-            >
+            <q-item v-for="notification in notifications" :key="notification.id" clickable>
               <q-item-section avatar>
                 <q-avatar :color="notification.color" text-color="white">
                   <q-icon :name="notification.icon" />
@@ -322,21 +222,14 @@ Efeitos: Navegação completa e interface responsiva -->
     <!-- ==========================================================================
     DIALOG DE UPGRADE PREMIUM - Bloqueio de Features
     ========================================================================== -->
-    <PremiumFeatureDialog 
-      v-model="showPremiumDialog"
-      title="🏦 Contas Bancárias"
-      subtitle="Recurso Exclusivo Premium"
-      message="Gerencie todas as suas contas bancárias, cartões de crédito e investimentos em um só lugar."
-      :features="[
+    <PremiumFeatureDialog v-model="showPremiumDialog" title=" Contas Bancárias" subtitle="Recurso Exclusivo Premium"
+      message="Gerencie todas as suas contas bancárias, cartões de crédito e investimentos em um só lugar." :features="[
         'Gestão completa de contas bancárias',
         'Conciliação bancária automática',
         'Extratos detalhados por conta',
         'Múltiplas contas ilimitadas',
         'Relatórios consolidados'
-      ]"
-      required-plan="PREMIUM"
-      :current-plan="authStore.user?.plan"
-    />
+      ]" required-plan="PREMIUM" :current-plan="authStore.userPlan" />
 
     <!-- Session Manager - Gerenciamento de Timeout de Sessão -->
     <SessionManager />
@@ -344,18 +237,18 @@ Efeitos: Navegação completa e interface responsiva -->
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useAuthStore } from 'src/stores/auth'
-import { useNotifications } from 'src/composables/useNotifications'
-import { useFeaturePermissions } from 'src/composables/useFeaturePermissions'
 import { useQuasar } from 'quasar'
-import SidebarFooter from 'src/components/SidebarFooter.vue'
 import BottomNavigation from 'src/components/BottomNavigation.vue'
-import TransactionForm from 'src/components/TransactionForm.vue'
 import PremiumFeatureDialog from 'src/components/PremiumFeatureDialog.vue'
-import { getMainMenuRoutes, getAdminMenuRoutes, getUserMenuRoutes, getDrawerMenuRoutes } from 'src/router/routes'
 import SessionManager from 'src/components/SessionManager.vue'
+import SidebarFooter from 'src/components/SidebarFooter.vue'
+import TransactionForm from 'src/components/TransactionForm.vue'
+import { useFeaturePermissions } from 'src/composables/useFeaturePermissions'
+import { useNotifications } from 'src/composables/useNotifications'
+import { getAdminMenuRoutes, getDrawerMenuRoutes, getMainMenuRoutes, getUserMenuRoutes } from 'src/router/routes'
+import { useAuthStore } from 'src/stores/auth'
+import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 // ==========================================================================
 // COMPOSABLES E STORES
@@ -435,11 +328,9 @@ const toggleLeftDrawer = () => {
  * Navega para a página de planos
  */
 const navigateToPlans = () => {
-  console.log('🔄 [NAVIGATION] Navegando para planos...')
   router.push('/plans').then(() => {
-    console.log('✅ [NAVIGATION] Navegação para planos concluída')
   }).catch(error => {
-    console.error('❌ [NAVIGATION] Erro na navegação:', error)
+    console.error(' [NAVIGATION] Erro na navegação:', error)
   })
 }
 
@@ -468,11 +359,10 @@ const handleRouteClick = (routeItem, event) => {
   if (isRouteLocked(routeItem)) {
     event.preventDefault()
     event.stopPropagation()
-    console.log('🔒 [PREMIUM] Acesso bloqueado à rota:', routeItem.path)
     showPremiumDialog.value = true
     return
   }
-  
+
   // Fecha drawer no mobile após navegação bem-sucedida
   if ($q.screen.lt.lg) {
     // Pequeno delay para melhor UX (animação de clique)
@@ -500,12 +390,12 @@ const getCurrentPageIcon = () => {
  * Processa logout
  */
 const handleLogout = async () => {
-  
+
   try {
     await authStore.logout()
     notifySuccess('Logout realizado com sucesso!')
     router.push('/login')
-    
+
   } catch (error) {
   }
 }
@@ -530,7 +420,7 @@ const closeTransactionDialog = () => {
 const handleTransactionSuccess = () => {
   closeTransactionDialog()
   notifySuccess('Transação criada com sucesso!')
-  
+
   // Se estiver na página de dashboard ou transações, pode recarregar os dados
   // Aqui você pode emitir um evento ou usar um event bus
 }
@@ -547,8 +437,8 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
-
 .main-layout {
+
   // ==========================================================================
   // MOBILE HEADER
   // ==========================================================================
@@ -556,10 +446,10 @@ onMounted(async () => {
     .q-toolbar {
       min-height: 56px;
       padding: 0 8px;
-      
+
       .q-btn {
         color: white;
-        
+
         .q-badge {
           font-size: 10px;
           font-weight: 600;
@@ -567,7 +457,7 @@ onMounted(async () => {
           min-height: 18px;
         }
       }
-      
+
       .q-toolbar-title {
         font-size: 1.1rem;
         font-weight: 600;
@@ -575,21 +465,23 @@ onMounted(async () => {
       }
     }
   }
-  
+
   // ==========================================================================
   // SIDEBAR
   // ==========================================================================
   .main-sidebar {
     border-right: 1px solid rgba(44, 95, 45, 0.1);
     z-index: 100;
-    
+    display: flex;
+    flex-direction: column;
+
     .sidebar-header {
       background: var(--sage-gradient);
       border-bottom: 2px solid rgba(255, 255, 255, 0.1);
       padding: 1.5rem 1rem;
       position: relative;
       overflow: hidden;
-      
+
       &::before {
         content: '';
         position: absolute;
@@ -597,16 +489,19 @@ onMounted(async () => {
         right: -50%;
         width: 200%;
         height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
         animation: shine 3s ease-in-out infinite;
+        pointer-events: none;
+        z-index: 0;
       }
-      
+
       /* Forçar avatar quadrado para o logo (evita corte circular) */
       .q-avatar {
         border-radius: 8px !important;
       }
 
-      .text-h6, .text-caption {
+      .text-h6,
+      .text-caption {
         color: white !important;
       }
 
@@ -620,17 +515,22 @@ onMounted(async () => {
         border-radius: 0 !important;
       }
     }
-    
+
+    .sidebar-menu-wrapper {
+      flex: 1;
+      overflow-y: auto;
+    }
+
     .sidebar-menu {
       padding: 1rem 0.5rem;
-      
+
       .sidebar-item {
         margin: 0.25rem 0;
         border-radius: 12px;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
-        
+
         &::before {
           content: '';
           position: absolute;
@@ -642,56 +542,54 @@ onMounted(async () => {
           transform: scaleY(0);
           transition: transform 0.3s ease;
         }
-        
+
         &:hover {
           background: linear-gradient(90deg, rgba(44, 95, 45, 0.08) 0%, rgba(44, 95, 45, 0.04) 100%);
           transform: translateX(4px);
           box-shadow: 0 2px 8px rgba(44, 95, 45, 0.1);
-          
+
           &::before {
             transform: scaleY(1);
           }
-          
+
           .q-icon {
             color: var(--sage-primary);
             transform: scale(1.1);
           }
         }
-        
+
         &.sidebar-item-active {
           background: var(--sage-gradient);
           color: white;
           box-shadow: 0 4px 12px rgba(44, 95, 45, 0.3);
           transform: translateX(4px);
-          
+
           &::before {
             transform: scaleY(1);
             background: white;
           }
-          
+
           .q-icon {
             color: white;
             transform: scale(1.1);
           }
-          
+
           .q-item-label {
             font-weight: 600;
           }
         }
-        
+
         .q-icon {
           transition: all 0.3s ease;
         }
       }
     }
-    
+
     .sidebar-footer {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      position: relative;
       padding: 1rem;
-      
+      margin-top: auto;
+
       .upgrade-card {
         background: var(--sage-gradient);
         border-radius: 16px;
@@ -699,25 +597,25 @@ onMounted(async () => {
         position: relative;
         overflow: hidden;
         z-index: 1;
-        
+
         &::after {
           content: '';
           position: absolute;
           top: -50%;
-          left: -50%;
+          right: -50%;
           width: 200%;
           height: 200%;
-          background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+          background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
           animation: rotate 8s linear infinite;
           pointer-events: none;
           z-index: 0;
         }
-        
+
         .q-card-section {
           position: relative;
           z-index: 2;
         }
-        
+
         .q-btn {
           background: white;
           color: var(--sage-primary);
@@ -725,7 +623,7 @@ onMounted(async () => {
           transition: all 0.3s ease;
           position: relative;
           z-index: 3;
-          
+
           &:hover {
             transform: scale(1.05);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -734,37 +632,37 @@ onMounted(async () => {
       }
     }
   }
-  
+
   // Header
   .main-header {
     background: white;
     box-shadow: 0 2px 12px rgba(44, 95, 45, 0.08);
     border-bottom: 1px solid rgba(44, 95, 45, 0.1);
-    
+
     .q-breadcrumbs {
       .q-breadcrumbs-el {
         color: var(--sage-primary);
       }
     }
-    
+
     .user-menu-btn {
       padding: 0.5rem 0.75rem;
       border-radius: 12px;
       transition: all 0.3s ease;
-      
+
       &:hover {
         background: linear-gradient(135deg, rgba(44, 95, 45, 0.05) 0%, rgba(44, 95, 45, 0.08) 100%);
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(44, 95, 45, 0.12);
+
+        .q-avatar {
+          border-color: var(--sage-positive);
+        }
       }
       
       .q-avatar {
         border: 2px solid var(--sage-primary-light);
         transition: all 0.3s ease;
-        
-        &:hover {
-          border-color: var(--sage-positive);
-        }
       }
     }
     
@@ -872,8 +770,7 @@ onMounted(async () => {
 @media (max-width: 1024px) {
   .main-sidebar {
     .sidebar-footer {
-      position: relative;
-      margin-top: 2rem;
+      margin-top: auto;
     }
   }
 }

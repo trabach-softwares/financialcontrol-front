@@ -13,10 +13,7 @@
  * @throws {Error} - Se success for false ou estrutura inválida
  */
 export function handleApiResponse(response, context = 'API') {
-  console.log(`🔍 [${context.toUpperCase()}] URL da requisição:`, response.config?.url)
-  console.log(`🔍 [${context.toUpperCase()}] Status HTTP:`, response.status)
-  console.log(`🔍 [${context.toUpperCase()}] Resposta completa:`, response.data)
-  
+
   // Verificar se é erro de recursão infinita
   if (response.data && typeof response.data === 'string' && 
       response.data.includes('infinite recursion detected')) {
@@ -44,11 +41,6 @@ export function handleApiResponse(response, context = 'API') {
     console.warn(`⚠️ [${context.toUpperCase()}] Resposta sem campo 'data'`)
     return null
   }
-  
-  console.log(`✅ [${context.toUpperCase()}] Dados extraídos com sucesso:`, {
-    tipo: typeof data,
-    temDados: data !== null
-  })
   return data
 }
 

@@ -1,5 +1,5 @@
+import { Dialog, Loading, LoadingBar, LocalStorage, Notify, Quasar, SessionStorage } from 'quasar'
 import { createApp } from 'vue'
-import { Quasar, Notify, Dialog, Loading, LoadingBar, LocalStorage, SessionStorage } from 'quasar'
 
 // Import icon libraries
 import '@quasar/extras/material-icons/material-icons.css'
@@ -9,9 +9,9 @@ import '@quasar/extras/roboto-font/roboto-font.css'
 import 'quasar/src/css/index.sass'
 
 // Assumes your root component
+import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
-import { createPinia } from 'pinia'
 
 const myApp = createApp(App)
 
@@ -35,3 +35,9 @@ myApp.use(router)
 
 // Mount to DOM
 myApp.mount('#q-app')
+
+// Expose Quasar runtime `$q` to the window in development only (for debugging in console)
+if (import.meta.env && import.meta.env.DEV) {
+  // eslint-disable-next-line no-undef
+  window.$q = myApp.config.globalProperties.$q
+}

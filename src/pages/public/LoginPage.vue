@@ -597,12 +597,11 @@ Recursos: SSL badge, 2FA, validação em tempo real, notificações
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useAuthStore } from 'src/stores/auth'
 import { useNotifications } from 'src/composables/useNotifications'
+import { useAuthStore } from 'src/stores/auth'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { MESSAGES } from 'src/constants/messages'
+import { useRoute, useRouter } from 'vue-router'
 
 // ==========================================================================
 // COMPOSABLES
@@ -733,7 +732,6 @@ const clearErrors = () => {
 }
 
 const handleLogin = async () => {
-  console.log(' [LOGIN PAGE] Processando login')
   
   // Validação do formulário
   if (!loginForm.value.email || !loginForm.value.password) {
@@ -762,9 +760,7 @@ const handleLogin = async () => {
   }
 }
 
-const handleRegister = async () => {
-  console.log(' [LOGIN PAGE] Processando registro')
-  
+const handleRegister = async () => {  
   // Validação do formulário
   if (!registerForm.value.name || !registerForm.value.email || !registerForm.value.password) {
     notifyError('ERROR.REQUIRED_FIELDS')
@@ -807,7 +803,6 @@ const handleForgotPassword = () => {
 }
 
 const handleSocialLogin = (provider) => {
-  console.log(`[LOGIN PAGE] Iniciando login social com ${provider}`)
   
   // Mostrar notificação de redirecionamento
   notifySuccess(`Redirecionando para login com ${provider}...`)
@@ -815,8 +810,6 @@ const handleSocialLogin = (provider) => {
   // Simular redirecionamento (implementar integração real conforme necessário)
   setTimeout(() => {
     // Aqui você implementaria a integração real com Google/Microsoft OAuth
-    console.log(`Redirecionando para ${provider} OAuth...`)
-    // window.location.href = `/auth/${provider}`
   }, 1500)
 }
 </script>
@@ -1754,7 +1747,6 @@ input:-moz-autofill {
 
 // Dialog de recuperação com glassmorphism
 .forgot-password-card {
-  background: rgba(255, 255, 255, 0.5) !important;
   backdrop-filter: blur(30px) saturate(150%);
   -webkit-backdrop-filter: blur(30px) saturate(150%);
   border-radius: 20px !important;
