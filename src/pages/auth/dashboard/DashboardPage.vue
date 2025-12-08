@@ -12,7 +12,8 @@
           </div>
           <div class="col-12 col-md-8">
             <q-expansion-item icon="filter_alt" label="Filtros Avançados" caption="Períodos personalizados" dense-toggle
-              expand-separator class="advanced-filter-expansion" header-class="advanced-filter-header">
+              expand-separator class="advanced-filter-expansion" header-class="advanced-filter-header"
+              :class="{ 'theme-dark': isDark }" :dark="isDark">
               <template v-slot:header>
                 <q-item-section avatar>
                   <q-avatar color="primary" text-color="white" size="40px">
@@ -99,10 +100,8 @@ import DashboardMetrics from './components/DashboardMetrics.vue'
 import DashboardQuickActions from './components/DashboardQuickActions.vue'
 import DashboardRecentTransactions from './components/DashboardRecentTransactions.vue'
 
-// Styles aggregator (keeps styles modular)
-import './styles/dashboard.scss'
-
 const $q = useQuasar()
+const isDark = computed(() => $q.dark.isActive)
 const dashboardStore = useDashboardStore()
 const authStore = useAuthStore()
 const { formatCurrency } = useCurrency()
@@ -161,5 +160,5 @@ function handleProfileSkipped() { /* noop */ }
 </script>
 
 <style lang="scss">
-@import './styles/dashboard.scss';
+@import '../../styles/dashboard.scss';
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <q-card flat bordered class="period-filter-card" :dark="$q.dark.isActive">
+  <q-card flat bordered class="period-filter-card" :class="{ 'theme-dark': isDark }" :dark="isDark">
     <q-card-section class="q-pb-sm">
 
       <!-- Cabeçalho com ícone e título -->
@@ -79,7 +79,10 @@ import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useQuasar } from 'quasar';
 import { usePeriodFilter } from 'src/composables/usePeriodFilter';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
+
+// styles externalized (theme-aware)
+import './scss/period-filter.scss';
 
 const props = defineProps({
   storageKey: {
@@ -91,6 +94,7 @@ const props = defineProps({
 const emit = defineEmits(['change']);
 
 const $q = useQuasar()
+const isDark = computed(() => $q.dark.isActive)
 
 // Usar o composable
 const {
@@ -149,38 +153,13 @@ const formatDateRange = (start, end) => {
   try {
     const startDate = parseISO(start);
     const endDate = parseISO(end);
-    
+
     const startFormatted = format(startDate, "dd 'de' MMM", { locale: ptBR });
     const endFormatted = format(endDate, "dd 'de' MMM 'de' yyyy", { locale: ptBR });
-    
+
     return `${startFormatted} - ${endFormatted}`;
   } catch (error) {
     return 'Data inválida';
   }
 };
 </script>
-
-<style lang="scss" scoped>
-.period-filter-card {
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease;
-
-  &:hover {
-    border-color: rgba(0, 0, 0, 0.12);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  }
-}
-
-.custom-dates-wrapper {
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.02);
-  border-radius: 8px;
-  margin-top: 8px;
-}
-
-.date-range-info {
-  display: flex;
-  justify-content: center;
-}
-</style>

@@ -8,76 +8,49 @@ Efeitos: CRUD de transações com validação -->
 
 <template>
   <q-card class="transaction-form-card" :dark="$q.dark.isActive">
-    
+
     <!-- ==========================================================================
     CABEÇALHO DO FORMULÁRIO
     ========================================================================== -->
     <q-bar class="bg-primary text-white">
-      <q-icon 
-        :name="getHeaderIcon()" 
-        class="q-mr-sm" 
-      />
+      <q-icon :name="getHeaderIcon()" class="q-mr-sm" />
       <div class="text-weight-medium">
         {{ getHeaderTitle() }}
       </div>
       <q-space />
-      
+
       <!-- Botão fechar apenas se não for modo view -->
-      <q-btn 
-        v-if="mode !== 'view'"
-        dense 
-        flat 
-        icon="close" 
-        @click="handleCancel"
-      />
+      <q-btn v-if="mode !== 'view'" dense flat icon="close" @click="handleCancel" />
     </q-bar>
 
     <!-- ==========================================================================
     CONTEÚDO DO FORMULÁRIO
     ========================================================================== -->
     <q-card-section class="q-pa-lg">
-      
+
       <!-- Modo Visualização -->
       <div v-if="mode === 'view'" class="view-mode">
         <div class="row q-col-gutter-md">
-          
+
           <!-- Tipo e Valor -->
           <div class="col-12 col-md-6">
             <q-card class="summary-card" flat bordered>
               <q-card-section class="text-center">
-                <q-icon 
-                  :name="form.type === 'income' ? 'trending_up' : 'trending_down'"
-                  :color="form.type === 'income' ? 'green-6' : 'red-6'"
-                  size="3rem"
-                  class="q-mb-md"
-                />
-                <div 
-                  class="text-h4 text-weight-bold q-mb-sm"
-                  :class="form.type === 'income' ? 'text-green-7' : 'text-red-7'"
-                >
+                <q-icon :name="form.type === 'income' ? 'trending_up' : 'trending_down'"
+                  :color="form.type === 'income' ? 'green-6' : 'red-6'" size="3rem" class="q-mb-md" />
+                <div class="text-h4 text-weight-bold q-mb-sm"
+                  :class="form.type === 'income' ? 'text-green-7' : 'text-red-7'">
                   {{ form.type === 'income' ? '+' : '-' }}{{ formatCurrency(form.amount) }}
                 </div>
-                <q-chip 
-                  :label="form.type === 'income' ? 'Receita' : 'Despesa'"
+                <q-chip :label="form.type === 'income' ? 'Receita' : 'Despesa'"
                   :color="form.type === 'income' ? 'green-1' : 'red-1'"
-                  :text-color="form.type === 'income' ? 'green-8' : 'red-8'"
-                  size="md"
-                />
-                <q-chip 
-                  class="q-ml-sm"
+                  :text-color="form.type === 'income' ? 'green-8' : 'red-8'" size="md" />
+                <q-chip class="q-ml-sm"
                   :label="form.type === 'income' ? (form.paid ? 'Recebido' : 'A receber') : (form.paid ? 'Pago' : 'Em aberto')"
-                  :color="form.paid ? 'teal-1' : 'grey-2'"
-                  :text-color="form.paid ? 'teal-8' : 'grey-8'"
-                  size="md"
-                />
-                <q-chip
-                  v-if="form.paid && props.transaction?.paid_at"
-                  class="q-ml-sm"
+                  :color="form.paid ? 'teal-1' : 'grey-2'" :text-color="form.paid ? 'teal-8' : 'grey-8'" size="md" />
+                <q-chip v-if="form.paid && props.transaction?.paid_at" class="q-ml-sm"
                   :label="(form.type === 'income' ? 'Recebido em ' : 'Pago em ') + formatBRDate(props.transaction.paid_at)"
-                  color="teal-1"
-                  text-color="teal-8"
-                  size="md"
-                />
+                  color="teal-1" text-color="teal-8" size="md" />
               </q-card-section>
             </q-card>
           </div>
@@ -85,7 +58,7 @@ Efeitos: CRUD de transações com validação -->
           <!-- Informações Detalhadas -->
           <div class="col-12 col-md-6">
             <div class="q-gutter-md">
-              
+
               <!-- Descrição -->
               <div class="field-view">
                 <div class="field-label text-caption">
@@ -102,12 +75,7 @@ Efeitos: CRUD de transações com validação -->
                   Categoria
                 </div>
                 <div class="field-value">
-                  <q-chip
-                    :label="form.category"
-                    color="blue-1"
-                    text-color="blue-9"
-                    size="md"
-                  />
+                  <q-chip :label="form.category" color="blue-1" text-color="blue-9" size="md" />
                 </div>
               </div>
 
@@ -127,16 +95,9 @@ Efeitos: CRUD de transações com validação -->
         <!-- Pago -->
         <div class="row q-col-gutter-md">
           <div class="col-12 col-sm-6 col-md-6">
-            <q-toggle
-              :model-value="form.paid"
-              :label="form.type === 'income' ? 'Recebido' : 'Pago'"
-              color="teal-6"
-              dense
-              name="paid"
-              id="transaction-paid"
-              @update:model-value="onTogglePaidView"
-              :disable="!props.transaction?.id"
-            />
+            <q-toggle :model-value="form.paid" :label="form.type === 'income' ? 'Recebido' : 'Pago'" color="teal-6"
+              dense name="paid" id="transaction-paid" @update:model-value="onTogglePaidView"
+              :disable="!props.transaction?.id" />
             <div v-if="form.paid && props.transaction?.paid_at" class="text-caption q-mt-xs">
               {{ form.type === 'income' ? 'Recebido em' : 'Pago em' }} {{ formatBRDate(props.transaction.paid_at) }}
             </div>
@@ -146,26 +107,12 @@ Efeitos: CRUD de transações com validação -->
         <!-- Botões do modo visualização -->
         <div class="row q-col-gutter-md q-mt-lg">
           <div class="col-6">
-            <q-btn
-              label="Editar"
-              icon="edit"
-              color="primary"
-              outline
-              class="full-width"
-              no-caps
-              @click="switchToEditMode"
-            />
+            <q-btn label="Editar" icon="edit" color="primary" outline class="full-width" no-caps
+              @click="switchToEditMode" />
           </div>
           <div class="col-6">
-            <q-btn
-              label="Fechar"
-              icon="close"
-              color="grey-6"
-              outline
-              class="full-width"
-              no-caps
-              @click="handleCancel"
-            />
+            <q-btn label="Fechar" icon="close" color="grey-6" outline class="full-width" no-caps
+              @click="handleCancel" />
           </div>
         </div>
       </div>
@@ -175,80 +122,50 @@ Efeitos: CRUD de transações com validação -->
       ========================================================================== -->
       <div v-else>
         <q-form @submit="handleSubmit" class="q-gutter-md">
-          
+
           <!-- Seletor de Tipo -->
           <div class="row q-col-gutter-md">
             <div class="col-12">
               <div class="q-mb-md">
                 Tipo da Transação *
               </div>
-              <q-btn-toggle
-                v-model="form.type"
-                :options="[
-                  { 
-                    label: 'Receita', 
-                    value: 'income', 
-                    icon: 'trending_up'
-                  },
-                  { 
-                    label: 'Despesa', 
-                    value: 'expense', 
-                    icon: 'trending_down'
-                  }
-                ]"
-                no-caps
-                class="type-selector q-mb-md"
-                :class="{ 'income-selected': form.type === 'income', 'expense-selected': form.type === 'expense' }"
-              />
+              <q-btn-toggle v-model="form.type" :options="[
+                {
+                  label: 'Receita',
+                  value: 'income',
+                  icon: 'trending_up'
+                },
+                {
+                  label: 'Despesa',
+                  value: 'expense',
+                  icon: 'trending_down'
+                }
+              ]" no-caps class="type-selector q-mb-md"
+                :class="{ 'income-selected': form.type === 'income', 'expense-selected': form.type === 'expense' }" />
             </div>
           </div>
 
           <div class="row q-col-gutter-md">
-            
+
             <!-- Valor -->
             <div class="col-12 col-sm-6 col-md-6">
-              <q-input
-                v-model="form.amount"
-                label="Valor *"
-                outlined
-                dense
-                :prefix="getCurrencySymbol()"
-                :rules="[
-                  val => !!val || 'Valor é obrigatório',
-                  val => parseCurrency(String(val)) > 0 || 'Valor deve ser maior que zero'
-                ]"
-                @update:model-value="onAmountInput"
-                input-class="text-right"
-                class="amount-input"
-                name="amount"
-                id="transaction-amount"
-                placeholder="0,00"
-              >
+              <q-input v-model="form.amount" label="Valor *" outlined dense :prefix="getCurrencySymbol()" :rules="[
+                val => !!val || 'Valor é obrigatório',
+                val => parseCurrency(String(val)) > 0 || 'Valor deve ser maior que zero'
+              ]" @update:model-value="onAmountInput" input-class="text-right" class="amount-input" name="amount"
+                id="transaction-amount" placeholder="0,00">
                 <template v-slot:prepend>
-                  <q-icon 
-                    :name="form.type === 'income' ? 'add_circle' : 'remove_circle'"
-                    :color="form.type === 'income' ? 'green-6' : 'red-6'"
-                  />
+                  <q-icon :name="form.type === 'income' ? 'add_circle' : 'remove_circle'"
+                    :color="form.type === 'income' ? 'green-6' : 'red-6'" />
                 </template>
               </q-input>
             </div>
 
             <!-- Data -->
             <div class="col-12 col-sm-6 col-md-6">
-              <q-input
-                v-model="form.date"
-                label="Data *"
-                type="date"
-                outlined
-                dense
-                :rules="[
-                  val => !form.isInstallment || (!!val) || 'Data é obrigatória'
-                ]"
-                :disable="form.isInstallment"
-                name="date"
-                id="transaction-date"
-                placeholder="YYYY-MM-DD"
-              >
+              <q-input v-model="form.date" label="Data *" type="date" outlined dense :rules="[
+                val => !form.isInstallment || (!!val) || 'Data é obrigatória'
+              ]" :disable="form.isInstallment" name="date" id="transaction-date" placeholder="YYYY-MM-DD">
                 <template v-slot:prepend>
                   <q-icon name="event" color="grey-6" />
                 </template>
@@ -257,54 +174,26 @@ Efeitos: CRUD de transações com validação -->
           </div>
 
           <!-- Parcelamento / Lançamento recorrente -->
-          <q-expansion-item
-            expand-separator
-            icon="schedule"
-            label="Lançamento Recorrente / Parcelado (opcional)"
-            :caption="form.isInstallment ? `${form.installmentsCount} parcelas mensais` : 'Desativado'"
-            dense
-          >
+          <q-expansion-item expand-separator icon="schedule" label="Lançamento Recorrente / Parcelado (opcional)"
+            :caption="form.isInstallment ? `${form.installmentsCount} parcelas mensais` : 'Desativado'" dense>
             <div class="row q-col-gutter-md q-mt-sm">
               <div class="col-12 col-sm-4">
-                <q-toggle
-                  v-model="form.isInstallment"
-                  label="Ativar parcelamento"
-                  name="is_installment"
-                  id="transaction-is-installment"
-                />
+                <q-toggle v-model="form.isInstallment" label="Ativar parcelamento" name="is_installment"
+                  id="transaction-is-installment" />
               </div>
 
               <div class="col-12 col-sm-4">
-                <q-input
-                  v-model.number="form.installmentsCount"
-                  label="Quantidade de parcelas"
-                  type="number"
-                  outlined
-                  dense
-                  :disable="!form.isInstallment"
-                  :min="2"
-                  :max="60"
-                  name="installments_count"
-                  id="transaction-installments-count"
-                  placeholder="2"
-                  :rules="[
+                <q-input v-model.number="form.installmentsCount" label="Quantidade de parcelas" type="number" outlined
+                  dense :disable="!form.isInstallment" :min="2" :max="60" name="installments_count"
+                  id="transaction-installments-count" placeholder="2" :rules="[
                     v => !form.isInstallment || (v && v >= 2) || 'Mínimo 2 parcelas'
-                  ]"
-                />
+                  ]" />
               </div>
 
               <div class="col-12 col-sm-4">
-                <q-input
-                  v-model="form.firstDueDate"
-                  label="1ª parcela em"
-                  type="date"
-                  outlined
-                  dense
-                  :disable="!form.isInstallment"
-                  name="first_due_date"
-                  id="transaction-first-due-date"
-                  placeholder="YYYY-MM-DD"
-                >
+                <q-input v-model="form.firstDueDate" label="1ª parcela em" type="date" outlined dense
+                  :disable="!form.isInstallment" name="first_due_date" id="transaction-first-due-date"
+                  placeholder="YYYY-MM-DD">
                   <template v-slot:prepend>
                     <q-icon name="event" color="grey-6" />
                   </template>
@@ -313,58 +202,30 @@ Efeitos: CRUD de transações com validação -->
             </div>
 
             <div class="text-caption text-grey q-mt-xs">
-              Ao salvar, serão criadas <b>{{ form.installmentsCount }}</b> transações, uma por mês, com descrição no formato "{{ form.description || 'Descrição' }} (n/{{ form.installmentsCount || 0 }})".
+              Ao salvar, serão criadas <b>{{ form.installmentsCount }}</b> transações, uma por mês, com descrição no
+              formato "{{
+                form.description || 'Descrição' }} (n/{{ form.installmentsCount || 0 }})".
             </div>
           </q-expansion-item>
 
           <!-- Descrição -->
-          <q-input
-            v-model="form.description"
-            label="Descrição *"
-            outlined
-            dense
-            maxlength="100"
-            counter
-            :rules="[
-              val => !!val || 'Descrição é obrigatória',
-              val => val.length <= 100 || 'Máximo 100 caracteres'
-            ]"
-            hint="Descreva brevemente esta transação"
-            name="description"
-            id="transaction-description"
-            placeholder="Ex.: Salário, Conta de luz, etc."
-          >
+          <q-input v-model="form.description" label="Descrição *" outlined dense maxlength="100" counter :rules="[
+            val => !!val || 'Descrição é obrigatória',
+            val => val.length <= 100 || 'Máximo 100 caracteres'
+          ]" hint="Descreva brevemente esta transação" name="description" id="transaction-description"
+            placeholder="Ex.: Salário, Conta de luz, etc.">
             <template v-slot:prepend>
               <q-icon name="description" color="grey-6" />
             </template>
           </q-input>
 
           <!-- Categoria -->
-          <q-select
-            v-model="form.category"
-            label="Categoria *"
-            :options="filteredCategories"
-            outlined
-            dense
-            use-input
-            hide-selected
-            fill-input
-            input-debounce="0"
-            new-value-mode="add-unique"
-            option-label="name"
-            option-value="name"
-            emit-value
-            map-options
-            :rules="[
+          <q-select v-model="form.category" label="Categoria *" :options="filteredCategories" outlined dense use-input
+            hide-selected fill-input input-debounce="0" new-value-mode="add-unique" option-label="name"
+            option-value="name" emit-value map-options :rules="[
               val => !!val || 'Categoria é obrigatória'
-            ]"
-            @filter="filterCategories"
-            @new-value="handleNewCategory"
-            hint="Selecione ou digite uma nova categoria"
-            name="category"
-            id="transaction-category"
-            placeholder="Selecione uma categoria"
-          >
+            ]" @filter="filterCategories" @new-value="handleNewCategory" hint="Selecione ou digite uma nova categoria"
+            name="category" id="transaction-category" placeholder="Selecione uma categoria">
             <template v-slot:prepend>
               <q-icon name="category" color="grey-6" />
             </template>
@@ -374,7 +235,9 @@ Efeitos: CRUD de transações com validação -->
             <!-- Selected display (when a value is chosen) -->
             <template v-slot:selected="scope">
               <div class="row items-center no-wrap">
-                <q-icon :name="(availableCategories.find(c => c.name === scope.opt) || {}).icon || 'category'" :color="(availableCategories.find(c => c.name === scope.opt) || {}).color || 'blue-6'" class="q-mr-sm" />
+                <q-icon :name="(availableCategories.find(c => c.name === scope.opt) || {}).icon || 'category'"
+                  :color="(availableCategories.find(c => c.name === scope.opt) || {}).color || 'blue-6'"
+                  class="q-mr-sm" />
                 <span>{{ scope.opt }}</span>
               </div>
             </template>
@@ -395,7 +258,8 @@ Efeitos: CRUD de transações com validação -->
                 <q-item-section side v-if="opt.is_default !== true">
                   <div class="row items-center no-wrap q-gutter-xs">
                     <q-btn size="sm" flat round icon="edit" @click.stop.prevent="openEditCategoryDialog(opt)" />
-                    <q-btn size="sm" flat round icon="delete" color="negative" @click.stop.prevent="deleteCategory(opt)" />
+                    <q-btn size="sm" flat round icon="delete" color="negative"
+                      @click.stop.prevent="deleteCategory(opt)" />
                   </div>
                 </q-item-section>
               </q-item>
@@ -403,19 +267,9 @@ Efeitos: CRUD de transações com validação -->
           </q-select>
 
           <!-- Observações (opcional) -->
-          <q-input
-            v-model="form.notes"
-            label="Observações (opcional)"
-            type="textarea"
-            outlined
-            rows="3"
-            maxlength="500"
-            counter
-            hint="Informações adicionais sobre esta transação"
-            name="notes"
-            id="transaction-notes"
-            placeholder="Detalhes adicionais (opcional)"
-          >
+          <q-input v-model="form.notes" label="Observações (opcional)" type="textarea" outlined rows="3" maxlength="500"
+            counter hint="Informações adicionais sobre esta transação" name="notes" id="transaction-notes"
+            placeholder="Detalhes adicionais (opcional)">
             <template v-slot:prepend>
               <q-icon name="note" color="grey-6" />
             </template>
@@ -426,24 +280,12 @@ Efeitos: CRUD de transações com validação -->
           ========================================================================== -->
           <div class="row q-col-gutter-md q-mt-lg">
             <div class="col-6">
-              <q-btn
-                label="Cancelar"
-                color="grey-6"
-                outline
-                class="full-width"
-                no-caps
-                @click="handleCancel"
-              />
+              <q-btn label="Cancelar" color="grey-6" outline class="full-width" no-caps @click="handleCancel" />
             </div>
             <div class="col-6">
-              <q-btn
-                type="submit"
-                :label="mode === 'edit' ? 'Salvar Alterações' : 'Criar Transação'"
+              <q-btn type="submit" :label="mode === 'edit' ? 'Salvar Alterações' : 'Criar Transação'"
                 :color="form.type === 'income' ? 'green-6' : (form.type === 'expense' ? 'red-6' : 'primary')"
-                class="full-width"
-                no-caps
-                :disable="!isFormValid"
-              />
+                class="full-width" no-caps :disable="!isFormValid" />
             </div>
           </div>
         </q-form>
@@ -452,19 +294,11 @@ Efeitos: CRUD de transações com validação -->
   </q-card>
 
   <!-- Dialogo de categoria (reutilizável) -->
-  <CategoryDialog
-    :show="categoryDialog.show"
-    :mode="categoryDialog.mode"
-    :initial-name="categoryDialog.initial?.name"
-    :initial-icon="categoryDialog.initial?.icon"
-    :initial-color="categoryDialog.initial?.color"
-    :initial-type="categoryDialog.initial?.type || form.type"
-    :existing-names="availableCategories.map(c => c.name)"
-    :submit-fn="categoryDialog.submitFn || null"
-    @close="categoryDialog.show = false"
-    @created="onCategoryCreated"
-    @saved="onCategorySaved"
-  />
+  <CategoryDialog :show="categoryDialog.show" :mode="categoryDialog.mode" :initial-name="categoryDialog.initial?.name"
+    :initial-icon="categoryDialog.initial?.icon" :initial-color="categoryDialog.initial?.color"
+    :initial-type="categoryDialog.initial?.type || form.type" :existing-names="availableCategories.map(c => c.name)"
+    :submit-fn="categoryDialog.submitFn || null" @close="categoryDialog.show = false" @created="onCategoryCreated"
+    @saved="onCategorySaved" />
 </template>
 
 <script setup>
@@ -564,7 +398,7 @@ const isFormValid = computed(() => {
  */
 const initializeForm = () => {
   if (props.transaction) {
-    
+
     form.value = {
       type: props.transaction.type || 'income',
       amount: props.transaction.amount?.toString() || '',
@@ -589,16 +423,16 @@ const initializeForm = () => {
 }
 
 // Helpers: BR <-> ISO date
-function pad2(n) { return String(n).padStart(2,'0') }
+function pad2(n) { return String(n).padStart(2, '0') }
 function formatBRDate(d) {
   const dt = (d instanceof Date) ? d : new Date(d)
-  return `${pad2(dt.getDate())}/${pad2(dt.getMonth()+1)}/${dt.getFullYear()}`
+  return `${pad2(dt.getDate())}/${pad2(dt.getMonth() + 1)}/${dt.getFullYear()}`
 }
 function toISOFromBR(s) {
   if (!s) return ''
-  const parts = s.replace(/\s/g,'').split('/')
+  const parts = s.replace(/\s/g, '').split('/')
   if (parts.length !== 3) return s
-  const [dd,mm,yyyy] = parts
+  const [dd, mm, yyyy] = parts
   return `${yyyy}-${mm}-${dd}`
 }
 
@@ -625,10 +459,10 @@ const loadCategories = async () => {
     console.error('❌ Erro ao carregar categorias:', err)
     // fallback para store local se API indisponível
     if (transactionStore.categories?.length) {
-      availableCategories.value = transactionStore.categories.map(name => ({ 
-        name, 
-        icon: 'category', 
-        color: 'blue-6', 
+      availableCategories.value = transactionStore.categories.map(name => ({
+        name,
+        icon: 'category',
+        color: 'blue-6',
         type: 'expense', // default para expense
         is_default: false
       }))
@@ -724,19 +558,19 @@ const deleteCategory = async (opt) => {
 function buildGroupedOptions(filterText) {
   const needle = (filterText || '').toLowerCase()
   const currentType = form.value.type // 'income' ou 'expense'
-  
+
   // Filtra categorias pelo tipo da transação E pelo texto de busca
-  const def = availableCategories.value.filter(c => 
-    c.is_default === true && 
-    c.type === currentType && 
+  const def = availableCategories.value.filter(c =>
+    c.is_default === true &&
+    c.type === currentType &&
     c.name.toLowerCase().includes(needle)
   )
-  const usr = availableCategories.value.filter(c => 
-    c.is_default !== true && 
-    c.type === currentType && 
+  const usr = availableCategories.value.filter(c =>
+    c.is_default !== true &&
+    c.type === currentType &&
     c.name.toLowerCase().includes(needle)
   )
-  
+
   const out = []
   if (def.length) {
     out.push({ header: 'Categorias padrão' })
@@ -759,7 +593,7 @@ const currentCategoryMeta = computed(() => {
  * Processa o envio do formulário
  */
 const handleSubmit = async () => {
-  
+
   try {
     const baseData = {
       type: form.value.type,
@@ -769,13 +603,13 @@ const handleSubmit = async () => {
       notes: form.value.notes?.trim() || null,
       paid: !!form.value.paid
     }
-    
+
     if (props.mode === 'edit' && props.transaction?.id) {
       // Atualizar transação única
       const payload = { ...baseData, date: form.value.date }
       const updated = await transactionStore.updateTransaction(props.transaction.id, payload)
       notifySuccess('Transação atualizada com sucesso!')
-      
+
     } else {
       // Criação (única ou parcelada)
       if (form.value.isInstallment && form.value.installmentsCount >= 2) {
@@ -804,9 +638,9 @@ const handleSubmit = async () => {
         notifySuccess('Transação criada com sucesso!')
       }
     }
-    
+
     emit('saved')
-    
+
   } catch (error) {
     const status = error?.response?.status
     const data = error?.response?.data
@@ -910,10 +744,10 @@ watch(
   () => form.value.type,
   (newType, oldType) => {
     if (newType !== oldType) {
-      
+
       // Refiltra as categorias disponíveis
       filteredCategories.value = buildGroupedOptions('')
-      
+
       // Se a categoria atual não pertence ao novo tipo, limpa
       const currentCat = availableCategories.value.find(c => c.name === form.value.category)
       if (currentCat && currentCat.type !== newType) {
@@ -929,7 +763,7 @@ watch(
 onMounted(() => {
   loadCategories()
   initializeForm()
-  
+
   // Fix para scroll mobile quando teclado abre
   if (window.innerWidth <= 768) {
     setupMobileScrollFix()
@@ -943,7 +777,7 @@ const setupMobileScrollFix = () => {
   // Aguarda próximo tick para garantir que DOM está montado
   setTimeout(() => {
     const inputs = document.querySelectorAll('.transaction-form-card input, .transaction-form-card textarea, .transaction-form-card select')
-    
+
     inputs.forEach(input => {
       input.addEventListener('focus', (e) => {
         // Aguarda teclado abrir (300ms)
@@ -1028,9 +862,9 @@ const onTogglePaidView = async (val) => {
   max-width: 800px;
   margin: 2% auto; // top & bottom spacing as requested
   border-radius: 16px;
-  overflow: hidden; 
+  overflow: hidden;
   box-sizing: border-box;
-  
+
   .q-bar {
     border-radius: 16px 16px 0 0;
   }
@@ -1048,22 +882,27 @@ const onTogglePaidView = async (val) => {
 }
 
 :deep(.transaction-form-card .q-card-section > .row.q-col-gutter-md > [class^='col-'],
-      .transaction-form-card .q-card-section > .row.q-col-gutter-md > [class*=' col-']) {
+  .transaction-form-card .q-card-section > .row.q-col-gutter-md > [class*=' col-']) {
   padding-left: 8px;
   padding-right: 8px;
 }
 
 // Ensure inputs/selects never overflow
 :deep(.transaction-form-card .q-input,
-      .transaction-form-card .q-select,
-      .transaction-form-card .q-expansion-item,
-      .transaction-form-card .q-btn) {
+  .transaction-form-card .q-select,
+  .transaction-form-card .q-expansion-item,
+  .transaction-form-card .q-btn) {
   max-width: 100%;
 }
 
 // Harmonize vertical gaps using existing utilities
-:deep(.transaction-form-card .q-gutter-md) { gap: 16px; }
-:deep(.transaction-form-card .q-mb-md) { margin-bottom: 16px !important; }
+:deep(.transaction-form-card .q-gutter-md) {
+  gap: 16px;
+}
+
+:deep(.transaction-form-card .q-mb-md) {
+  margin-bottom: 16px !important;
+}
 
 // Seletor de tipo
 .type-selector {
@@ -1083,13 +922,14 @@ const onTogglePaidView = async (val) => {
   // Map buttons by position: 1 = Receita (income), 2 = Despesa (expense)
   .q-btn:nth-child(1):not(.q-btn--active) {
     background: #E8F5E9 !important; // pastel green
-    color: #2e7d32 !important;      // dark green text
+    color: #2e7d32 !important; // dark green text
   }
+
   .q-btn:nth-child(2):not(.q-btn--active) {
     background: #FFEBEE !important; // pastel red
-    color: #c62828 !important;      // dark red text
+    color: #c62828 !important; // dark red text
   }
-  
+
   // Active states (strong colors) - INCOME
   // Ultra-specific to beat theme's .sage-dark-theme .q-btn:not(.q-btn--outline).bg-primary
   &.income-selected .q-btn:nth-child(1).q-btn--active,
@@ -1099,7 +939,7 @@ const onTogglePaidView = async (val) => {
     color: #ffffff !important;
     box-shadow: 0 2px 8px rgba(46, 125, 50, 0.35) !important;
   }
-  
+
   // Active states (strong colors) - EXPENSE
   // Ultra-specific to beat theme's .sage-dark-theme .q-btn:not(.q-btn--outline).bg-primary
   &.expense-selected .q-btn:nth-child(2).q-btn--active,
@@ -1114,9 +954,11 @@ const onTogglePaidView = async (val) => {
   .q-btn.bg-primary {
     background: transparent !important;
   }
+
   &.income-selected .q-btn:nth-child(1).bg-primary {
     background: #2e7d32 !important;
   }
+
   &.expense-selected .q-btn:nth-child(2).bg-primary {
     background: #c62828 !important;
   }
@@ -1127,6 +969,7 @@ const onTogglePaidView = async (val) => {
   background: #c62828 !important;
   color: #ffffff !important;
 }
+
 .transaction-form-card .type-selector.income-selected .q-btn:nth-child(1).bg-primary {
   background: #2e7d32 !important;
   color: #ffffff !important;
@@ -1146,17 +989,17 @@ const onTogglePaidView = async (val) => {
     border-radius: 12px;
     border: 2px solid rgba(0, 0, 0, 0.05);
   }
-  
+
   .field-view {
     margin-bottom: 1rem;
-    
+
     .field-label {
       font-weight: 500;
       margin-bottom: 0.25rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    
+
     .field-value {
       margin-top: 0.25rem;
     }
@@ -1173,7 +1016,7 @@ const onTogglePaidView = async (val) => {
 // Animações
 .q-btn {
   transition: all 0.3s ease;
-  
+
   &:hover:not(.q-btn--disable) {
     transform: translateY(-1px);
   }
@@ -1190,7 +1033,7 @@ const onTogglePaidView = async (val) => {
     display: flex !important;
     flex-direction: column !important;
     overflow: hidden !important;
-    
+
     .q-bar {
       border-radius: 0 !important;
       flex-shrink: 0 !important;
@@ -1199,7 +1042,7 @@ const onTogglePaidView = async (val) => {
       z-index: 100 !important;
       background: var(--q-primary) !important;
     }
-    
+
     .q-card-section {
       flex: 1 !important;
       overflow-y: auto !important;
@@ -1208,15 +1051,15 @@ const onTogglePaidView = async (val) => {
       padding: 1rem !important;
       // ESPAÇO GIGANTE para garantir que campos fiquem visíveis com teclado
       padding-bottom: calc(400px + env(safe-area-inset-bottom)) !important;
-      
+
       // Força scroll mesmo com teclado aberto
       overscroll-behavior: contain !important;
       touch-action: pan-y !important;
-      
+
       // Garante altura mínima para scroll
       min-height: 150vh !important;
     }
-    
+
     .q-card-actions {
       flex-shrink: 0 !important;
       position: sticky !important;
@@ -1229,7 +1072,7 @@ const onTogglePaidView = async (val) => {
       box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1) !important;
     }
   }
-  
+
   // Dark mode fix para card-actions
   body.body--dark .transaction-form-card .q-card-actions {
     background: var(--q-dark, #1e1e1e) !important;

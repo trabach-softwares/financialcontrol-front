@@ -1,0 +1,37 @@
+.period-filter-card {
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: rgba(0, 0, 0, 0.12);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.custom-dates-wrapper {
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.date-range-info {
+  display: flex;
+  justify-content: center;
+}
+
+/* Dark theme overrides */
+.period-filter-card.theme-dark,
+.theme-dark .period-filter-card {
+  border: 1px solid rgba(255,255,255,0.04);
+  background: #071124;
+}
+
+.theme-dark .period-filter-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.theme-dark .custom-dates-wrapper {
+  background: rgba(255,255,255,0.02);
+}

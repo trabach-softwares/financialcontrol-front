@@ -1,0 +1,41 @@
+.advanced-filter-expansion {
+  --card-bg: #fff;
+  --text-muted: #64748b;
+  border-radius: 12px;
+}
+
+.advanced-filter-card {
+  background: var(--card-bg);
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.advanced-filter-header q-avatar {
+  background: #1976D2;
+  color: #fff;
+}
+
+.advanced-filter-expansion .q-item-label.caption {
+  color: var(--text-muted);
+}
+
+/* Dark theme overrides */
+.advanced-filter-expansion.theme-dark,
+.theme-dark .advanced-filter-expansion {
+  --card-bg: #071124;
+  --text-muted: #94a3b8;
+}
+
+.theme-dark .advanced-filter-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.theme-dark .advanced-filter-header q-avatar {
+  background: #90caf9;
+  color: #082135;
+}
+
+.theme-dark .advanced-filter-expansion .q-item-label.caption {
+  color: var(--text-muted);
+}

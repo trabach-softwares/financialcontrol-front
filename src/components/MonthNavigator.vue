@@ -1,5 +1,5 @@
 <template>
-  <div class="month-navigator">
+  <div class="month-navigator" :class="{ 'theme-dark': isDark }">
     <div class="navigator-wrapper">
 
       <!-- Botão Anterior -->
@@ -198,7 +198,7 @@ const loadPreference = () => {
     currentDate.value = new Date();
     selectedMonth.value = currentDate.value.getMonth();
     selectedYear.value = currentDate.value.getFullYear();
-    
+
     // Limpa qualquer preferência antiga
     localStorage.removeItem(props.storageKey);
   } catch (error) {
@@ -216,105 +216,11 @@ watch(currentDate, (newDate) => {
 loadPreference();
 emitChange();
 
+// Quasar runtime
 const $q = useQuasar()
+const isDark = computed(() => $q.dark.isActive)
 </script>
 
-<style lang="scss" scoped>
-.month-navigator {
-  width: 100%;
-}
-
-.navigator-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
-  background: white;
-  border-radius: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:hover {
-    border-color: rgba(25, 118, 210, 0.3);
-    box-shadow: 0 4px 20px rgba(25, 118, 210, 0.12);
-    transform: translateY(-1px);
-  }
-  
-  .q-btn {
-    border-radius: 12px;
-    transition: all 0.2s ease;
-    
-    &:hover {
-      background: rgba(25, 118, 210, 0.08);
-      transform: scale(1.1);
-    }
-    
-    &:active {
-      transform: scale(0.95);
-    }
-  }
-}
-
-.current-month {
-  flex: 1;
-  text-align: center;
-  cursor: pointer;
-  padding: 8px 16px;
-  border-radius: 12px;
-  transition: all 0.2s ease;
-  min-width: 160px;
-  position: relative;
-
-  &:hover {
-    background: linear-gradient(135deg, rgba(25, 118, 210, 0.05) 0%, rgba(25, 118, 210, 0.08) 100%);
-  }
-  
-  &:active {
-    transform: scale(0.98);
-  }
-
-  .month-label {
-    font-size: 14px;
-    font-weight: 700;
-    color: #1976D2;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  }
-
-  .month-badge {
-    font-size: 9px;
-    font-weight: 800;
-    padding: 3px 8px;
-    border-radius: 6px;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    display: inline-block;
-    margin-top: 2px;
-  }
-}
-
-// Mobile
-@media (max-width: 599px) {
-  .navigator-wrapper {
-    gap: 12px;
-    padding: 12px 14px;
-  }
-  
-  .current-month {
-    min-width: 150px;
-    padding: 8px 12px;
-    
-    .month-label {
-      font-size: 13px;
-    }
-    
-    .month-badge {
-      font-size: 9px;
-      padding: 3px 8px;
-    }
-  }
-}
+<style lang="scss">
+@import '../components/scss/month-navigator.scss';
 </style>

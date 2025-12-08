@@ -1585,7 +1585,6 @@ onMounted(() => {
   animation: fadeInUp 0.6s ease;
   
   .advanced-filter-expansion {
-    background: white;
     border-radius: 16px;
     border: 1px solid rgba(0, 0, 0, 0.08);
     overflow: hidden;
