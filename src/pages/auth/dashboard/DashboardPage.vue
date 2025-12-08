@@ -1,15 +1,20 @@
 <template>
-  <q-page class="modern-dashboard">
+  <q-page class="modern-dashboard" aria-labelledby="dashboard-title" :class="{ 'theme-dark': isDark }"
+    :data-theme="isDark ? 'dark' : 'light'">
     <div class="dashboard-wrapper">
 
-      <DashboardHero @open-transaction="openTransactionDialog" />
+      <header class="dashboard-header" role="banner">
+        <h1 id="dashboard-title" class="sr-only">Painel Financeiro</h1>
+        <DashboardHero @open-transaction="openTransactionDialog" />
+      </header>
 
-      <!-- period + filters -->
-      <div class="period-filter-section q-mb-lg q-px-md">
+      <!-- período + filtros -->
+      <section class="period-filter-section q-mb-lg" aria-labelledby="filters-title">
+        <h2 id="filters-title" class="sr-only">Período e filtros</h2>
         <div class="row q-col-gutter-md">
-          <div class="col-12 col-md-4">
+          <nav class="col-12 col-md-4" aria-label="Navegação por mês">
             <MonthNavigator @change="handleMonthChange" :loading="isLoadingStats" storage-key="dashboard-month" />
-          </div>
+          </nav>
           <div class="col-12 col-md-8">
             <q-expansion-item icon="filter_alt" label="Filtros Avançados" caption="Períodos personalizados" dense-toggle
               expand-separator class="advanced-filter-expansion" header-class="advanced-filter-header"
@@ -35,41 +40,50 @@
             </q-expansion-item>
           </div>
         </div>
-      </div>
+      </section>
 
-      <DashboardMetrics />
+      <section aria-labelledby="metrics-title">
+        <h2 id="metrics-title" class="sr-only">Métricas</h2>
+        <DashboardMetrics />
+      </section>
 
-      <div class="row q-col-gutter-sm secondary-section">
-        <div class="col-12 col-md-5">
-          <div class="category-chart-card">
-            <div class="chart-header-simple">
+      <div class="row q-col-gutter-sm secondary-section" role="region"
+        aria-label="Ações rápidas e gráficos de categoria">
+        <aside class="col-12 col-md-5" aria-labelledby="category-chart-title">
+          <figure class="category-chart-card">
+            <figcaption class="chart-header-simple" id="category-chart-title">
               <div class="chart-icon-wrapper category"><q-icon name="pie_chart" size="1.3rem" /></div>
               <div>
-                <h6 class="chart-title-small">Despesas por Categoria</h6>
+                <h3 class="chart-title-small">Despesas por Categoria</h3>
                 <p class="chart-subtitle-small">Onde seu dinheiro está sendo gasto</p>
               </div>
-            </div>
+            </figcaption>
 
             <div class="category-chart-body">
-              <div v-if="isLoadingCharts" class="chart-loading-small"><q-spinner-dots color="primary" size="2em" />
+              <div v-if="isLoadingCharts" class="chart-loading-small" role="status" aria-live="polite"><q-spinner-dots
+                  color="primary" size="2em" />
               </div>
               <div v-else>
-                <canvas id="doughnutChart" class="category-chart-canvas"></canvas>
+                <canvas id="doughnutChart" class="category-chart-canvas" role="img"
+                  aria-label="Gráfico de pizza de despesas por categoria"></canvas>
               </div>
             </div>
-          </div>
-        </div>
+          </figure>
+        </aside>
 
-        <div class="col-12 col-md-7">
+        <div class="col-12 col-md-7" role="region" aria-label="Ações rápidas">
           <DashboardQuickActions @open-transaction="openTransactionDialog" />
         </div>
       </div>
 
-      <div class="row transactions-section">
-        <div class="col-12">
-          <DashboardRecentTransactions @open-transaction="openTransactionDialog" />
+      <section class="transactions-section" aria-labelledby="transactions-title">
+        <h2 id="transactions-title" class="sr-only">Transações Recentes</h2>
+        <div class="row">
+          <div class="col-12">
+            <DashboardRecentTransactions @open-transaction="openTransactionDialog" />
+          </div>
         </div>
-      </div>
+      </section>
 
       <q-dialog v-model="showAddTransactionDialog" maximized transition-show="slide-up" transition-hide="slide-down"
         class="transaction-dialog-mobile">
@@ -160,5 +174,5 @@ function handleProfileSkipped() { /* noop */ }
 </script>
 
 <style lang="scss">
-@import '../../styles/dashboard.scss';
+@import '../../../css/index.scss';
 </style>

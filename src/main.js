@@ -7,7 +7,7 @@ import '@quasar/extras/roboto-font/roboto-font.css'
 
 // Import Quasar css
 import 'quasar/src/css/index.sass'
-import './assets/index.scss'
+import './css/index.scss'
 
 // Assumes your root component
 import { createPinia } from 'pinia'

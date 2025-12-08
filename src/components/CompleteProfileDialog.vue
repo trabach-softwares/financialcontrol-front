@@ -358,6 +358,7 @@ const convertToISODate = (dateStr) => {
 </script>
 
 <style lang="scss" scoped>
+    @import '../css/index.scss';
 .complete-profile-card {
   border-radius: 16px;
 

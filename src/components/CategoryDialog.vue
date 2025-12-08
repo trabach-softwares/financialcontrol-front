@@ -71,8 +71,8 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
 import { categoriesCreate } from 'src/apis/categories'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
   show: { type: Boolean, default: false },
@@ -148,6 +148,7 @@ async function onSubmit() {
 </script>
 
 <style scoped>
+@import '../css/index.scss';
 .type-toggle .q-btn {
   background: rgba(0, 0, 0, 0.04);
   color: #555;

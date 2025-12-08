@@ -109,8 +109,10 @@ body.body--dark {
   
   // Cards
   .q-card {
-    background-color: var(--sage-bg-secondary);
+    background-color: rgba(0, 0, 0, 0.363);
     color: var(--sage-text-primary);
+    border-radius: 0 0 20px 20px;
+      border: none;
   }
   
   // Inputs

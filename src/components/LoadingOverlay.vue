@@ -34,7 +34,7 @@
 </template>
 
 <script setup>
-import { watch, ref, onBeforeUnmount, computed } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 
 const props = defineProps({
   modelValue: {
@@ -129,6 +129,9 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
+        @import '../css/index.scss';
+
+        
 .loading-overlay {
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 9999;

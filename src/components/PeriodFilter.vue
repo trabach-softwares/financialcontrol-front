@@ -81,9 +81,6 @@ import { useQuasar } from 'quasar';
 import { usePeriodFilter } from 'src/composables/usePeriodFilter';
 import { computed, ref, watch } from 'vue';
 
-// styles externalized (theme-aware)
-import './scss/period-filter.scss';
-
 const props = defineProps({
   storageKey: {
     type: String,
@@ -163,3 +160,7 @@ const formatDateRange = (start, end) => {
   }
 };
 </script>
+
+<style lang="scss">
+@import '../css/index.scss';
+</style>

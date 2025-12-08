@@ -1,5 +1,5 @@
 <template>
-  <div class="row q-col-gutter-sm metrics-row">
+  <div class="row q-col-gutter-sm metrics-row" :class="{ 'theme-dark': isDark }">
     <div class="col-12 col-sm-6 col-lg-3" @click="go('/transactions?type=income')">
       <div class="metric-card income-metric">
         <div class="metric-icon-wrapper income-icon"><q-icon name="arrow_upward" size="2rem" /></div>
@@ -37,7 +37,8 @@
         <div class="metric-icon-wrapper balance-icon"><q-icon name="account_balance_wallet" size="2rem" /></div>
         <div class="metric-content">
           <div class="metric-label">Saldo Total</div>
-          <div v-if="!isLoadingStats" class="metric-value" :class="balanceColor">{{ formatCurrency(transactionStats.balance) }}</div>
+          <div v-if="!isLoadingStats" class="metric-value" :class="balanceColor">{{
+            formatCurrency(transactionStats.balance) }}</div>
           <q-skeleton v-else type="text" width="70%" height="2rem" />
           <div v-if="!isLoadingStats" class="metric-badge neutral">
             <q-icon name="savings" size="0.9rem" />
@@ -67,10 +68,14 @@
 </template>
 
 <script setup>
+import { useQuasar } from 'quasar'
 import { useCurrency } from 'src/composables/useCurrency'
 import { useDashboardStore } from 'src/stores/dashboard'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+
+const $q = useQuasar()
+const isDark = computed(() => $q.dark.isActive)
 
 const router = useRouter()
 const dashboardStore = useDashboardStore()
@@ -84,3 +89,7 @@ function go(path) {
   router.push(path)
 }
 </script>
+
+<style lang="scss">
+@import '../../../../css/index.scss';
+</style>

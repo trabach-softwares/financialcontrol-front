@@ -144,9 +144,9 @@
 </template>
 
 <script setup>
+import { useQuasar } from 'quasar'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useQuasar } from 'quasar'
 
 const props = defineProps({
   modelValue: {
@@ -268,6 +268,7 @@ const handleClose = () => {
 </script>
 
 <style lang="scss" scoped>
+@import '../css/index.scss';
 // ==========================================================================
 // DIALOG WRAPPER - Permite scroll em mobile
 // ==========================================================================

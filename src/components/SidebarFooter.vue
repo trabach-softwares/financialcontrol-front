@@ -78,8 +78,8 @@
 </template>
 
 <script setup>
-import { useAuthStore } from 'src/stores/auth'
 import { getUserMenuRoutes } from 'src/router/routes'
+import { useAuthStore } from 'src/stores/auth'
 
 const props = defineProps({
   notificationCount: { type: Number, default: 0 }
@@ -90,6 +90,11 @@ const userMenuRoutes = getUserMenuRoutes()
 </script>
 
 <style scoped>
+  @import '../css/index.scss';
+
+
+
+  
 .sidebar-footer-content {
   padding-top: 8px;
 }

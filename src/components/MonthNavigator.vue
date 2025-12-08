@@ -222,5 +222,5 @@ const isDark = computed(() => $q.dark.isActive)
 </script>
 
 <style lang="scss">
-@import '../components/scss/month-navigator.scss';
+@import '../css/index.scss';
 </style>

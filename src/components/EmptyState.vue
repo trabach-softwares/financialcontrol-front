@@ -68,6 +68,9 @@ defineProps({
 </script>
 
 <style lang="scss" scoped>
+  @import '../css/index.scss';
+
+  
 .empty-state {
   min-height: 200px;
   display: flex;

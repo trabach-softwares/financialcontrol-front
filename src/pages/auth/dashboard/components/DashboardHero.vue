@@ -64,3 +64,7 @@ const currentDate = computed(() => {
   return new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 })
 </script>
+
+<style lang="scss">
+@import '../../../../css/index.scss';
+</style>

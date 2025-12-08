@@ -63,6 +63,11 @@ const handleThemeChange = (value) => {
 </script>
 
 <style lang="scss" scoped>
+
+
+  @import '../css/index.scss';
+
+  
 // ==========================================================================
 // THEME SWITCHER COMPONENT
 // ==========================================================================

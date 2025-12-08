@@ -67,10 +67,10 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useAuthStore } from 'src/stores/auth'
 import { useFeaturePermissions } from 'src/composables/useFeaturePermissions'
+import { useAuthStore } from 'src/stores/auth'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
@@ -104,6 +104,7 @@ const goToDashboard = () => {
 </script>
 
 <style lang="scss" scoped>
+    @import '../../css/index.scss';
 .feature-forbidden-page {
   min-height: calc(100vh - 100px);
 }

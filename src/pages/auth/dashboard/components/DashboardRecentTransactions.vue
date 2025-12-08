@@ -60,3 +60,7 @@ const recentTransactions = computed(() => dashboardStore.recentTransactions)
 
 function go(path) { router.push(path) }
 </script>
+
+<style lang="scss">
+@import '../../../../css/index.scss';
+</style>

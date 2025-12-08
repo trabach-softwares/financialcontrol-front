@@ -853,6 +853,13 @@ const onTogglePaidView = async (val) => {
 </script>
 
 <style lang="scss" scoped>
+
+@import '../css/index.scss';
+
+
+
+
+
 // ==========================================================================
 // ESTILOS DO FORMULÁRIO
 // ==========================================================================

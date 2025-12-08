@@ -3,13 +3,12 @@
 </template>
 
 <script setup>
-import { onMounted, onBeforeUnmount, watch } from 'vue'
 import { Dialog, Notify } from 'quasar'
-import { useAuthStore } from 'src/stores/auth'
-import { authService } from 'src/services/authService'
 import { useSessionActivity } from 'src/composables/useSessionActivity'
+import { authService } from 'src/services/authService'
+import { useAuthStore } from 'src/stores/auth'
+import { onBeforeUnmount, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { authGetMe } from 'src/apis/api-financial.js'
 
 // ==========================================================================
 // CONFIGURAÇÕES
@@ -402,6 +401,11 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
+  @import '../css/index.scss';
+
+
+
+  
 /* Estilos inline no dialog via class */
 :deep(.session-dialog) {
   .q-card {

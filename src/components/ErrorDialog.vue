@@ -125,7 +125,6 @@ Usado para: Erros 403 (acesso negado), limite de transações, etc. -->
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 // Props
@@ -258,6 +257,7 @@ const handleSecondaryAction = () => {
 </script>
 
 <style scoped lang="scss">
+@import '../css/index.scss';
 .error-dialog-card {
   border-radius: 12px;
 }
