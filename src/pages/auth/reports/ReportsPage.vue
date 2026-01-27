@@ -436,18 +436,35 @@ const loadReports = async () => {
 
   try {
     // Get reports data
-    const reportsData = await transactionService.getReports({
+    const response = await transactionService.getReports({
       startDate: filters.value.startDate,
       endDate: filters.value.endDate
     })
 
-    // Update summary
-    summary.value = reportsData.summary
+    // Extract data from response (backend returns { success, data })
+    const reportsData = response?.data || response
 
-    // Update charts data
-    timelineData.value = reportsData.timeline
-    categoryAnalysis.value = reportsData.categoryAnalysis
-    monthlyComparison.value = reportsData.monthlyComparison
+    // Update summary with safe defaults
+    if (reportsData?.summary) {
+      summary.value = {
+        totalIncome: reportsData.summary.totalIncome || 0,
+        totalExpense: reportsData.summary.totalExpense || 0,
+        balance: reportsData.summary.balance || 0,
+        incomeCount: reportsData.summary.incomeCount || 0,
+        expenseCount: reportsData.summary.expenseCount || 0,
+        totalTransactions: reportsData.summary.transactionCount || reportsData.summary.totalTransactions || 0
+      }
+    }
+
+    // Process transactions for timeline
+    const transactions = reportsData?.transactions || []
+    timelineData.value = processTimelineData(transactions)
+    
+    // Process category analysis
+    categoryAnalysis.value = processCategoryAnalysis(reportsData?.categories || [], transactions)
+    
+    // Process monthly comparison
+    monthlyComparison.value = processMonthlyComparison(transactions)
 
     // Update charts
     await nextTick()
@@ -456,8 +473,99 @@ const loadReports = async () => {
   } catch (error) {
     console.error('Erro ao carregar relatórios:', error)
     showError('Erro ao carregar relatórios. Tente novamente.')
-  } finally {
   }
+}
+
+const processTimelineData = (transactions) => {
+  if (!transactions || !Array.isArray(transactions) || transactions.length === 0) {
+    return []
+  }
+
+  // Group by date
+  const grouped = transactions.reduce((acc, t) => {
+    const date = new Date(t.date).toLocaleDateString('pt-BR')
+    if (!acc[date]) {
+      acc[date] = { date, income: 0, expense: 0 }
+    }
+    if (t.type === 'income') {
+      acc[date].income += t.amount
+    } else {
+      acc[date].expense += t.amount
+    }
+    return acc
+  }, {})
+
+  return Object.values(grouped).sort((a, b) => {
+    const dateA = a.date.split('/').reverse().join('-')
+    const dateB = b.date.split('/').reverse().join('-')
+    return dateA.localeCompare(dateB)
+  })
+}
+
+const processCategoryAnalysis = (categories, transactions) => {
+  if (!transactions || !Array.isArray(transactions)) {
+    return []
+  }
+
+  // Group by category
+  const grouped = transactions.reduce((acc, t) => {
+    const cat = t.category || 'Sem categoria'
+    if (!acc[cat]) {
+      acc[cat] = { name: cat, total: 0, count: 0, type: t.type }
+    }
+    acc[cat].total += t.type === 'income' ? t.amount : -t.amount
+    acc[cat].count++
+    return acc
+  }, {})
+
+  const total = Math.abs(Object.values(grouped).reduce((sum, cat) => sum + Math.abs(cat.total), 0))
+
+  return Object.values(grouped).map(cat => ({
+    ...cat,
+    percentage: total > 0 ? (Math.abs(cat.total) / total) * 100 : 0
+  })).sort((a, b) => Math.abs(b.total) - Math.abs(a.total))
+}
+
+const processMonthlyComparison = (transactions) => {
+  if (!transactions || !Array.isArray(transactions)) {
+    return []
+  }
+
+  // Group by month
+  const grouped = transactions.reduce((acc, t) => {
+    const date = new Date(t.date)
+    const month = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+    if (!acc[month]) {
+      acc[month] = { month, income: 0, expenses: 0, balance: 0 }
+    }
+    if (t.type === 'income') {
+      acc[month].income += t.amount
+    } else {
+      acc[month].expenses += t.amount
+    }
+    acc[month].balance = acc[month].income - acc[month].expenses
+    return acc
+  }, {})
+
+  const months = Object.values(grouped)
+  
+  // Add trend
+  months.forEach((month, index) => {
+    if (index > 0) {
+      const prev = months[index - 1]
+      if (month.balance > prev.balance) {
+        month.trend = 'up'
+      } else if (month.balance < prev.balance) {
+        month.trend = 'down'
+      } else {
+        month.trend = 'flat'
+      }
+    } else {
+      month.trend = 'flat'
+    }
+  })
+
+  return months
 }
 
 const updateCharts = () => {
@@ -466,7 +574,7 @@ const updateCharts = () => {
 }
 
 const updateTimelineChart = () => {
-  if (!timelineChart.value || !timelineData.value.length) return
+  if (!timelineChart.value || !Array.isArray(timelineData.value) || timelineData.value.length === 0) return
 
   // Destroy existing chart
   if (timelineChartInstance.value) {
@@ -478,11 +586,11 @@ const updateTimelineChart = () => {
   timelineChartInstance.value = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: timelineData.value.map(item => item.date),
+      labels: timelineData.value.map(item => item.date || ''),
       datasets: [
         {
           label: 'Receitas',
-          data: timelineData.value.map(item => item.income),
+          data: timelineData.value.map(item => item.income || 0),
           borderColor: '#4CAF50',
           backgroundColor: 'rgba(76, 175, 80, 0.1)',
           tension: 0.4,
@@ -490,7 +598,7 @@ const updateTimelineChart = () => {
         },
         {
           label: 'Despesas',
-          data: timelineData.value.map(item => item.expense),
+          data: timelineData.value.map(item => item.expense || 0),
           borderColor: '#F44336',
           backgroundColor: 'rgba(244, 67, 54, 0.1)',
           tension: 0.4,
@@ -521,7 +629,7 @@ const updateTimelineChart = () => {
 }
 
 const updateCategoryChart = () => {
-  if (!categoryChart.value || !categoryAnalysis.value.length) return
+  if (!categoryChart.value || !Array.isArray(categoryAnalysis.value) || categoryAnalysis.value.length === 0) return
 
   // Destroy existing chart
   if (categoryChartInstance.value) {
@@ -533,9 +641,9 @@ const updateCategoryChart = () => {
   categoryChartInstance.value = new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: categoryAnalysis.value.map(item => item.name),
+      labels: categoryAnalysis.value.map(item => item.name || 'Sem nome'),
       datasets: [{
-        data: categoryAnalysis.value.map(item => Math.abs(item.total)),
+        data: categoryAnalysis.value.map(item => Math.abs(item.total || 0)),
         backgroundColor: [
           '#2C5F2D', '#26A69A', '#FFC107', '#FF7043',
           '#9C27B0', '#66BB6A', '#EF5350', '#42A5F5'
