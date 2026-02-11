@@ -1,0 +1,315 @@
+// ==========================================================================
+// DASHBOARD MODERNO - ESTILOS DE UI/UX MELHORADOS
+// ==========================================================================
+
+// ==========================================================================
+// FILTROS AVANÇADOS - DESIGN LIMPO E MODERNO
+// ==========================================================================
+.filters-container-modern {
+  animation: fadeIn 0.5s ease;
+}
+
+.advanced-filters-modern {
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    border-color: rgba(25, 118, 210, 0.25);
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.08);
+  }
+  
+  .filters-header {
+    padding: 12px 16px;
+    
+    .filter-icon-wrapper {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      transition: transform 0.3s ease;
+    }
+    
+    &:hover .filter-icon-wrapper {
+      transform: scale(1.05);
+    }
+  }
+  
+  .filter-label {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #1f2937;
+    letter-spacing: -0.01em;
+  }
+  
+  .filter-caption {
+    font-size: 0.8125rem;
+    color: #6b7280;
+    margin-top: 2px;
+  }
+  
+  .filters-content {
+    background: #fafbfc;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .filter-group {
+    .filter-group-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      
+      .q-icon {
+        color: #6b7280;
+      }
+    }
+  }
+}
+
+// ==========================================================================
+// SEÇÃO SECUNDÁRIA - GRÁFICOS E AÇÕES
+// ==========================================================================
+.secondary-section-modern {
+  animation: fadeInUp 0.6s ease 0.2s both;
+}
+
+// ==========================================================================
+// CARD DE GRÁFICO DE CATEGORIA - DESIGN MODERNO
+// ==========================================================================
+.category-chart-card-modern {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100%;
+  
+  &:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  .chart-header-modern {
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #fafbfc 0%, #ffffff 100%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    
+    .chart-icon-modern {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #ec4899 0%, #f97316 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 4px 12px rgba(236, 72, 153, 0.25);
+      transition: all 0.3s ease;
+    }
+    
+    &:hover .chart-icon-modern {
+      transform: scale(1.05) rotate(5deg);
+      box-shadow: 0 6px 16px rgba(236, 72, 153, 0.35);
+    }
+  }
+  
+  .chart-title-modern {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+  
+  .chart-subtitle-modern {
+    font-size: 0.8125rem;
+    color: #6b7280;
+    margin: 0;
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+  
+  .chart-body-modern {
+    padding: 1.5rem 1.25rem;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+  }
+  
+  .chart-loading-modern {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #9ca3af;
+  }
+  
+  .chart-canvas-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  
+  .category-chart-canvas {
+    max-height: 280px;
+    margin: 0 auto;
+    display: block;
+  }
+}
+
+// ==========================================================================
+// ANIMAÇÕES
+// ==========================================================================
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ==========================================================================
+// RESPONSIVIDADE MOBILE
+// ==========================================================================
+@media (max-width: 768px) {
+  .advanced-filters-modern {
+    .filters-header {
+      padding: 10px 12px;
+      
+      .filter-icon-wrapper {
+        width: 32px;
+        height: 32px;
+      }
+    }
+    
+    .filter-label {
+      font-size: 0.875rem;
+    }
+    
+    .filter-caption {
+      font-size: 0.75rem;
+    }
+  }
+  
+  .category-chart-card-modern {
+    .chart-header-modern {
+      padding: 0.875rem 1rem;
+      
+      .chart-icon-modern {
+        width: 36px;
+        height: 36px;
+      }
+    }
+    
+    .chart-title-modern {
+      font-size: 0.9375rem;
+    }
+    
+    .chart-subtitle-modern {
+      font-size: 0.75rem;
+    }
+    
+    .chart-body-modern {
+      padding: 1.25rem 1rem;
+      min-height: 250px;
+    }
+    
+    .category-chart-canvas {
+      max-height: 220px;
+    }
+  }
+}
+
+// ==========================================================================
+// MODO ESCURO
+// ==========================================================================
+.theme-dark {
+  .advanced-filters-modern {
+    background: #1f2937;
+    border-color: rgba(255, 255, 255, 0.1);
+    
+    &:hover {
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+    }
+    
+    .filter-label {
+      color: #f3f4f6;
+    }
+    
+    .filter-caption {
+      color: #9ca3af;
+    }
+    
+    .filters-content {
+      background: #111827;
+      border-top-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .filter-group-label {
+      color: #d1d5db;
+      
+      .q-icon {
+        color: #9ca3af;
+      }
+    }
+  }
+  
+  .category-chart-card-modern {
+    background: #1f2937;
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    
+    &:hover {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    .chart-header-modern {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .chart-title-modern {
+      color: #f3f4f6;
+    }
+    
+    .chart-subtitle-modern {
+      color: #9ca3af;
+    }
+    
+    .chart-body-modern {
+      background: #111827;
+    }
+    
+    .chart-loading-modern {
+      color: #6b7280;
+    }
+  }
+}

@@ -201,5 +201,70 @@
       "exported": "Exportação iniciada",
       "exportError": "Não foi possível exportar o extrato"
     }
+  },
+  "reports": {
+    "title": "Relatórios Financeiros",
+    "subtitle": "Análises e insights sobre suas finanças",
+    "filters": {
+      "period": "Período",
+      "startDate": "Data Inicial",
+      "endDate": "Data Final",
+      "applyFilters": "Aplicar Filtros",
+      "clearFilters": "Limpar"
+    },
+    "metrics": {
+      "income": "Receitas",
+      "expense": "Despesas",
+      "balance": "Saldo",
+      "transactions": "Transações"
+    },
+    "charts": {
+      "categoryExpenses": "Despesas por Categoria",
+      "monthlyTrend": "Evolução Mensal",
+      "topCategories": "Top 3 Categorias",
+      "barChart": "Barras",
+      "pieChart": "Pizza"
+    },
+    "comparison": {
+      "title": "Comparativo de Períodos",
+      "month": "Mês",
+      "variation": "Variação"
+    },
+    "detailed": {
+      "title": "Relatório Detalhado por Categoria",
+      "noTransactions": "Sem transações para exibir"
+    },
+    "export": {
+      "title": "Exportar Relatórios",
+      "description": "Baixe seus dados em diferentes formatos",
+      "pdf": "PDF",
+      "excel": "Excel",
+      "csv": "CSV"
+    },
+    "plans": {
+      "free": {
+        "title": "Plano Gratuito",
+        "limitedCategories": "Top 3 Categorias",
+        "moreCategories": "+ {count} categoria(s) não exibida(s) no plano gratuito"
+      },
+      "pro": {
+        "title": "Plano Pro",
+        "features": "Recursos avançados desbloqueados"
+      },
+      "premium": {
+        "title": "Plano Premium Ativo",
+        "description": "Em breve: Analytics com IA, Previsões Financeiras e muito mais!"
+      }
+    },
+    "empty": {
+      "title": "Sem dados para exibir",
+      "description": "Adicione transações para visualizar relatórios"
+    },
+    "loading": "Carregando relatórios...",
+    "feedback": {
+      "loadError": "Erro ao carregar dados dos relatórios",
+      "exportSuccess": "Relatório exportado em {format}",
+      "exportError": "Erro ao exportar relatório"
+    }
   }
 }

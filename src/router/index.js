@@ -38,6 +38,7 @@ export default route(function (/* { store, ssrContext } */) {
    * Verifica se o usuário está autenticado antes de acessar rotas protegidas
    */
   Router.beforeEach(async (to, from, next) => {
+    console.log('🔄 [ROUTER] Navegando para:', to.path)
     
     // Importa store dinamicamente para evitar problemas de dependência circular
     const { useAuthStore } = await import('src/stores/auth')
@@ -47,16 +48,44 @@ export default route(function (/* { store, ssrContext } */) {
     
     // Inicializa auth store se necessário
     if (!authStore.isInitialized) {
-      await authStore.initialize()
+      console.log('🔄 [ROUTER] Inicializando store de autenticação...')
+      try {
+        await authStore.initialize()
+      } catch (error) {
+        console.error('❌ [ROUTER] Erro ao inicializar auth store:', error)
+        
+        // ✅ TRATAMENTO ESPECÍFICO PARA TOKEN EXPIRADO (401 ou 403)
+        const status = error.response?.status
+        const message = error.response?.data?.message || error.message || ''
+        
+        if (status === 401 || status === 403) {
+          const isTokenError = status === 401 || 
+                               message.toLowerCase().includes('expired') ||
+                               message.toLowerCase().includes('expirado') ||
+                               message.toLowerCase().includes('invalid token') ||
+                               message.toLowerCase().includes('token inválido')
+          
+          if (isTokenError) {
+            console.log('🔴 [ROUTER] Token expirado (status ' + status + ') - redirecionando para login')
+            next({
+              path: '/login',
+              query: { expired: 'true', redirect: to.fullPath }
+            })
+            return
+          }
+        }
+      }
     }
     
     // Verifica se a rota requer autenticação
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
     const isAuthenticated = authStore.isAuthenticated
     
+    console.log('🔐 [ROUTER] Autenticado:', isAuthenticated, '| Requer auth:', requiresAuth)
     
     // Redireciona para login se necessário
     if (requiresAuth && !isAuthenticated) {
+      console.log('🔴 [ROUTER] Acesso negado - redirecionando para login')
       next({
         path: '/login',
         query: { redirect: to.fullPath } // Salva página de destino
@@ -67,12 +96,14 @@ export default route(function (/* { store, ssrContext } */) {
     // Redireciona usuário autenticado que tenta acessar login
     if (to.path === '/login' && isAuthenticated) {
       const redirectPath = to.query.redirect || '/dashboard'
+      console.log('✅ [ROUTER] Usuário já autenticado - redirecionando para:', redirectPath)
       next(redirectPath)
       return
     }
     
     // Verifica permissões de admin
     if (to.meta.requiresAdmin && !authStore.isAdmin) {
+      console.warn('🔒 [ROUTER] Acesso negado: Requer permissão de admin')
       next('/dashboard')
       return
     }
@@ -81,7 +112,7 @@ export default route(function (/* { store, ssrContext } */) {
     // Bloqueia acesso a features que requerem plano Premium
     const requiresPremium = to.matched.some(record => record.meta.requiresPremium)
     if (requiresPremium && !isPremiumPlan.value) {
-      console.warn('🔒 Acesso negado: Feature requer plano Premium')
+      console.warn('🔒 [ROUTER] Acesso negado: Feature requer plano Premium')
       
       // Redireciona para erro de permissão com informação da feature
       next({
@@ -96,6 +127,7 @@ export default route(function (/* { store, ssrContext } */) {
     }
     
     // Permite navegação
+    console.log('✅ [ROUTER] Navegação permitida para:', to.path)
     next()
   })
 

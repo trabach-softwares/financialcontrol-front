@@ -244,21 +244,16 @@ Recursos: SSL badge, 2FA, validação em tempo real, notificações
                   autocomplete="current-password"
                   placeholder="Digite sua senha"
                   hide-bottom-space
-                  @update:model-value="validatePasswordStrength"
+                  lazy-rules
+                  @blur="validatePasswordOnBlur"
                   :input-style="{ 
                     color: 'var(--text-primary)',
                     fontSize: '16px',
                     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, Segue UI, sans-serif'
                   }"
                   :rules="[val => {
-                    if (!val) {
-                      notifyError('ERROR.REQUIRED_FIELDS')
-                      return false
-                    }
-                    if (val.length < 6) {
-                      notifyError('ERROR.PASSWORD_TOO_SHORT')
-                      return false
-                    }
+                    if (!val) return 'Senha obrigatória'
+                    if (val.length < 6) return 'Mínimo 6 caracteres'
                     return true
                   }]"
                 >
@@ -285,14 +280,6 @@ Recursos: SSL badge, 2FA, validação em tempo real, notificações
                     />
                   </template>
                 </q-input>
-                <div class="password-strength" v-if="loginForm.password">
-                  <div class="strength-bar">
-                    <div class="strength-fill" :class="passwordStrength.level"></div>
-                  </div>
-                  <span class="strength-text" :class="passwordStrength.level">
-                    {{ passwordStrength.text }}
-                  </span>
-                </div>
               </div>
 
               <!-- Opções de Login -->
@@ -475,6 +462,13 @@ Recursos: SSL badge, 2FA, validação em tempo real, notificações
                   autocomplete="new-password"
                   placeholder="Mínimo 6 caracteres"
                   aria-describedby="password-hint"
+                  lazy-rules
+                  @blur="validateRegisterPasswordOnBlur"
+                  :rules="[val => {
+                    if (!val) return 'Senha obrigatória'
+                    if (val.length < 6) return 'Mínimo 6 caracteres'
+                    return true
+                  }]"
                 >
                   <template v-slot:prepend>
                     <q-icon name="lock" color="grey-6" aria-hidden="true" />
@@ -642,23 +636,6 @@ const registerForm = ref({
   password: ''
 })
 
-// Avaliação de força da senha
-const passwordStrength = computed(() => {
-  const password = loginForm.value.password
-  if (!password) return { level: '', text: '' }
-  
-  let score = 0
-  if (password.length >= 8) score++
-  if (/[a-z]/.test(password)) score++
-  if (/[A-Z]/.test(password)) score++
-  if (/[0-9]/.test(password)) score++
-  if (/[^A-Za-z0-9]/.test(password)) score++
-  
-  if (score < 2) return { level: 'weak', text: 'Senha fraca' }
-  if (score < 4) return { level: 'medium', text: 'Senha média' }
-  return { level: 'strong', text: 'Senha forte' }
-})
-
 // ==========================================================================
 // COMPUTED
 // ==========================================================================
@@ -702,17 +679,38 @@ const validateLoginEmail = () => {
   }
 }
 
-const validatePasswordStrength = () => {
+/**
+ * Valida senha ao sair do campo (blur)
+ * Mostra notificação apenas se houver erro
+ */
+const validatePasswordOnBlur = () => {
   const password = loginForm.value.password
+  
+  // Não validar se campo estiver vazio (será validado no submit)
   if (!password) {
     passwordValidationStatus.value = ''
     return
   }
   
-  if (password.length >= 6) {
-    passwordValidationStatus.value = 'valid'
-  } else {
-    passwordValidationStatus.value = 'invalid'
+  // Validar tamanho mínimo
+  if (password.length < 6) {
+    notifyError('ERROR.PASSWORD_TOO_SHORT')
+  }
+}
+
+/**
+ * Valida senha de registro ao sair do campo (blur)
+ * Mostra notificação apenas se houver erro
+ */
+const validateRegisterPasswordOnBlur = () => {
+  const password = registerForm.value.password
+  
+  // Não validar se campo estiver vazio (será validado no submit)
+  if (!password) return
+  
+  // Validar tamanho mínimo
+  if (password.length < 6) {
+    notifyError('ERROR.PASSWORD_TOO_SHORT')
   }
 }
 
@@ -1407,52 +1405,6 @@ input:-moz-autofill {
   
   &.invalid {
     color: var(--color-negative);
-  }
-}
-
-// Força da senha
-.password-strength {
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  
-  .strength-bar {
-    flex: 1;
-    height: 4px;
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 2px;
-    overflow: hidden;
-    
-    .strength-fill {
-      height: 100%;
-      transition: all 0.3s ease;
-      border-radius: 2px;
-      
-      &.weak {
-        width: 33%;
-        background: var(--color-negative);
-      }
-      
-      &.medium {
-        width: 66%;
-        background: var(--color-warning);
-      }
-      
-      &.strong {
-        width: 100%;
-        background: var(--color-positive);
-      }
-    }
-  }
-  
-  .strength-text {
-    font-size: 12px;
-    font-weight: 500;
-    
-    &.weak { color: var(--color-negative); }
-    &.medium { color: var(--color-warning); }
-    &.strong { color: var(--color-positive); }
   }
 }
 

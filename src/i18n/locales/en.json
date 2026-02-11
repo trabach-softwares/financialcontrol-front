@@ -54,5 +54,70 @@
     "closeDialog": "Close dialog",
     "openMenu": "Open menu",
     "closeMenu": "Close menu"
+  },
+  "reports": {
+    "title": "Financial Reports",
+    "subtitle": "Analytics and insights about your finances",
+    "filters": {
+      "period": "Period",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "applyFilters": "Apply Filters",
+      "clearFilters": "Clear"
+    },
+    "metrics": {
+      "income": "Income",
+      "expense": "Expenses",
+      "balance": "Balance",
+      "transactions": "Transactions"
+    },
+    "charts": {
+      "categoryExpenses": "Expenses by Category",
+      "monthlyTrend": "Monthly Trend",
+      "topCategories": "Top 3 Categories",
+      "barChart": "Bar",
+      "pieChart": "Pie"
+    },
+    "comparison": {
+      "title": "Period Comparison",
+      "month": "Month",
+      "variation": "Variation"
+    },
+    "detailed": {
+      "title": "Detailed Category Report",
+      "noTransactions": "No transactions to display"
+    },
+    "export": {
+      "title": "Export Reports",
+      "description": "Download your data in different formats",
+      "pdf": "PDF",
+      "excel": "Excel",
+      "csv": "CSV"
+    },
+    "plans": {
+      "free": {
+        "title": "Free Plan",
+        "limitedCategories": "Top 3 Categories",
+        "moreCategories": "+ {count} category(ies) not shown in free plan"
+      },
+      "pro": {
+        "title": "Pro Plan",
+        "features": "Advanced features unlocked"
+      },
+      "premium": {
+        "title": "Premium Plan Active",
+        "description": "Coming soon: AI Analytics, Financial Forecasts and much more!"
+      }
+    },
+    "empty": {
+      "title": "No data to display",
+      "description": "Add transactions to view reports"
+    },
+    "loading": "Loading reports...",
+    "feedback": {
+      "loadError": "Error loading report data",
+      "exportSuccess": "Report exported as {format}",
+      "exportError": "Error exporting report"
+    }
   }
 }

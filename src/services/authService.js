@@ -30,6 +30,10 @@ export const authService = {
     const response = await api.post('/auth/login', {
       email: credentials.email,
       password: credentials.password
+    }, {
+      // ✅ Flag para evitar redirecionamento automático em erro 401
+      // Permite que LoginPage.vue trate o erro com mensagem apropriada
+      skipAuthRedirect: true
     })
     
     const apiData = handleApiResponse(response, 'login')
@@ -58,6 +62,9 @@ export const authService = {
       name: userData.name,
       email: userData.email,
       password: userData.password
+    }, {
+      // ✅ Flag para evitar redirecionamento automático em erro 401
+      skipAuthRedirect: true
     })
     
     const apiData = handleApiResponse(response, 'register')

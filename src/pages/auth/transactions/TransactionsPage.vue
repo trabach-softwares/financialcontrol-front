@@ -3,26 +3,35 @@
     <div class="q-pa-md">
       
       <!-- ==========================================================================
-      CABEÇALHO E FILTROS
+      CABEÇALHO MODERNO E COMPACTO
       ========================================================================== -->
-      <div class="page-header q-mb-lg">
-        <div class="row q-col-gutter-md items-center">
-          <div class="col-12 col-md-6">
-            <h1 class="text-h4 q-mb-xs">
-              Transações
-            </h1>
-            <p class="text-subtitle1 q-ma-none">
-              Gerencie suas movimentações financeiras
-            </p>
+      <div class="page-header-modern q-mb-lg">
+        <div class="row items-center justify-between no-wrap">
+          <!-- Título e Badge -->
+          <div class="col-auto">
+            <div class="header-title-group">
+              <h1 class="page-title">
+                Transações
+              </h1>
+              <q-badge 
+                color="blue-grey-3" 
+                text-color="blue-grey-9"
+                class="total-transactions-badge"
+              >
+                {{ transactionStore.pagination.total || 0 }} registros
+              </q-badge>
+            </div>
           </div>
           
-          <div class="col-12 col-md-6 text-right">
+          <!-- Botão Nova Transação -->
+          <div class="col-auto">
             <q-btn
               label="Nova Transação"
               icon="add"
               color="primary"
-              size="md"
+              unelevated
               no-caps
+              class="new-transaction-btn"
               @click="openTransactionForm()"
             />
           </div>
@@ -30,12 +39,12 @@
       </div>
 
       <!-- ==========================================================================
-      NAVEGAÇÃO DE PERÍODO - OPÇÃO HÍBRIDA (MonthNavigator + Filtros Avançados)
+      NAVEGAÇÃO E FILTROS - DESIGN LIMPO
       ========================================================================== -->
-      <div class="period-filter-section row q-col-gutter-md q-mb-lg">
+      <div class="filters-container row q-col-gutter-md q-mb-lg">
         
-        <!-- Navegador de Mês (sempre visível) -->
-        <div class="col-12 col-md-4">
+        <!-- Navegador de Mês - Design Limpo -->
+        <div class="col-12 col-md-6">
           <MonthNavigator 
             @change="handleMonthChange"
             :loading="isLoadingTransactions"
@@ -43,39 +52,148 @@
           />
         </div>
 
-        <!-- Filtros Avançados (colapsável melhorado) -->
-        <div class="col-12 col-md-8">
+        <!-- Filtros Avançados - Design Compacto -->
+        <div class="col-12 col-md-6">
           <q-expansion-item
-            icon="filter_alt"
-            label="Filtros Avançados"
-            caption="Períodos personalizados"
             dense-toggle
             expand-separator
-            class="advanced-filter-expansion"
+            class="advanced-filters-modern"
+            header-class="filters-header"
           >
             <template v-slot:header>
-              <q-item-section avatar>
-                <q-avatar color="primary" text-color="white" size="40px">
-                  <q-icon name="filter_alt" />
-                </q-avatar>
+              <q-item-section avatar style="min-width: 40px;">
+                <div class="filter-icon-wrapper">
+                  <q-icon name="tune" size="20px" />
+                </div>
               </q-item-section>
 
               <q-item-section>
-                <q-item-label class="text-weight-medium">
+                <q-item-label class="filter-label">
                   Filtros Avançados
                 </q-item-label>
-                <q-item-label caption class="text-grey-7">
-                  Últimos 3/6/12 meses, personalizado...
+                <q-item-label caption class="filter-caption">
+                  Busca, período, tipo, categoria, status
                 </q-item-label>
+              </q-item-section>
+              
+              <q-item-section side>
+                <q-icon name="expand_more" size="20px" color="grey-6" />
               </q-item-section>
             </template>
 
-            <q-card flat bordered class="advanced-filter-card">
+            <q-card flat class="filters-content">
               <q-card-section class="q-pa-md">
-                <PeriodFilter 
-                  @change="handleAdvancedPeriodChange"
-                  storage-key="transactions-advanced-period"
-                />
+                
+                <!-- Filtro de Período -->
+                <div class="filter-group q-mb-md">
+                  <div class="filter-group-label">
+                    <q-icon name="event" size="16px" class="q-mr-xs" />
+                    Período Personalizado
+                  </div>
+                  <PeriodFilter 
+                    @change="handleAdvancedPeriodChange"
+                    storage-key="transactions-advanced-period"
+                  />
+                </div>
+
+                <q-separator class="q-my-md" />
+
+                <!-- Filtros de Busca e Seleção -->
+                <div class="filter-group">
+                  <div class="filter-group-label q-mb-sm">
+                    <q-icon name="manage_search" size="16px" class="q-mr-xs" />
+                    Filtros de Busca
+                  </div>
+                  <div class="row q-col-gutter-sm">
+                    
+                    <!-- Buscar por descrição -->
+                    <div class="col-12 col-sm-6">
+                      <q-input
+                        v-model="filters.search"
+                        label="Buscar transação"
+                        outlined
+                        dense
+                        clearable
+                        debounce="500"
+                        @update:model-value="applyFilters"
+                      >
+                        <template v-slot:prepend>
+                          <q-icon name="search" size="18px" />
+                        </template>
+                      </q-input>
+                    </div>
+
+                    <!-- Filtro por tipo -->
+                    <div class="col-12 col-sm-6">
+                      <q-select
+                        v-model="filters.type"
+                        label="Tipo"
+                        :options="typeOptions"
+                        outlined
+                        dense
+                        clearable
+                        emit-value
+                        map-options
+                        @update:model-value="applyFilters"
+                      >
+                        <template v-slot:prepend>
+                          <q-icon name="swap_vert" size="18px" />
+                        </template>
+                      </q-select>
+                    </div>
+
+                    <!-- Filtro por categoria -->
+                    <div class="col-12 col-sm-6">
+                      <q-select
+                        v-model="filters.category"
+                        label="Categoria"
+                        :options="categoryOptions"
+                        outlined
+                        dense
+                        clearable
+                        @update:model-value="applyFilters"
+                      >
+                        <template v-slot:prepend>
+                          <q-icon name="label" size="18px" />
+                        </template>
+                      </q-select>
+                    </div>
+
+                    <!-- Status (Pago/Pendente) -->
+                    <div class="col-12 col-sm-6">
+                      <q-select
+                        v-model="filters.paid"
+                        label="Status"
+                        :options="paidOptions"
+                        outlined
+                        dense
+                        clearable
+                        emit-value
+                        map-options
+                        @update:model-value="applyFilters"
+                      >
+                        <template v-slot:prepend>
+                          <q-icon name="check_circle" size="18px" />
+                        </template>
+                      </q-select>
+                    </div>
+
+                    <!-- Botão limpar filtros -->
+                    <div class="col-12">
+                      <q-btn
+                        label="Limpar Filtros"
+                        icon="clear_all"
+                        color="grey-7"
+                        flat
+                        dense
+                        no-caps
+                        class="full-width"
+                        @click="clearAllFilters"
+                      />
+                    </div>
+                  </div>
+                </div>
+
               </q-card-section>
             </q-card>
           </q-expansion-item>
@@ -102,300 +220,552 @@
       </div>
 
       <!-- ==========================================================================
-      OUTROS FILTROS (Busca, Tipo, Categoria, Status)
+      RESUMO FINANCEIRO - DESIGN LIMPO E MODERNO
       ========================================================================== -->
-      <div class="row q-mb-lg">
-        <div class="col-12">
-          <q-card class="filters-card" flat bordered>
-            <q-card-section>
-              <div class="row q-col-gutter-md items-end">
-                
-                <!-- Buscar por descrição -->
-                <div class="col-12 col-sm-6 col-md-4">
-                  <q-input
-                    v-model="filters.search"
-                    label="Buscar transação"
-                    outlined
-                    dense
-                    clearable
-                    debounce="500"
-                    @update:model-value="applyFilters"
-                  >
-                    <template v-slot:prepend>
-                      <q-icon name="search" />
-                    </template>
-                  </q-input>
-                </div>
+      
+      <!-- Card Único com Grid de Estatísticas -->
+      <q-card flat bordered class="financial-summary-card q-mb-lg">
+        
+        <!-- Header com Título -->
+        <q-card-section class="summary-header bg-teal-1">
+          <div class="row items-center">
+            <div class="col">
+              <div class="text-h6 text-weight-bold text-teal-9">
+                Fluxo de Caixa Efetivado
+              </div>
+              <div class="text-caption text-teal-8">
+                Movimentações já realizadas neste período
+              </div>
+            </div>
+          </div>
+        </q-card-section>
 
-                <!-- Filtro por tipo -->
-                <div class="col-12 col-sm-6 col-md-3">
-                  <q-select
-                    v-model="filters.type"
-                    label="Tipo"
-                    :options="typeOptions"
-                    outlined
-                    dense
-                    clearable
-                    emit-value
-                    map-options
-                    @update:model-value="applyFilters"
-                  />
-                </div>
+        <q-separator />
 
-                <!-- Filtro por categoria -->
-                <div class="col-12 col-sm-6 col-md-3">
-                  <q-select
-                    v-model="filters.category"
-                    label="Categoria"
-                    :options="categoryOptions"
-                    outlined
-                    dense
-                    clearable
-                    @update:model-value="applyFilters"
-                  />
+        <!-- Grid de Valores - 3 colunas em desktop -->
+        <q-card-section class="q-pa-md">
+          <div class="row q-col-gutter-md">
+            
+            <!-- Receitas Recebidas -->
+            <div class="col-12 col-sm-4">
+              <div class="stat-item stat-positive">
+                <div class="stat-label">
+                  <q-icon name="arrow_upward" size="18px" class="q-mr-xs" />
+                  Receitas Recebidas
                 </div>
-
-                <!-- Pago -->
-                <div class="col-12 col-sm-6 col-md-2">
-                  <q-select
-                    v-model="filters.paid"
-                    label="Status"
-                    :options="paidOptions"
-                    outlined
-                    dense
-                    clearable
-                    emit-value
-                    map-options
-                    @update:model-value="applyFilters"
-                  />
+                <div class="stat-value text-positive">
+                  {{ formatCurrency(totalReceived) }}
                 </div>
-
-                <!-- Botão limpar filtros -->
-                <div class="col-12 col-sm-6 col-md-12 col-lg-auto div-clear-filters">
-                  <q-btn
-                    icon="clear"
-                    label="Limpar"
-                    color="grey-6"
-                    outline
-                    dense
-                    @click="clearAllFilters"
-                    class="btn-clear-filters full-width"
-                  >
-                    <q-tooltip>Limpar filtros</q-tooltip>
-                  </q-btn>
+                <div class="stat-meta">
+                  {{ receivedCount }} {{ receivedCount === 1 ? 'transação' : 'transações' }}
                 </div>
               </div>
-            </q-card-section>
-          </q-card>
-        </div>
-      </div>
+            </div>
+
+            <!-- Despesas Pagas -->
+            <div class="col-12 col-sm-4">
+              <div class="stat-item stat-negative">
+                <div class="stat-label">
+                  <q-icon name="arrow_downward" size="18px" class="q-mr-xs" />
+                  Despesas Pagas
+                </div>
+                <div class="stat-value text-negative">
+                  {{ formatCurrency(totalPaid) }}
+                </div>
+                <div class="stat-meta">
+                  {{ paidCount }} {{ paidCount === 1 ? 'transação' : 'transações' }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Saldo Efetivado -->
+            <div class="col-12 col-sm-4">
+              <div class="stat-item stat-balance" :class="'stat-balance-' + effectiveBalanceColor">
+                <div class="stat-label">
+                  <q-icon name="account_balance" size="18px" class="q-mr-xs" />
+                  Saldo Atual
+                </div>
+                <div class="stat-value" :class="'text-' + effectiveBalanceColor + '-9'">
+                  {{ formatCurrency(effectiveBalance) }}
+                </div>
+                <div class="stat-meta" :class="'text-' + effectiveBalanceColor + '-7'">
+                  <q-icon name="info_outline" size="14px" class="q-mr-xs" />
+                  {{ effectiveBalance >= 0 ? 'Superávit' : 'Déficit' }}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </q-card-section>
+
+        <!-- Alerta se houver déficit -->
+        <q-card-section v-if="effectiveBalance < 0" class="q-pt-none">
+          <q-banner dense class="bg-red-1 text-red-9" rounded>
+            <template v-slot:avatar>
+              <q-icon name="warning" color="red-7" />
+            </template>
+            Atenção: Você gastou {{ formatCurrency(Math.abs(effectiveBalance)) }} a mais do que recebeu
+          </q-banner>
+        </q-card-section>
+
+      </q-card>
 
       <!-- ==========================================================================
-      ESTATÍSTICAS RESUMIDAS
+      VISÃO COMPLETA - INCLUINDO PENDÊNCIAS
       ========================================================================== -->
-      <div class="row q-col-gutter-md q-mb-lg">
-        <div class="col-12 col-sm-4">
-          <q-card class="stat-card" flat bordered>
-            <q-card-section class="text-center">
-              <div class="stat-value text-h5 text-green-7">
-                {{ formatCurrency(transactionStore.stats.totalIncome) }}
+      
+      <q-card flat bordered class="financial-summary-card q-mb-lg">
+        
+        <!-- Header com Título -->
+        <q-card-section class="summary-header bg-blue-1">
+          <div class="row items-center">
+            <div class="col">
+              <div class="text-h6 text-weight-bold text-blue-9">
+                Visão Completa do Período
               </div>
-              <div class="stat-label text-caption">
-                Total de Receitas
+              <div class="text-caption text-blue-8">
+                Incluindo transações pendentes de pagamento/recebimento
               </div>
-            </q-card-section>
-          </q-card>
-        </div>
+            </div>
+          </div>
+        </q-card-section>
 
-        <div class="col-12 col-sm-4">
-          <q-card class="stat-card" flat bordered>
-            <q-card-section class="text-center">
-              <div class="stat-value text-h5 text-red-7">
-                {{ formatCurrency(transactionStore.stats.totalExpense) }}
-              </div>
-              <div class="stat-label text-caption">
-                Total de Despesas
-              </div>
-            </q-card-section>
-          </q-card>
-        </div>
+        <q-separator />
 
-        <div class="col-12 col-sm-4">
-          <q-card class="stat-card" flat bordered>
-            <q-card-section class="text-center">
-              <div class="stat-value text-h5" :class="balanceColor">
+        <!-- Grid de Valores - 2 colunas -->
+        <q-card-section class="q-pa-md">
+          <div class="row q-col-gutter-md">
+            
+            <!-- Total de Receitas -->
+            <div class="col-12 col-sm-6">
+              <div class="stat-item-complete">
+                <div class="stat-complete-header">
+                  <q-icon name="trending_up" size="20px" color="green-7" class="q-mr-xs" />
+                  <span class="text-subtitle2 text-weight-medium">Total de Receitas</span>
+                </div>
+                <div class="stat-complete-value text-green-8">
+                  {{ formatCurrency(transactionStore.stats.totalIncome) }}
+                </div>
+                <div class="stat-complete-breakdown">
+                  <div class="breakdown-row">
+                    <span>✓ Recebido</span>
+                    <span class="text-weight-medium">{{ formatCurrency(totalReceived) }}</span>
+                  </div>
+                  <div class="breakdown-row" v-if="pendingIncome > 0">
+                    <span class="text-orange-8">⏳ A receber</span>
+                    <span class="text-weight-medium text-orange-8">{{ formatCurrency(pendingIncome) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total de Despesas -->
+            <div class="col-12 col-sm-6">
+              <div class="stat-item-complete">
+                <div class="stat-complete-header">
+                  <q-icon name="trending_down" size="20px" color="red-7" class="q-mr-xs" />
+                  <span class="text-subtitle2 text-weight-medium">Total de Despesas</span>
+                </div>
+                <div class="stat-complete-value text-red-8">
+                  {{ formatCurrency(transactionStore.stats.totalExpense) }}
+                </div>
+                <div class="stat-complete-breakdown">
+                  <div class="breakdown-row">
+                    <span>✓ Pago</span>
+                    <span class="text-weight-medium">{{ formatCurrency(totalPaid) }}</span>
+                  </div>
+                  <div class="breakdown-row" v-if="pendingExpense > 0">
+                    <span class="text-orange-8">⏳ A pagar</span>
+                    <span class="text-weight-medium text-orange-8">{{ formatCurrency(pendingExpense) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </q-card-section>
+
+        <q-separator />
+
+        <!-- Saldo Previsto -->
+        <q-card-section class="saldo-previsto-section">
+          <div class="row items-center">
+            <div class="col-auto">
+              <q-icon 
+                :name="transactionStore.stats.balance >= 0 ? 'check_circle' : 'warning'" 
+                :color="transactionStore.stats.balance >= 0 ? 'green-7' : 'orange-7'"
+                size="32px"
+              />
+            </div>
+            <div class="col">
+              <div class="text-caption text-grey-7">
+                Saldo Previsto (considerando tudo)
+              </div>
+              <div class="text-h5 text-weight-bold" :class="balanceColor">
                 {{ formatCurrency(transactionStore.stats.balance) }}
               </div>
-              <div class="stat-label text-caption">
-                Saldo Atual
+            </div>
+            <div class="col-auto" v-if="pendingIncome > 0 || pendingExpense > 0">
+              <q-chip 
+                dense 
+                :color="transactionStore.stats.balance >= 0 ? 'green-1' : 'orange-1'"
+                :text-color="transactionStore.stats.balance >= 0 ? 'green-9' : 'orange-9'"
+              >
+                <q-icon name="schedule" size="16px" class="q-mr-xs" />
+                Há pendências
+              </q-chip>
+            </div>
+          </div>
+        </q-card-section>
+
+      </q-card>
+
+      <!-- ==========================================================================
+      LISTAS DE TRANSAÇÕES SEPARADAS (RECEITAS E DESPESAS)
+      ========================================================================== -->
+      
+      <!-- Loading State -->
+      <div v-if="transactionStore.isLoading" class="text-center q-py-xl q-mb-lg">
+        <q-card flat bordered>
+          <q-card-section class="q-py-xl">
+            <q-spinner color="primary" size="3rem" />
+            <p class="text-h6 q-mt-md">
+              Carregando transações...
+            </p>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else-if="transactionStore.transactions.length === 0" class="text-center q-py-xl q-mb-lg">
+        <q-card flat bordered>
+          <q-card-section class="text-center q-py-xl">
+            <q-icon name="receipt_long" size="4rem" color="grey-4" />
+            <h6 class="text-h6 q-mt-md">
+              {{ hasActiveFilters ? 'Nenhuma transação encontrada' : 'Nenhuma transação cadastrada' }}
+            </h6>
+            <p class="text-caption q-mb-lg">
+              {{ hasActiveFilters ? 'Tente alterar os filtros de busca' : 'Comece adicionando sua primeira transação' }}
+            </p>
+            <q-btn
+              v-if="!hasActiveFilters"
+              label="Adicionar Transação"
+              color="primary"
+              outline
+              no-caps
+              @click="openTransactionForm()"
+            />
+            <q-btn
+              v-else
+              label="Limpar Filtros"
+              color="grey-6"
+              outline
+              no-caps
+              @click="clearAllFilters"
+            />
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <!-- ==========================================================================
+      LISTAS DE TRANSAÇÕES - DESIGN LIMPO E MODERNO
+      ========================================================================== -->
+      
+      <div v-else class="row q-col-gutter-md q-mb-lg">
+        
+        <!-- ==========================================================================
+        RECEITAS (INCOME)
+        ========================================================================== -->
+        <div class="col-12" :class="expenseTransactions.length > 0 ? 'col-md-6' : ''">
+          <q-card class="transactions-list-card" flat bordered v-if="incomeTransactions.length > 0">
+            
+            <!-- Header -->
+            <q-card-section class="list-header bg-green-1">
+              <div class="row items-center no-wrap">
+                <div class="col">
+                  <div class="text-subtitle1 text-weight-bold text-green-9">
+                    <q-icon name="arrow_upward" size="18px" class="q-mr-xs" />
+                    Receitas
+                  </div>
+                  <div class="text-caption text-green-8">
+                    {{ incomeTransactions.length }} {{ incomeTransactions.length === 1 ? 'transação' : 'transações' }}
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <div class="text-h6 text-weight-bold text-green-9">
+                    {{ formatCurrency(incomeTotal) }}
+                  </div>
+                </div>
               </div>
             </q-card-section>
+
+            <q-separator />
+
+            <!-- Lista de Transações -->
+            <q-list>
+              <q-item
+                v-for="transaction in incomeTransactions"
+                :key="transaction.id"
+                class="transaction-item-modern"
+                clickable
+                @click="viewTransaction(transaction)"
+              >
+                <!-- Indicador de cor -->
+                <div class="transaction-indicator transaction-indicator-positive"></div>
+
+                <!-- Ícone pequeno -->
+                <q-item-section avatar style="min-width: 40px; padding-right: 12px;">
+                  <div class="transaction-icon transaction-icon-positive">
+                    <q-icon name="arrow_upward" size="16px" />
+                  </div>
+                </q-item-section>
+
+                <!-- Informações principais -->
+                <q-item-section>
+                  <q-item-label class="text-body1 text-weight-medium">
+                    {{ transaction.description }}
+                  </q-item-label>
+                  <q-item-label caption class="row items-center q-gutter-xs q-mt-xs">
+                    <span class="transaction-meta">
+                      <q-icon name="label" size="14px" />
+                      {{ transaction.category }}
+                    </span>
+                    <span class="transaction-meta-dot">•</span>
+                    <span class="transaction-meta">
+                      <q-icon name="calendar_today" size="14px" />
+                      {{ formatBRDateSafe(transaction.date) }}
+                    </span>
+                    <span v-if="transaction.paid && transaction.paid_at" class="transaction-meta-dot">•</span>
+                    <span v-if="transaction.paid && transaction.paid_at" class="transaction-meta text-teal-8">
+                      Recebido em {{ formatBRDate(transaction.paid_at) }}
+                    </span>
+                  </q-item-label>
+                </q-item-section>
+
+                <!-- Valor e Status -->
+                <q-item-section side class="transaction-value-section">
+                  <div class="text-right">
+                    <div class="text-h6 text-weight-bold text-green-9">
+                      +{{ formatCurrency(transaction.amount) }}
+                    </div>
+                    <div class="transaction-status q-mt-xs">
+                      <q-chip 
+                        :label="transaction.paid ? 'Recebido' : 'A receber'"
+                        size="sm"
+                        :color="transaction.paid ? 'teal' : 'orange'"
+                        :text-color="transaction.paid ? 'white' : 'white'"
+                        :icon="transaction.paid ? 'check_circle' : 'schedule'"
+                        dense
+                      />
+                    </div>
+                  </div>
+                </q-item-section>
+
+                <!-- Toggle -->
+                <q-item-section side style="padding-left: 8px;">
+                  <q-toggle
+                    v-model="transaction.paid"
+                    color="teal"
+                    size="sm"
+                    @update:model-value="val => onTogglePaid(transaction, val)"
+                    @click.stop
+                  />
+                </q-item-section>
+
+                <!-- Menu de ações -->
+                <q-item-section side style="padding-left: 4px;">
+                  <q-btn
+                    icon="more_vert"
+                    flat
+                    round
+                    dense
+                    size="sm"
+                    color="grey-7"
+                    @click.stop
+                  >
+                    <q-menu>
+                      <q-list dense style="min-width: 150px">
+                        <q-item clickable v-close-popup @click="editTransaction(transaction)">
+                          <q-item-section avatar style="min-width: 32px">
+                            <q-icon name="edit" size="18px" color="blue-6" />
+                          </q-item-section>
+                          <q-item-section>Editar</q-item-section>
+                        </q-item>
+                        
+                        <q-item clickable v-close-popup @click="duplicateTransaction(transaction)">
+                          <q-item-section avatar style="min-width: 32px">
+                            <q-icon name="content_copy" size="18px" color="green-6" />
+                          </q-item-section>
+                          <q-item-section>Duplicar</q-item-section>
+                        </q-item>
+                        
+                        <q-separator />
+                        
+                        <q-item clickable v-close-popup @click="confirmDeleteTransaction(transaction)">
+                          <q-item-section avatar style="min-width: 32px">
+                            <q-icon name="delete" size="18px" color="red-6" />
+                          </q-item-section>
+                          <q-item-section class="text-red-6">Excluir</q-item-section>
+                        </q-item>
+                      </q-list>
+                    </q-menu>
+                  </q-btn>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card>
+        </div>
+
+        <!-- ==========================================================================
+        DESPESAS (EXPENSE)
+        ========================================================================== -->
+        <div class="col-12" :class="incomeTransactions.length > 0 ? 'col-md-6' : ''">
+          <q-card class="transactions-list-card" flat bordered v-if="expenseTransactions.length > 0">
+            
+            <!-- Header -->
+            <q-card-section class="list-header bg-red-1">
+              <div class="row items-center no-wrap">
+                <div class="col">
+                  <div class="text-subtitle1 text-weight-bold text-red-9">
+                    <q-icon name="arrow_downward" size="18px" class="q-mr-xs" />
+                    Despesas
+                  </div>
+                  <div class="text-caption text-red-8">
+                    {{ expenseTransactions.length }} {{ expenseTransactions.length === 1 ? 'transação' : 'transações' }}
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <div class="text-h6 text-weight-bold text-red-9">
+                    {{ formatCurrency(expenseTotal) }}
+                  </div>
+                </div>
+              </div>
+            </q-card-section>
+
+            <q-separator />
+
+            <!-- Lista de Transações -->
+            <q-list>
+              <q-item
+                v-for="transaction in expenseTransactions"
+                :key="transaction.id"
+                class="transaction-item-modern"
+                clickable
+                @click="viewTransaction(transaction)"
+              >
+                <!-- Indicador de cor -->
+                <div class="transaction-indicator transaction-indicator-negative"></div>
+
+                <!-- Ícone pequeno -->
+                <q-item-section avatar style="min-width: 40px; padding-right: 12px;">
+                  <div class="transaction-icon transaction-icon-negative">
+                    <q-icon name="arrow_downward" size="16px" />
+                  </div>
+                </q-item-section>
+
+                <!-- Informações principais -->
+                <q-item-section>
+                  <q-item-label class="text-body1 text-weight-medium">
+                    {{ transaction.description }}
+                  </q-item-label>
+                  <q-item-label caption class="row items-center q-gutter-xs q-mt-xs">
+                    <span class="transaction-meta">
+                      <q-icon name="label" size="14px" />
+                      {{ transaction.category }}
+                    </span>
+                    <span class="transaction-meta-dot">•</span>
+                    <span class="transaction-meta">
+                      <q-icon name="calendar_today" size="14px" />
+                      {{ formatBRDateSafe(transaction.date) }}
+                    </span>
+                    <span v-if="transaction.paid && transaction.paid_at" class="transaction-meta-dot">•</span>
+                    <span v-if="transaction.paid && transaction.paid_at" class="transaction-meta text-teal-8">
+                      Pago em {{ formatBRDate(transaction.paid_at) }}
+                    </span>
+                  </q-item-label>
+                </q-item-section>
+
+                <!-- Valor e Status -->
+                <q-item-section side class="transaction-value-section">
+                  <div class="text-right">
+                    <div class="text-h6 text-weight-bold text-red-9">
+                      -{{ formatCurrency(transaction.amount) }}
+                    </div>
+                    <div class="transaction-status q-mt-xs">
+                      <q-chip 
+                        :label="transaction.paid ? 'Pago' : 'Em aberto'"
+                        size="sm"
+                        :color="transaction.paid ? 'teal' : 'orange'"
+                        :text-color="transaction.paid ? 'white' : 'white'"
+                        :icon="transaction.paid ? 'check_circle' : 'schedule'"
+                        dense
+                      />
+                    </div>
+                  </div>
+                </q-item-section>
+
+                <!-- Toggle -->
+                <q-item-section side style="padding-left: 8px;">
+                  <q-toggle
+                    v-model="transaction.paid"
+                    color="teal"
+                    size="sm"
+                    @update:model-value="val => onTogglePaid(transaction, val)"
+                    @click.stop
+                  />
+                </q-item-section>
+
+                <!-- Menu de ações -->
+                <q-item-section side style="padding-left: 4px;">
+                  <q-btn
+                    icon="more_vert"
+                    flat
+                    round
+                    dense
+                    size="sm"
+                    color="grey-7"
+                    @click.stop
+                  >
+                    <q-menu>
+                      <q-list dense style="min-width: 150px">
+                        <q-item clickable v-close-popup @click="editTransaction(transaction)">
+                          <q-item-section avatar style="min-width: 32px">
+                            <q-icon name="edit" size="18px" color="blue-6" />
+                          </q-item-section>
+                          <q-item-section>Editar</q-item-section>
+                        </q-item>
+                        
+                        <q-item clickable v-close-popup @click="duplicateTransaction(transaction)">
+                          <q-item-section avatar style="min-width: 32px">
+                            <q-icon name="content_copy" size="18px" color="green-6" />
+                          </q-item-section>
+                          <q-item-section>Duplicar</q-item-section>
+                        </q-item>
+                        
+                        <q-separator />
+                        
+                        <q-item clickable v-close-popup @click="confirmDeleteTransaction(transaction)">
+                          <q-item-section avatar style="min-width: 32px">
+                            <q-icon name="delete" size="18px" color="red-6" />
+                          </q-item-section>
+                          <q-item-section class="text-red-6">Excluir</q-item-section>
+                        </q-item>
+                      </q-list>
+                    </q-menu>
+                  </q-btn>
+                </q-item-section>
+              </q-item>
+            </q-list>
           </q-card>
         </div>
       </div>
 
       <!-- ==========================================================================
-      LISTA DE TRANSAÇÕES
+      PAGINAÇÃO
       ========================================================================== -->
-      <q-card class="transactions-card" flat bordered>
-        
-        <!-- Loading State -->
-        <div v-if="transactionStore.isLoading" class="text-center q-py-xl">
-          <q-spinner color="primary" size="3rem" />
-          <p class="text-h6 q-mt-md">
-            Carregando transações...
-          </p>
-        </div>
-
-        <!-- Empty State -->
-        <div v-else-if="transactionStore.transactions.length === 0" class="text-center q-py-xl">
-          <q-icon name="receipt_long" size="4rem" color="grey-4" />
-          <h6 class="text-h6 q-mt-md">
-            {{ hasActiveFilters ? 'Nenhuma transação encontrada' : 'Nenhuma transação cadastrada' }}
-          </h6>
-          <p class="text-caption q-mb-lg">
-            {{ hasActiveFilters ? 'Tente alterar os filtros de busca' : 'Comece adicionando sua primeira transação' }}
-          </p>
-          <q-btn
-            v-if="!hasActiveFilters"
-            label="Adicionar Transação"
-            color="primary"
-            outline
-            no-caps
-            @click="openTransactionForm()"
-          />
-          <q-btn
-            v-else
-            label="Limpar Filtros"
-            color="grey-6"
-            outline
-            no-caps
-            @click="clearAllFilters"
-          />
-        </div>
-
-        <!-- Lista de Transações -->
-        <div v-else>
-          <q-list separator>
-            <q-item
-              v-for="transaction in transactionStore.transactions"
-              :key="transaction.id"
-              class="transaction-item"
-              clickable
-              @click="viewTransaction(transaction)"
-            >
-              <!-- Avatar com ícone do tipo -->
-              <q-item-section avatar>
-                <q-avatar 
-                  :color="transaction.type === 'income' ? 'green-1' : 'red-1'" 
-                  :text-color="transaction.type === 'income' ? 'green-7' : 'red-7'"
-                  size="md"
-                >
-                  <q-icon 
-                    :name="transaction.type === 'income' ? 'trending_up' : 'trending_down'"
-                    size="sm"
-                  />
-                </q-avatar>
-              </q-item-section>
-
-              <!-- Informações principais -->
-              <q-item-section>
-                <q-item-label class="text-weight-medium">
-                  {{ transaction.description }}
-                </q-item-label>
-                <q-item-label caption class="row items-center q-gutter-xs">
-                  <q-chip
-                    :label="transaction.category"
-                    size="sm"
-                    color="blue-1"
-                    text-color="blue-9"
-                    dense
-                  />
-                  <q-chip
-                    :label="transaction.type === 'income' ? (transaction.paid ? 'Recebido' : 'A receber') : (transaction.paid ? 'Pago' : 'Em aberto')"
-                    size="sm"
-                    :color="transaction.paid ? 'teal-1' : 'grey-2'"
-                    :text-color="transaction.paid ? 'teal-8' : 'grey-8'"
-                    dense
-                  />
-                  <span class="">
-                    • {{ formatBRDateSafe(transaction.date) }}
-                  </span>
-                  <span v-if="transaction.paid && transaction.paid_at" class="">
-                    • {{ transaction.type === 'income' ? 'Recebido em' : 'Pago em' }} {{ formatBRDate(transaction.paid_at) }}
-                  </span>
-                </q-item-label>
-              </q-item-section>
-
-              <!-- Valor -->
-              <q-item-section side>
-                <div class="text-right">
-                  <div 
-                    class="text-h6 text-weight-bold"
-                    :class="transaction.type === 'income' ? 'text-green-7' : 'text-red-7'"
-                  >
-                    {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
-                  </div>
-                  <div class="text-caption">
-                    {{ getTypeLabel(transaction.type) }}
-                  </div>
-                  <div class="q-mt-xs">
-                    <q-toggle
-                      v-model="transaction.paid"
-                      color="teal-6"
-                      dense
-                      :label="transaction.type === 'income' ? 'Recebido' : 'Pago'"
-                      @update:model-value="val => onTogglePaid(transaction, val)"
-                    />
-                  </div>
-                </div>
-              </q-item-section>
-
-              <!-- Menu de ações -->
-              <q-item-section side>
-                <q-btn
-                  icon="more_vert"
-                  flat
-                  round
-                  dense
-                  color="grey-6"
-                  @click.stop
-                >
-                  <q-menu>
-                    <q-list dense>
-                      <q-item clickable v-close-popup @click="editTransaction(transaction)">
-                        <q-item-section avatar>
-                          <q-icon name="edit" color="blue-6" />
-                        </q-item-section>
-                        <q-item-section>Editar</q-item-section>
-                      </q-item>
-                      
-                      <q-item clickable v-close-popup @click="duplicateTransaction(transaction)">
-                        <q-item-section avatar>
-                          <q-icon name="content_copy" color="green-6" />
-                        </q-item-section>
-                        <q-item-section>Duplicar</q-item-section>
-                      </q-item>
-                      
-                      <q-separator />
-                      
-                      <q-item clickable v-close-popup @click="confirmDeleteTransaction(transaction)">
-                        <q-item-section avatar>
-                          <q-icon name="delete" color="red-6" />
-                        </q-item-section>
-                        <q-item-section class="text-red-6">Excluir</q-item-section>
-                      </q-item>
-                    </q-list>
-                  </q-menu>
-                </q-btn>
-              </q-item-section>
-            </q-item>
-          </q-list>
-
-          <!-- ==========================================================================
-          PAGINAÇÃO
-          ========================================================================== -->
-          <q-card-section v-if="transactionStore.pagination.totalPages > 1">
+      <div v-if="transactionStore.pagination.totalPages > 1" class="q-mb-lg">
+        <q-card flat bordered>
+          <q-card-section>
             <div class="row items-center justify-between">
               <div class="col-auto">
                 <p class="text-caption">
@@ -416,8 +786,8 @@
               </div>
             </div>
           </q-card-section>
-        </div>
-      </q-card>
+        </q-card>
+      </div>
     </div>
 
     <!-- ==========================================================================
@@ -563,6 +933,164 @@ const balanceColor = computed(() => {
   if (balance > 0) return 'text-green-7'
   if (balance < 0) return 'text-red-7'
   return 'text-grey-7'
+})
+
+/**
+ * Calcula o total de receitas já recebidas (status PAGO = true)
+ */
+const totalReceived = computed(() => {
+  return transactionStore.transactions
+    .filter(t => t.type === 'income' && t.paid === true)
+    .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0)
+})
+
+/**
+ * Conta quantas receitas foram recebidas
+ */
+const receivedCount = computed(() => {
+  return transactionStore.transactions
+    .filter(t => t.type === 'income' && t.paid === true)
+    .length
+})
+
+/**
+ * Calcula o total de despesas já pagas (status PAGO = true)
+ */
+const totalPaid = computed(() => {
+  return transactionStore.transactions
+    .filter(t => t.type === 'expense' && t.paid === true)
+    .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0)
+})
+
+/**
+ * Conta quantas despesas foram pagas
+ */
+const paidCount = computed(() => {
+  return transactionStore.transactions
+    .filter(t => t.type === 'expense' && t.paid === true)
+    .length
+})
+
+/**
+ * Calcula receitas pendentes (não recebidas)
+ */
+const pendingIncome = computed(() => {
+  return transactionStore.transactions
+    .filter(t => t.type === 'income' && t.paid === false)
+    .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0)
+})
+
+/**
+ * Calcula despesas pendentes (não pagas)
+ */
+const pendingExpense = computed(() => {
+  return transactionStore.transactions
+    .filter(t => t.type === 'expense' && t.paid === false)
+    .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0)
+})
+
+/**
+ * Calcula o saldo efetivado (apenas transações pagas/recebidas)
+ */
+const effectiveBalance = computed(() => {
+  return totalReceived.value - totalPaid.value
+})
+
+/**
+ * Cor do saldo efetivado
+ */
+const effectiveBalanceColor = computed(() => {
+  if (effectiveBalance.value > 0) return 'green'
+  if (effectiveBalance.value < 0) return 'red'
+  return 'grey'
+})
+
+/**
+ * Ícone do saldo efetivado
+ */
+const effectiveBalanceIcon = computed(() => {
+  if (effectiveBalance.value > 0) return 'trending_up'
+  if (effectiveBalance.value < 0) return 'trending_down'
+  return 'remove'
+})
+
+/**
+ * Mensagem explicativa do saldo efetivado
+ */
+const effectiveBalanceMessage = computed(() => {
+  const abs = Math.abs(effectiveBalance.value)
+  if (effectiveBalance.value > 0) {
+    return `✅ Você tem R$ ${abs.toFixed(2)} a mais do que gastou`
+  }
+  if (effectiveBalance.value < 0) {
+    return `⚠️ Você gastou R$ ${abs.toFixed(2)} a mais do que recebeu`
+  }
+  return '✅ Suas receitas e despesas estão equilibradas'
+})
+
+/**
+ * Ícone do saldo total
+ */
+const totalBalanceIcon = computed(() => {
+  const balance = transactionStore.stats.balance
+  if (balance > 0) return 'account_balance_wallet'
+  if (balance < 0) return 'warning'
+  return 'check_circle'
+})
+
+/**
+ * Mensagem explicativa do saldo total
+ */
+const totalBalanceMessage = computed(() => {
+  const messages = []
+  
+  if (pendingIncome.value > 0) {
+    messages.push(`R$ ${pendingIncome.value.toFixed(2)} em receitas pendentes`)
+  }
+  
+  if (pendingExpense.value > 0) {
+    messages.push(`R$ ${pendingExpense.value.toFixed(2)} em despesas pendentes`)
+  }
+  
+  if (messages.length === 0) {
+    return '✅ Todas as transações foram efetivadas'
+  }
+  
+  return `💡 Você tem ${messages.join(' e ')}`
+})
+
+// ==========================================================================
+// COMPUTED PROPERTIES PARA LISTAS SEPARADAS
+// ==========================================================================
+
+/**
+ * Filtra apenas as transações de RECEITA (income)
+ */
+const incomeTransactions = computed(() => {
+  return transactionStore.transactions.filter(t => t.type === 'income')
+})
+
+/**
+ * Filtra apenas as transações de DESPESA (expense)
+ */
+const expenseTransactions = computed(() => {
+  return transactionStore.transactions.filter(t => t.type === 'expense')
+})
+
+/**
+ * Calcula o total de TODAS as receitas (pagas + pendentes)
+ */
+const incomeTotal = computed(() => {
+  return incomeTransactions.value
+    .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0)
+})
+
+/**
+ * Calcula o total de TODAS as despesas (pagas + pendentes)
+ */
+const expenseTotal = computed(() => {
+  return expenseTransactions.value
+    .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0)
 })
 
 // ==========================================================================
@@ -1019,6 +1547,195 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 // ==========================================================================
+// HEADER MODERNO E COMPACTO
+// ==========================================================================
+.page-header-modern {
+  animation: fadeIn 0.4s ease;
+  
+  .header-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+    color: #1f2937;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  
+  .total-transactions-badge {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    font-weight: 600;
+    border-radius: 12px;
+  }
+  
+  .new-transaction-btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.25);
+    
+    &:hover {
+      box-shadow: 0 4px 12px rgba(25, 118, 210, 0.35);
+      transform: translateY(-1px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// ==========================================================================
+// FILTROS AVANÇADOS - DESIGN LIMPO E MODERNO
+// ==========================================================================
+.filters-container {
+  animation: fadeIn 0.5s ease;
+}
+
+.advanced-filters-modern {
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    border-color: rgba(25, 118, 210, 0.25);
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.08);
+  }
+  
+  .filters-header {
+    padding: 12px 16px;
+    
+    .filter-icon-wrapper {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      transition: transform 0.3s ease;
+    }
+    
+    &:hover .filter-icon-wrapper {
+      transform: scale(1.05);
+    }
+  }
+  
+  .filter-label {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #1f2937;
+    letter-spacing: -0.01em;
+  }
+  
+  .filter-caption {
+    font-size: 0.8125rem;
+    color: #6b7280;
+    margin-top: 2px;
+  }
+  
+  .filters-content {
+    background: #fafbfc;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .filter-group {
+    .filter-group-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      
+      .q-icon {
+        color: #6b7280;
+      }
+    }
+  }
+  
+  :deep(.q-field) {
+    .q-field__control {
+      border-radius: 8px;
+    }
+    
+    .q-field__prepend .q-icon {
+      color: #9ca3af;
+    }
+  }
+  
+  :deep(.q-btn) {
+    border-radius: 8px;
+    font-weight: 500;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Mobile adjustments
+@media (max-width: 768px) {
+  .page-header-modern {
+    .row {
+      gap: 12px;
+    }
+    
+    .page-title {
+      font-size: 1.5rem;
+    }
+    
+    .total-transactions-badge {
+      font-size: 0.7rem;
+      padding: 3px 8px;
+    }
+    
+    .new-transaction-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+  
+  .advanced-filters-modern {
+    .filters-header {
+      padding: 10px 12px;
+      
+      .filter-icon-wrapper {
+        width: 32px;
+        height: 32px;
+      }
+    }
+    
+    .filter-label {
+      font-size: 0.875rem;
+    }
+    
+    .filter-caption {
+      font-size: 0.75rem;
+    }
+  }
+}
+
+// ==========================================================================
 // ESTILOS DA PÁGINA DE TRANSAÇÕES - MOBILE FIRST
 // ==========================================================================
 
@@ -1053,6 +1770,8 @@ onMounted(() => {
 // Cards ultra compactos
 .filters-card,
 .stat-card,
+.stat-card-detailed,
+.balance-card,
 .transactions-card {
   border-radius: 8px; /* Border menor */
   border: 1px solid rgba(0, 0, 0, 0.05);
@@ -1061,6 +1780,82 @@ onMounted(() => {
   
   :deep(.q-card__section) {
     padding: 0.5rem; /* Padding muito reduzido */
+  }
+}
+
+/* Cabeçalhos de Seção */
+.section-header {
+  padding: 1rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  
+  .text-h5 {
+    font-size: 1.25rem;
+    margin: 0;
+  }
+  
+  .text-caption {
+    font-size: 0.875rem;
+  }
+  
+  /* Seção 1: Fluxo de Caixa Efetivado - Verde/Teal */
+  &.section-header-primary {
+    background: linear-gradient(135deg, rgba(0, 150, 136, 0.08), rgba(0, 150, 136, 0.04));
+    border-left: 5px solid var(--q-teal);
+    border: 1px solid rgba(0, 150, 136, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 150, 136, 0.08);
+  }
+  
+  /* Seção 2: Visão Completa - Azul */
+  &.section-header-secondary {
+    background: linear-gradient(135deg, rgba(33, 150, 243, 0.08), rgba(33, 150, 243, 0.04));
+    border-left: 5px solid var(--q-blue);
+    border: 1px solid rgba(33, 150, 243, 0.15);
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.08);
+  }
+}
+
+/* Cards de Estatísticas Detalhadas */
+.stat-card-detailed {
+  transition: all 0.3s ease;
+  
+  .stat-header {
+    display: flex;
+    align-items: center;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+  
+  .stat-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    
+    .breakdown-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+}
+
+/* Cards de Saldo */
+.balance-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(249, 250, 251, 1));
+  border: 2px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  
+  &.effective-balance {
+    border-left: 4px solid var(--q-info);
+  }
+  
+  &.total-balance {
+    border-left: 4px solid var(--q-primary);
   }
 }
 
@@ -1086,6 +1881,194 @@ onMounted(() => {
   }
 }
 
+// ==========================================================================
+// NOVO DESIGN - CARDS FINANCEIROS MODERNOS E LIMPOS
+// ==========================================================================
+
+/* Card Principal de Resumo Financeiro */
+.financial-summary-card {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+}
+
+/* Header do Resumo */
+.summary-header {
+  padding: 1rem 1.25rem !important;
+  
+  .text-h6 {
+    font-size: 1.125rem;
+    margin: 0;
+    line-height: 1.4;
+  }
+  
+  .text-caption {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    margin-top: 0.125rem;
+  }
+}
+
+/* Item de Estatística */
+.stat-item {
+  padding: 1.25rem;
+  border-radius: 8px;
+  background: #fafafa;
+  transition: all 0.3s ease;
+  height: 100%;
+  
+  &:hover {
+    background: #f5f5f5;
+    transform: translateY(-2px);
+  }
+  
+  .stat-label {
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+  }
+  
+  .stat-meta {
+    font-size: 0.75rem;
+    color: #999;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Variantes de cor */
+  &.stat-positive {
+    border-left: 4px solid #4caf50;
+    
+    .stat-label {
+      color: #2e7d32;
+    }
+  }
+  
+  &.stat-negative {
+    border-left: 4px solid #f44336;
+    
+    .stat-label {
+      color: #c62828;
+    }
+  }
+  
+  &.stat-balance {
+    border-left: 4px solid #2196f3;
+    
+    &.stat-balance-green {
+      border-left-color: #4caf50;
+      background: #f1f8f4;
+      
+      &:hover {
+        background: #e8f5e9;
+      }
+    }
+    
+    &.stat-balance-red {
+      border-left-color: #f44336;
+      background: #fef5f5;
+      
+      &:hover {
+        background: #ffebee;
+      }
+    }
+  }
+}
+
+/* Cores de texto */
+.text-positive {
+  color: #2e7d32 !important;
+}
+
+.text-negative {
+  color: #c62828 !important;
+}
+
+/* Item de Estatística Completa (com breakdown) */
+.stat-item-complete {
+  padding: 1.25rem;
+  border-radius: 8px;
+  background: #fafafa;
+  height: 100%;
+  
+  .stat-complete-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    
+    .text-subtitle2 {
+      color: #666;
+      font-size: 0.875rem;
+    }
+  }
+  
+  .stat-complete-value {
+    font-size: 1.875rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+  
+  .stat-complete-breakdown {
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      font-size: 0.875rem;
+      color: #666;
+      
+      &:first-child {
+        border-top: none;
+        padding-top: 0;
+      }
+      
+      .text-weight-medium {
+        color: #333;
+      }
+    }
+  }
+}
+
+/* Seção de Saldo Previsto */
+.saldo-previsto-section {
+  background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+  padding: 1.25rem !important;
+  
+  .text-caption {
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .text-h5 {
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+}
+
+// ==========================================================================
+// ESTILOS ANTIGOS MANTIDOS PARA COMPATIBILIDADE
+// ==========================================================================
+
 /* Cards de Estatísticas */
 .stat-card {
   transition: all 0.3s ease;
@@ -1108,6 +2091,100 @@ onMounted(() => {
     transform: none;
   }
 }
+
+/* Cards de Pagamentos Realizados (Total Pago/Recebido) */
+.paid-stat-card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  
+  &.received-card {
+    border-left: 4px solid var(--q-positive);
+  }
+  
+  &.paid-card {
+    border-left: 4px solid var(--q-negative);
+  }
+  
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  .q-card__section {
+    padding: 1.25rem;
+  }
+  
+  .q-avatar {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .text-h5 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+  
+  .text-caption {
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
+    font-weight: 500;
+  }
+}
+
+/* Cards de Receitas e Despesas Separados */
+.income-card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
+  overflow: hidden;
+  
+  .card-header {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(76, 175, 80, 0.1);
+  }
+  
+  &:hover {
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.2);
+    transform: translateY(-2px);
+  }
+}
+
+.expense-card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  border: 1px solid rgba(244, 67, 54, 0.2);
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.1);
+  overflow: hidden;
+  
+  .card-header {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(244, 67, 54, 0.1);
+  }
+  
+  &:hover {
+    box-shadow: 0 4px 16px rgba(244, 67, 54, 0.2);
+    transform: translateY(-2px);
+  }
+}
+
+.income-item,
+.expense-item {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+  
+  &:active {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
 
 /* Lista de transações - Otimizada para mobile */
 .transactions-card {
@@ -1261,6 +2338,43 @@ onMounted(() => {
     }
   }
   
+  .stat-card-detailed {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  .balance-card {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+  }
+  
+  .section-header {
+    padding: 1rem 0.75rem;
+    
+    .text-h6 {
+      font-size: 1.125rem;
+    }
+  }
+  
+  .paid-stat-card {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+    
+    .q-card__section {
+      padding: 1.5rem;
+    }
+    
+    .text-h5 {
+      font-size: 1.625rem;
+    }
+  }
+  
   .transaction-item {
     padding: 1rem;
     
@@ -1316,6 +2430,67 @@ onMounted(() => {
     
     .stat-value {
       font-size: 1.5rem;
+    }
+  }
+  
+  .stat-card-detailed {
+    .q-card__section {
+      padding: 1.5rem;
+    }
+    
+    .stat-value {
+      font-size: 1.625rem;
+    }
+    
+    .stat-breakdown {
+      gap: 0.75rem;
+      padding-top: 0.75rem;
+    }
+  }
+  
+  .balance-card {
+    .q-card__section {
+      padding: 1.5rem;
+    }
+    
+    .text-h5 {
+      font-size: 1.625rem;
+    }
+  }
+  
+  .section-header {
+    padding: 1.25rem 1rem;
+    
+    .text-h6 {
+      font-size: 1.25rem;
+    }
+    
+    .text-caption {
+      font-size: 0.875rem;
+    }
+  }
+  
+  .paid-stat-card {
+    .q-card__section {
+      padding: 1.75rem;
+    }
+    
+    .q-avatar {
+      width: 64px;
+      height: 64px;
+      
+      .q-icon {
+        font-size: 36px;
+      }
+    }
+    
+    .text-h5 {
+      font-size: 1.75rem;
+      font-weight: 800;
+    }
+    
+    .text-caption {
+      font-size: 0.8125rem;
     }
   }
   
@@ -1574,6 +2749,203 @@ onMounted(() => {
     
     .q-separator {
       margin: 0 !important;
+    }
+  }
+}
+
+// ==========================================================================
+// LISTAS DE TRANSAÇÕES - DESIGN MODERNO E LIMPO
+// ==========================================================================
+.transactions-list-card {
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .list-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    
+    .text-subtitle1 {
+      font-size: 1rem;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+    }
+    
+    .text-caption {
+      margin-top: 2px;
+      font-size: 0.8rem;
+      opacity: 0.85;
+    }
+    
+    .text-h6 {
+      font-size: 1.375rem;
+      letter-spacing: -0.02em;
+    }
+  }
+  
+  .q-list {
+    padding: 0;
+  }
+}
+
+.transaction-item-modern {
+  padding: 1rem 1.25rem;
+  transition: all 0.2s ease;
+  position: relative;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+  
+  &:active {
+    background-color: rgba(25, 118, 210, 0.04);
+  }
+  
+  // Indicador de cor na lateral
+  .transaction-indicator {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  &:hover .transaction-indicator {
+    opacity: 1;
+  }
+  
+  .transaction-indicator-positive {
+    background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+  }
+  
+  .transaction-indicator-negative {
+    background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+  }
+  
+  // Ícone pequeno e limpo
+  .transaction-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  
+  .transaction-icon-positive {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #059669;
+  }
+  
+  .transaction-icon-negative {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+  }
+  
+  &:hover .transaction-icon {
+    transform: scale(1.1);
+  }
+  
+  // Meta informações (categoria, data)
+  .transaction-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8125rem;
+    color: #6b7280;
+    
+    .q-icon {
+      opacity: 0.7;
+    }
+  }
+  
+  .transaction-meta-dot {
+    color: #d1d5db;
+    font-weight: bold;
+    margin: 0 2px;
+  }
+  
+  // Seção de valor
+  .transaction-value-section {
+    min-width: 140px;
+    padding-left: 12px;
+    
+    .text-h6 {
+      font-size: 1.125rem;
+      letter-spacing: -0.01em;
+    }
+  }
+  
+  .transaction-status {
+    display: flex;
+    justify-content: flex-end;
+    
+    .q-chip {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      height: 20px;
+    }
+  }
+}
+
+// Responsividade mobile
+@media (max-width: 768px) {
+  .transactions-list-card {
+    border-radius: 12px;
+    
+    .list-header {
+      padding: 0.875rem 1rem;
+      
+      .text-subtitle1 {
+        font-size: 0.925rem;
+      }
+      
+      .text-h6 {
+        font-size: 1.125rem;
+      }
+    }
+  }
+  
+  .transaction-item-modern {
+    padding: 0.875rem 1rem;
+    
+    .transaction-icon {
+      width: 28px;
+      height: 28px;
+      
+      .q-icon {
+        font-size: 14px !important;
+      }
+    }
+    
+    .transaction-value-section {
+      min-width: 120px;
+      
+      .text-h6 {
+        font-size: 1rem;
+      }
+    }
+    
+    .transaction-meta {
+      font-size: 0.75rem;
+    }
+    
+    :deep(.q-item-section.side) {
+      padding-left: 4px !important;
     }
   }
 }

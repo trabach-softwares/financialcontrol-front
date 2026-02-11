@@ -138,32 +138,160 @@ api.interceptors.response.use(
 
       switch (status) {
         case 401: {
-          // Token expirado ou inválido - fazer logout
-          const tokenKey = process.env.VITE_TOKEN_STORAGE_KEY || 'auth_token'
-          LocalStorage.remove(tokenKey)
-          LocalStorage.remove('auth_user')
-
-          // Notificar usuário
-          Notify.create({
-            type: 'negative',
-            message: 'Sessão expirada. Faça login novamente.',
-            position: 'top',
-            timeout: 5000
-          })
-
-          // Redirecionar para login se não estiver já lá
-          if (window.location.pathname !== '/login') {
-            window.location.href = '/login'
+          // ==========================================================================
+          // 🔐 VERIFICAR SE É ERRO DE LOGIN (NÃO REDIRECIONAR)
+          // ==========================================================================
+          // Se for uma requisição de login/register, permitir que a página trate o erro
+          const isAuthRequest = error.config?.skipAuthRedirect || 
+                                error.config?.url?.includes('/login') || 
+                                error.config?.url?.includes('/register')
+          
+          if (isAuthRequest) {
+            // ✅ Não redirecionar - permitir que LoginPage.vue mostre a mensagem correta
+            console.log('🔵 [AXIOS] Erro 401 em requisição de autenticação - não redirecionar')
+            
+            // Não exibir notificação aqui - deixar para o componente tratar
+            break
           }
+          
+          // ==========================================================================
+          // 🔐 TOKEN EXPIRADO OU INVÁLIDO - LOGOUT AUTOMÁTICO
+          // ==========================================================================
+          console.log('🔴 [AXIOS] Token expirado ou inválido - executando logout...')
+          
+          // Importar store de auth dinamicamente para evitar dependência circular
+          import('src/stores/auth').then(({ useAuthStore }) => {
+            const authStore = useAuthStore()
+            
+            // Executar logout completo (limpa store + localStorage)
+            authStore.clearAuth()
+            console.log('✅ [AXIOS] Logout executado com sucesso')
+            
+            // Notificar usuário
+            Notify.create({
+              type: 'warning',
+              message: 'Sessão expirada. Faça login novamente.',
+              position: 'top',
+              timeout: 5000,
+              icon: 'lock_clock',
+              actions: [
+                { icon: 'close', color: 'white', round: true, handler: () => {} }
+              ]
+            })
+            
+            // Redirecionar para login se não estiver já lá
+            if (window.location.pathname !== '/login' && 
+                !window.location.pathname.startsWith('/auth/')) {
+              console.log('🔄 [AXIOS] Redirecionando para página de login...')
+              
+              // Usar router se disponível, senão usar window.location
+              import('src/router').then(({ default: routerModule }) => {
+                const router = routerModule()
+                if (router) {
+                  router.push({
+                    path: '/login',
+                    query: { expired: 'true' }
+                  })
+                } else {
+                  window.location.href = '/login?expired=true'
+                }
+              }).catch(() => {
+                // Fallback se router não estiver disponível
+                window.location.href = '/login?expired=true'
+              })
+            }
+          }).catch(error => {
+            console.error('❌ [AXIOS] Erro ao executar logout:', error)
+            
+            // Fallback: limpar localStorage manualmente
+            const tokenKey = process.env.VITE_TOKEN_STORAGE_KEY || 'auth_token'
+            LocalStorage.remove(tokenKey)
+            LocalStorage.remove('auth_user')
+            
+            // Redirecionar mesmo assim
+            if (window.location.pathname !== '/login') {
+              window.location.href = '/login?expired=true'
+            }
+          })
+          
           break
         }
         case 403: {
-          // Acesso negado - pode ser permissão ou limite
+          // ==========================================================================
+          // 🔐 VERIFICAR SE É TOKEN EXPIRADO (403 "Forbidden")
+          // ==========================================================================
           const errorMessage = data?.message || 'Acesso negado. Você não tem permissão para esta ação.'
           const errorCode = data?.code || data?.error
           
-          // Verificar se é erro de limite de transações
-          if (errorCode === 'TRANSACTION_LIMIT_EXCEEDED' || errorMessage.toLowerCase().includes('limite')) {
+          // ✅ PRIORIDADE 1: Verificar se é TOKEN EXPIRADO
+          // Backend pode retornar 403 ao invés de 401 para token expirado
+          if (errorMessage.toLowerCase().includes('expired') || 
+              errorMessage.toLowerCase().includes('expirado') ||
+              errorMessage.toLowerCase().includes('invalid token') ||
+              errorMessage.toLowerCase().includes('token inválido') ||
+              errorCode === 'TOKEN_EXPIRED' ||
+              errorCode === 'INVALID_TOKEN') {
+            
+            console.log('🔴 [AXIOS] Token expirado (403) - executando logout...')
+            
+            // Importar store de auth dinamicamente
+            import('src/stores/auth').then(({ useAuthStore }) => {
+              const authStore = useAuthStore()
+              
+              // Executar logout completo
+              authStore.clearAuth()
+              console.log('✅ [AXIOS] Logout executado com sucesso')
+              
+              // Notificar usuário
+              Notify.create({
+                type: 'warning',
+                message: 'Sessão expirada. Faça login novamente.',
+                position: 'top',
+                timeout: 5000,
+                icon: 'lock_clock',
+                actions: [
+                  { icon: 'close', color: 'white', round: true, handler: () => {} }
+                ]
+              })
+              
+              // Redirecionar para login
+              if (window.location.pathname !== '/login' && 
+                  !window.location.pathname.startsWith('/auth/')) {
+                console.log('🔄 [AXIOS] Redirecionando para página de login...')
+                
+                import('src/router').then(({ default: routerModule }) => {
+                  const router = routerModule()
+                  if (router) {
+                    router.push({
+                      path: '/login',
+                      query: { expired: 'true' }
+                    })
+                  } else {
+                    window.location.href = '/login?expired=true'
+                  }
+                }).catch(() => {
+                  window.location.href = '/login?expired=true'
+                })
+              }
+            }).catch(error => {
+              console.error('❌ [AXIOS] Erro ao executar logout:', error)
+              
+              // Fallback: limpar localStorage manualmente
+              const tokenKey = process.env.VITE_TOKEN_STORAGE_KEY || 'auth_token'
+              LocalStorage.remove(tokenKey)
+              LocalStorage.remove('auth_user')
+              
+              if (window.location.pathname !== '/login') {
+                window.location.href = '/login?expired=true'
+              }
+            })
+            
+            break
+          }
+          
+          // ✅ PRIORIDADE 2: Verificar se é erro de limite de transações
+          if (errorCode === 'TRANSACTION_LIMIT_EXCEEDED' || 
+              errorMessage.toLowerCase().includes('limite')) {
             showLimitDialog({
               message: errorMessage,
               limit: data?.limit || null,
@@ -171,11 +299,12 @@ api.interceptors.response.use(
               plan: data?.plan || 'FREE',
               details: data?.details || ''
             })
-          } else {
-            // Erro genérico de permissão
+          } 
+          // ✅ PRIORIDADE 3: Erro genérico de permissão
+          else {
             showForbiddenDialog(errorMessage)
           }
-          // NÃO mostrar Notify - apenas o dialog
+          
           break
         }
         case 404:

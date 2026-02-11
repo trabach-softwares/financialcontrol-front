@@ -170,6 +170,7 @@ export function useFeaturePermissions() {
       'BANK_ACCOUNTS': {
         title: 'Contas Bancárias - Feature Premium 🏦',
         message: 'A gestão de contas bancárias é uma funcionalidade exclusiva do plano Premium. Faça upgrade para desbloquear!',
+        requiredPlan: 'PREMIUM',
         features: [
           'Gestão completa de contas bancárias',
           'Conciliação bancária automática',
@@ -182,22 +183,61 @@ export function useFeaturePermissions() {
       'ADVANCED_REPORTS': {
         title: 'Relatórios Avançados - Feature Pro ⚡',
         message: 'Relatórios avançados estão disponíveis a partir do plano Pro. Faça upgrade para análises mais profundas!',
+        requiredPlan: 'PRO',
         features: [
-          'Relatórios personalizados',
-          'Gráficos avançados',
-          'Exportação em múltiplos formatos',
+          'Gráficos ilimitados de categorias',
+          'Evolução mensal completa',
+          'Exportação em PDF, Excel e CSV',
           'Comparativos entre períodos',
-          'Análise de tendências'
+          'Análise de tendências',
+          'Relatórios detalhados por categoria'
+        ]
+      },
+      'EXPORT_DATA': {
+        title: 'Exportação de Dados - Feature Pro 📊',
+        message: 'Exporte seus relatórios em múltiplos formatos com o plano Pro!',
+        requiredPlan: 'PRO',
+        features: [
+          'Exportação em PDF',
+          'Exportação em Excel',
+          'Exportação em CSV',
+          'Relatórios personalizados',
+          'Agendamento de relatórios'
         ]
       },
       'BANK_RECONCILIATION': {
         title: 'Conciliação Bancária - Feature Premium 💎',
         message: 'A conciliação bancária é exclusiva do plano Premium. Simplifique seu controle financeiro!',
+        requiredPlan: 'PREMIUM',
         features: [
           'Conciliação automática',
           'Identificação de divergências',
           'Histórico de conciliações',
           'Relatórios de conciliação'
+        ]
+      },
+      'UNLIMITED_ACCOUNTS': {
+        title: 'Contas Ilimitadas - Feature Premium ♾️',
+        message: 'Gerencie quantas contas bancárias precisar com o plano Premium!',
+        requiredPlan: 'PREMIUM',
+        features: [
+          'Contas bancárias ilimitadas',
+          'Múltiplos cartões de crédito',
+          'Contas de investimento',
+          'Gestão consolidada',
+          'Relatórios multi-conta'
+        ]
+      },
+      'ADVANCED_ANALYTICS': {
+        title: 'Analytics Avançados - Feature Premium 🤖',
+        message: 'Analytics com IA e previsões financeiras exclusivas do plano Premium!',
+        requiredPlan: 'PREMIUM',
+        features: [
+          'Previsões com Inteligência Artificial',
+          'Recomendações personalizadas',
+          'Alertas inteligentes',
+          'Benchmarking financeiro',
+          'Análise preditiva de gastos'
         ]
       }
     }
@@ -205,6 +245,7 @@ export function useFeaturePermissions() {
     return messages[featureName] || {
       title: `Feature ${requiredPlan} 🌟`,
       message: `Esta funcionalidade está disponível apenas no plano ${requiredPlan}. Faça upgrade para desbloquear!`,
+      requiredPlan: requiredPlan,
       features: [
         'Acesso completo à funcionalidade',
         'Suporte prioritário',

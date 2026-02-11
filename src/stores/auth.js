@@ -181,13 +181,40 @@ export const useAuthStore = defineStore('auth', {
       } catch (error) {
         
         
+        // ==========================================================================
+        // 🔐 TRATAMENTO DE ERRO DE LOGIN SEGUINDO ISO 27001
+        // ==========================================================================
+        // Sempre mostrar mensagem genérica para prevenir enumeração de usuários
+        // (não revelar se o email existe ou se a senha está incorreta)
+        
+        let errorMessage = 'E-mail ou senha inválidos' // Mensagem padrão ISO 27001
+        
+        // Se for erro 401 (credenciais inválidas), usar mensagem genérica
+        if (error.response?.status === 401) {
+          errorMessage = 'E-mail ou senha inválidos'
+        } 
+        // Se for erro 422 (validação), usar mensagem específica do backend
+        else if (error.response?.status === 422) {
+          errorMessage = error.response?.data?.message || 'Erro de validação nos dados fornecidos'
+        }
+        // Se for erro 500 ou erro de rede, usar mensagem técnica apropriada
+        else if (error.response?.status >= 500) {
+          errorMessage = 'Erro no servidor. Tente novamente mais tarde.'
+        }
+        else if (!error.response) {
+          errorMessage = 'Erro de conexão. Verifique sua internet.'
+        }
+        
         // Armazena erro para exibição
-        this.loginError = error.response?.data?.message || 'Erro ao fazer login'
+        this.loginError = errorMessage
         
         // Limpa dados em caso de erro
         this.clearAuth()
         
-        throw error
+        // Lançar erro com mensagem tratada
+        const treatedError = new Error(errorMessage)
+        treatedError.originalError = error
+        throw treatedError
         
       } finally {
         this.isLoggingIn = false
@@ -425,7 +452,7 @@ export const useAuthStore = defineStore('auth', {
     /**
      * Inicializa o store verificando token existente
      * Origem: Inicialização do app (main.js ou App.vue)
-     * Efeitos: Restaura sessão se token válido
+     * Efeitos: Restaura sessão se token válido, logout se token expirado
      */
     async initialize() {
       if (this.isInitialized) {
@@ -435,36 +462,95 @@ export const useAuthStore = defineStore('auth', {
       this.isLoading = true
 
       try {
+        console.log('🔄 [AUTH] Inicializando store de autenticação...')
+        
         // Se há token no localStorage, tenta restaurar sessão
         if (this.token) {
-          await this.fetchUser()
-        } else {
+          console.log('🔑 [AUTH] Token encontrado, validando sessão...')
           
+          try {
+            // Tenta buscar dados do usuário (valida token)
+            await this.fetchUser()
+            
+            if (this.user) {
+              console.log('✅ [AUTH] Sessão restaurada com sucesso')
+            } else {
+              console.warn('⚠️ [AUTH] Token válido mas usuário não encontrado')
+              this.clearAuth()
+            }
+          } catch (error) {
+            console.error('❌ [AUTH] Erro ao validar token:', error)
+            
+            // ✅ TRATAMENTO ESPECÍFICO PARA TOKEN EXPIRADO (401 ou 403)
+            const status = error.response?.status
+            const message = error.response?.data?.message || error.message || ''
+            
+            if (status === 401 || status === 403) {
+              // Verificar se é realmente token expirado (403 pode ser permissão também)
+              const isTokenError = status === 401 || 
+                                   message.toLowerCase().includes('expired') ||
+                                   message.toLowerCase().includes('expirado') ||
+                                   message.toLowerCase().includes('invalid token') ||
+                                   message.toLowerCase().includes('token inválido')
+              
+              if (isTokenError) {
+                console.log('🔴 [AUTH] Token expirado (status ' + status + ') - executando logout...')
+                
+                // Limpa autenticação
+                this.clearAuth()
+                
+                // Notifica usuário (se Quasar estiver disponível)
+                if (window.Quasar && window.Quasar.Notify) {
+                  window.Quasar.Notify.create({
+                    type: 'warning',
+                    message: 'Sua sessão expirou. Faça login novamente.',
+                    position: 'top',
+                    timeout: 5000,
+                    icon: 'lock_clock'
+                  })
+                }
+                
+                // Redireciona para login (será tratado pelo router guard)
+                console.log('🔄 [AUTH] Redirecionando para login...')
+              } else {
+                // 403 mas não é token (é permissão)
+                console.warn('⚠️ [AUTH] Erro de permissão:', message)
+                this.clearAuth()
+              }
+            } 
+            // Se for erro de recursão infinita, não tentar novamente
+            else if (error.message && error.message.includes('infinite recursion')) {
+              console.error('🔥 [AUTH] Erro de recursão infinita detectado')
+              this.clearAuth()
+              
+              // Notificar usuário sobre problema no servidor
+              if (window.Quasar && window.Quasar.Notify) {
+                window.Quasar.Notify.create({
+                  type: 'negative',
+                  message: 'Problema de configuração no servidor. Você foi deslogado.',
+                  position: 'top',
+                  timeout: 8000
+                })
+              }
+            } 
+            // Outros erros de rede/servidor
+            else {
+              console.warn('⚠️ [AUTH] Erro ao validar sessão:', error.message)
+              this.clearAuth()
+            }
+          }
+        } else {
+          console.log('📭 [AUTH] Nenhum token encontrado no localStorage')
         }
         
       } catch (error) {
-        
-        // Se for erro de recursão infinita, não tentar novamente
-        if (error.message && error.message.includes('infinite recursion')) {
-          this.clearAuth()
-          
-          // Notificar usuário sobre problema no servidor
-          if (window.Quasar && window.Quasar.Notify) {
-            window.Quasar.Notify.create({
-              type: 'negative',
-              message: 'Problema de configuração no servidor. Você foi deslogado.',
-              position: 'top',
-              timeout: 8000
-            })
-          }
-        } else {
-          this.clearAuth()
-        }
+        console.error('❌ [AUTH] Erro crítico na inicialização:', error)
+        this.clearAuth()
         
       } finally {
         this.isInitialized = true
         this.isLoading = false
-        
+        console.log('🏁 [AUTH] Inicialização concluída')
       }
     },
 
